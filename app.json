@@ -49,13 +49,17 @@
       "typedRoutes": true
     },
     "extra": {
-      "supabaseUrl": "https://ssmcnzsvrcxfbgufvoed.supabase.co",
-      "supabaseAnonKey": "",
-      "enodeApiUrl": "https://ssmcnzsvrcxfbgufvoed.supabase.co/functions/v1/enode-api",
-      "webAppUrl": "https://ssmcnzsvrcxfbgufvoed.supabase.co",
+      "supabaseUrl": "https://pndsuzscjedumjhadtio.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBuZHN1enNjamVkdW1qaGFkdGlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODIyMzYsImV4cCI6MjA5NTU1ODIzNn0.vDYaxh8TnsbWK8CGONUZ13mOfjsmXQmnVXRyzgbmw1I",
+      "enodeApiUrl": "https://pndsuzscjedumjhadtio.supabase.co/functions/v1/enode-api",
+      "webAppUrl": "https://pndsuzscjedumjhadtio.supabase.co",
       "enodeRedirectUri": "esoenergymobile://link-device/callback",
-      "easProjectId": "",
-      "_comment": "supabaseAnonKey is filled from .env by app.config.js when you run expo start"
+      "solarmanApiUrl": "https://pndsuzscjedumjhadtio.supabase.co/functions/v1/solarman-api",
+      "esoPayApiUrl": "https://pndsuzscjedumjhadtio.supabase.co/functions/v1/eso-pay-api",
+      "easProjectId": "3977eea0-ade4-440d-9ee0-d0ff1a8bb79f",
+      "eas": {
+        "projectId": "3977eea0-ade4-440d-9ee0-d0ff1a8bb79f"
+      }
     }
   }
 }
