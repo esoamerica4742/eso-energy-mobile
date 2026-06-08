@@ -1,0 +1,125 @@
+import { C } from './tokens';
+import { inter } from '@/theme/fonts';
+
+/** Stripe-like type scale — Inter throughout. */
+export const T = {
+  eyebrow: {
+    fontFamily: inter.semibold,
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.4,
+    color: C.teal,
+  },
+  display: {
+    fontFamily: inter.bold,
+    fontSize: 46,
+    lineHeight: 48,
+    letterSpacing: -1.2,
+    color: C.text,
+  },
+  displayAccent: {
+    fontFamily: inter.bold,
+    fontSize: 46,
+    lineHeight: 48,
+    letterSpacing: -1.2,
+    color: C.teal,
+  },
+  lead: {
+    fontFamily: inter.regular,
+    fontSize: 16,
+    lineHeight: 26,
+    letterSpacing: -0.2,
+    color: C.muted2,
+  },
+  sectionEyebrow: {
+    fontFamily: inter.semibold,
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.6,
+    color: C.teal,
+    textTransform: 'uppercase' as const,
+  },
+  sectionTitle: {
+    fontFamily: inter.bold,
+    fontSize: 28,
+    lineHeight: 34,
+    letterSpacing: -0.6,
+    color: C.text,
+  },
+  cardTitle: {
+    fontFamily: inter.semibold,
+    fontSize: 15,
+    lineHeight: 20,
+    letterSpacing: -0.2,
+    color: C.text,
+  },
+  body: {
+    fontFamily: inter.regular,
+    fontSize: 15,
+    lineHeight: 24,
+    letterSpacing: -0.1,
+    color: C.muted2,
+  },
+  bodySemi: {
+    fontFamily: inter.semibold,
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: -0.1,
+    color: C.text,
+  },
+  label: {
+    fontFamily: inter.medium,
+    fontSize: 13,
+    lineHeight: 18,
+    letterSpacing: 0,
+    color: C.muted,
+  },
+  metric: {
+    fontFamily: inter.bold,
+    fontSize: 40,
+    lineHeight: 42,
+    letterSpacing: -0.8,
+  },
+  metricUnit: {
+    fontFamily: inter.medium,
+    fontSize: 18,
+    lineHeight: 22,
+    color: C.muted,
+  },
+  navBrand: {
+    fontFamily: inter.semibold,
+    fontSize: 15,
+    letterSpacing: -0.3,
+    color: C.text,
+  },
+  button: {
+    fontFamily: inter.semibold,
+    fontSize: 15,
+    letterSpacing: -0.1,
+  },
+  link: {
+    fontFamily: inter.medium,
+    fontSize: 15,
+    letterSpacing: -0.1,
+    color: C.teal,
+  },
+  badge: {
+    fontFamily: inter.medium,
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0,
+  },
+  caption: {
+    fontFamily: inter.regular,
+    fontSize: 13,
+    lineHeight: 18,
+    color: C.muted,
+  },
+  quote: {
+    fontFamily: inter.regular,
+    fontSize: 17,
+    lineHeight: 28,
+    letterSpacing: -0.2,
+    color: C.text,
+  },
+} as const;

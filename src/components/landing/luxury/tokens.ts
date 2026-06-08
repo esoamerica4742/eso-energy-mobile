@@ -1,0 +1,35 @@
+/** Luxury dark tech — spec design tokens */
+export const C = {
+  bg: '#070B14',
+  bg2: '#0D1526',
+  bg3: '#111C35',
+  glass: 'rgba(255,255,255,0.04)',
+  glassBorder: 'rgba(255,255,255,0.09)',
+  glassShine: 'rgba(255,255,255,0.06)',
+  teal: '#00E5C4',
+  tealDim: 'rgba(0,229,196,0.10)',
+  tealGlow: 'rgba(0,229,196,0.18)',
+  amber: '#D4AF37',
+  amberDim: 'rgba(245,166,35,0.10)',
+  amberGlow: 'rgba(245,166,35,0.18)',
+  danger: '#FF4D6A',
+  green: '#00FF87',
+  text: '#F0F4FF',
+  muted: '#4A5568',
+  muted2: '#6B7A99',
+  radius: 20,
+  radiusSm: 14,
+  radiusPill: 999,
+  padH: 20,
+  sectionGap: 48,
+  maxW: 430,
+} as const;
+
+export const F = {
+  syne: 'Inter_700Bold',
+  syneBold: 'Inter_700Bold',
+  mono: 'Inter_400Regular',
+  monoMed: 'Inter_500Medium',
+  monoItalic: 'Inter_400Regular',
+  bebas: 'Inter_700Bold',
+} as const;

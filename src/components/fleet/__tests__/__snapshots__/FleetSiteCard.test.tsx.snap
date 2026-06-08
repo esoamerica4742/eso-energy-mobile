@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FleetSiteCard renders live site snapshot 1`] = `null`;
+
+exports[`FleetSiteCard renders offline site snapshot 1`] = `null`;
+
+exports[`FleetSiteCard renders stale site snapshot 1`] = `null`;
