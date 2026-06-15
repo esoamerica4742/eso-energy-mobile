@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from "expo-router/js-tabs";
@@ -13,6 +13,7 @@ import {
   SlidersHorizontal,
   Sparkles,
   UserRound,
+  Wallet,
 } from 'lucide-react-native';
 import { ConfirmDialog } from '@/components/primitives/AlertDialog';
 import { PremiumSwitch } from '@/components/primitives/Switch';
@@ -30,7 +31,9 @@ import { useOperatorPin } from '@/hooks/useOperatorPin';
 import { useDemoModeActive } from '@/providers/DemoModeProvider';
 import { useSupabaseSession } from '@/hooks/useSupabaseSession';
 import { signOutMonitoring } from '@/lib/auth/signOutMonitoring';
-import { ACCESS_ROUTE, MONITORING_LOGIN_ROUTE } from '@/lib/navigation/productRoutes';
+import { ACCESS_ROUTE, ESOPAY_HOME_ROUTE, MASTER_SIGN_IN_ROUTE, MONITORING_HOME_ROUTE } from '@/lib/navigation/productRoutes';
+import { getDefaultLaunchPreference, setDefaultLaunchPreference } from '@/master/launchPreference';
+import { SubscriptionBillingModal } from '@/master/components/SubscriptionBillingModal';
 import { buildSettingsSnapshot } from '@/lib/settingsData';
 import { supabaseConfigured } from '@/lib/supabase';
 import { useEnodeToast } from '@/providers/EnodeToastProvider';
@@ -56,6 +59,8 @@ export function SettingsCommandScreen() {
   const setAmbientParallax = useMotionPrefsStore((s) => s.setAmbientParallaxEnabled);
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [pinOpen, setPinOpen] = useState(false);
+  const [billingOpen, setBillingOpen] = useState(false);
+  const [defaultLaunch, setDefaultLaunch] = useState(false);
   const toast = useEnodeToast();
   const { pinConfigured, isChecking: pinChecking, configurePin } = useOperatorPin();
 
@@ -75,6 +80,10 @@ export function SettingsCommandScreen() {
 
   const appVersion = Constants.expoConfig?.version ?? '1.0.0';
   const secureLabel = snapshot.connectionStatus === 'live' ? 'SECURE' : 'OFFLINE';
+
+  useEffect(() => {
+    void getDefaultLaunchPreference().then((pref) => setDefaultLaunch(pref === 'inverter'));
+  }, []);
 
   const signOut = async () => {
     await signOutMonitoring();
@@ -139,6 +148,37 @@ export function SettingsCommandScreen() {
                 }}
               />
             }
+          />
+        </SettingsSectionGroup>
+
+        <SectionLabel text="COMMAND CENTERS" />
+        <SettingsSectionGroup>
+          <PremiumNavRow
+            title="Switch to Eso Pay"
+            subtitle="Wallet, utilities, and bill payments"
+            icon={Wallet}
+            onPress={() => router.push(ESOPAY_HOME_ROUTE)}
+          />
+          <PremiumNavRow
+            title="Set as Default Launch Screen"
+            subtitle="Open Inverter Monitoring when you unlock the app"
+            icon={SlidersHorizontal}
+            showChevron={false}
+            trailing={
+              <PremiumSwitch
+                checked={defaultLaunch}
+                onCheckedChange={(enabled) => {
+                  setDefaultLaunch(enabled);
+                  void setDefaultLaunchPreference(enabled ? 'inverter' : null);
+                }}
+              />
+            }
+          />
+          <PremiumNavRow
+            title="Subscription & Billing"
+            subtitle="Wallet pool and Monnify funding details"
+            icon={KeyRound}
+            onPress={() => setBillingOpen(true)}
           />
         </SettingsSectionGroup>
 
@@ -210,7 +250,7 @@ export function SettingsCommandScreen() {
               title="Sign in"
               subtitle="Email verification code"
               icon={UserRound}
-              onPress={() => router.push(MONITORING_LOGIN_ROUTE)}
+              onPress={() => router.push(MASTER_SIGN_IN_ROUTE)}
             />
           )}
         </SettingsSectionGroup>
@@ -229,13 +269,19 @@ export function SettingsCommandScreen() {
         open={signOutOpen}
         onOpenChange={setSignOutOpen}
         title="Sign out of monitoring?"
-        description="You'll need to sign in again to access fleet monitoring on this device. Your Eso Pay session stays signed in."
+        description="You'll need to sign in again to access Eso Energy on this device."
         actionLabel="Sign out"
         destructive
         onAction={() => {
           setSignOutOpen(false);
           void signOut();
         }}
+      />
+
+      <SubscriptionBillingModal
+        open={billingOpen}
+        onClose={() => setBillingOpen(false)}
+        userName={snapshot.companyName ?? user?.email}
       />
 
       <OperatorPinModal

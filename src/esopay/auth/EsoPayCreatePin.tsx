@@ -58,7 +58,7 @@ export function EsoPayCreatePin({ onComplete, isRecovery }: Props) {
           </Text>
 
           <Text style={styles.subtext}>
-            One 6-digit PIN unlocks Eso Pay{'\n'}and secures every payment.
+            One 4-digit PIN unlocks Eso Pay{'\n'}and secures every payment.
           </Text>
 
           <View style={styles.pinEntryGroup}>

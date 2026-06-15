@@ -23,7 +23,7 @@ export default function TabLayout() {
       <Tabs.Screen name="index" options={{ title: 'Monitor' }} />
       <Tabs.Screen name="monitor" options={{ href: null, title: 'Monitor' }} />
       <Tabs.Screen name="sites" options={{ title: 'Sites' }} />
-      <Tabs.Screen name="billing" options={{ href: null, title: 'Eso Pay Bills' }} />
+      <Tabs.Screen name="billing" options={{ href: null, title: 'Eso Pay' }} />
       <Tabs.Screen name="reports" options={{ title: 'Reports' }} />
       <Tabs.Screen name="alerts" options={{ title: 'Alerts' }} />
       <Tabs.Screen name="settings" options={{ title: 'Settings' }} />

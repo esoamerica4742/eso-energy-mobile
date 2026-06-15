@@ -24,6 +24,8 @@ import Constants from 'expo-constants';
 
 import {
 
+  Activity,
+
   Bell,
 
   ChevronRight,
@@ -50,7 +52,8 @@ import {
 
 import { useRouter } from 'expo-router';
 import { signOutEsoPay } from '@/esopay/auth/signOutEsoPay';
-import { ACCESS_ROUTE } from '@/lib/navigation/productRoutes';
+import { MONITORING_HOME_ROUTE } from '@/lib/navigation/productRoutes';
+import { getDefaultLaunchPreference, setDefaultLaunchPreference } from '@/master/launchPreference';
 import {
   openEsoEnergyPrivacy,
   openEsoEnergySupportEmail,
@@ -337,6 +340,11 @@ export function SettingsScreen() {
 
   const [pinOpen, setPinOpen] = useState(false);
   const [loginPinOpen, setLoginPinOpen] = useState(false);
+  const [defaultLaunch, setDefaultLaunch] = useState(false);
+
+  useEffect(() => {
+    void getDefaultLaunchPreference().then((pref) => setDefaultLaunch(pref === 'eso_pay'));
+  }, []);
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [disputeOpen, setDisputeOpen] = useState(false);
@@ -504,27 +512,44 @@ export function SettingsScreen() {
 
         <View style={styles.section}>
 
+          <Text style={styles.sectionTitle}>Command centers</Text>
+
+          <SettingsLinkRow
+            icon={Activity}
+            label="Switch to Inverter Monitoring"
+            meta="Fleet telemetry and alerts"
+            onPress={() => router.push(MONITORING_HOME_ROUTE)}
+          />
+
+          <SettingsToggleRow
+            icon={Shield}
+            label="Set as Default Launch Screen"
+            description="Open Eso Pay when you unlock the app"
+            value={defaultLaunch}
+            onValueChange={(enabled) => {
+              setDefaultLaunch(enabled);
+              void setDefaultLaunchPreference(enabled ? 'eso_pay' : null);
+            }}
+          />
+
+        </View>
+
+
+
+        <View style={styles.section}>
+
           <Text style={styles.sectionTitle}>Security</Text>
 
           <SettingsLinkRow
 
             icon={KeyRound}
 
-            label={pinConfigured ? 'Transaction PIN' : 'Set up transaction PIN'}
+            label={pinConfigured ? 'App PIN' : 'Set up 4-digit PIN'}
 
-            meta={pinChecking ? 'Checking…' : pinConfigured ? 'Configured' : 'Required for payments'}
+            meta={pinChecking ? 'Checking…' : pinConfigured ? 'Unlock & payments' : 'Required for payments'}
 
             onPress={openPinSheet}
 
-          />
-
-          <SettingsLinkRow
-            icon={KeyRound}
-            label={loginPinConfigured ? 'Login PIN' : 'Set up login PIN'}
-            meta={
-              loginPinChecking ? 'Checking…' : loginPinConfigured ? 'Enabled (device lock)' : 'Optional'
-            }
-            onPress={openLoginPinSheet}
           />
 
           <SettingsToggleRow

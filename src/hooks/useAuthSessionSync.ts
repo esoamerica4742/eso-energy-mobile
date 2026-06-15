@@ -6,12 +6,20 @@ import { exitDemoModeForRealAuth, registerAuthRehydrate } from '@/lib/demoModeBr
 import { isDemoModeActiveSync } from '@/providers/DemoModeProvider';
 import { useAuthStore } from '@/stores/authStore';
 import { useSiteStore } from '@/stores/siteStore';
+import { useEsoPayAuthStore } from '@/esopay/auth/store';
+import { persistEsoPaySessionBackup } from '@/esopay/auth/esoPaySessionBackup';
+import { persistEsoPayUserId } from '@/esopay/auth/esoPayUserId';
 
 export function useAuthSessionSync() {
   const setSession = useAuthStore((s) => s.setSession);
   const reset = useAuthStore((s) => s.reset);
   const setLoading = useAuthStore((s) => s.setLoading);
   const setSites = useSiteStore((s) => s.setSites);
+  const syncEsoPaySession = useEsoPayAuthStore((s) => s.setSession);
+  const lockEsoPaySignedIn = useEsoPayAuthStore((s) => s.lockSignedIn);
+  const unlockEsoPaySignedIn = useEsoPayAuthStore((s) => s.unlockSignedIn);
+  const setEsoPayHydrated = useEsoPayAuthStore((s) => s.setHydrated);
+  const setEsoPayLoading = useEsoPayAuthStore((s) => s.setLoading);
 
   useEffect(() => {
     if (!supabaseConfigured) {
@@ -41,11 +49,21 @@ export function useAuthSessionSync() {
       if (!session) {
         reset();
         setSites([]);
+        unlockEsoPaySignedIn();
+        syncEsoPaySession(null);
+        setEsoPayHydrated(true);
+        setEsoPayLoading(false);
         finishBoot();
         return;
       }
 
       setSession(session);
+      lockEsoPaySignedIn();
+      syncEsoPaySession(session);
+      setEsoPayHydrated(true);
+      setEsoPayLoading(false);
+      void persistEsoPaySessionBackup(session);
+      if (session.user?.id) void persistEsoPayUserId(session.user.id);
       if (bootstrapTenant) {
         setLoading(true);
       } else {
@@ -101,5 +119,15 @@ export function useAuthSessionSync() {
       registerAuthRehydrate(null);
       sub.subscription.unsubscribe();
     };
-  }, [reset, setLoading, setSession, setSites]);
+  }, [
+    lockEsoPaySignedIn,
+    reset,
+    setEsoPayHydrated,
+    setEsoPayLoading,
+    setLoading,
+    setSession,
+    setSites,
+    syncEsoPaySession,
+    unlockEsoPaySignedIn,
+  ]);
 }

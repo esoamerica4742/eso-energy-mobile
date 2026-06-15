@@ -17,6 +17,7 @@ import { EsoPayHostBridge } from '@/esopay/context/EsoPayHostContext';
 import { EnodeToastProvider } from '@/providers/EnodeToastProvider';
 import { EnterpriseRealtimeProvider } from '@/providers/EnterpriseRealtimeProvider';
 import { AuthGate } from '@/components/auth/AuthGate';
+import { MasterAuthGate } from '@/master/components/MasterAuthGate';
 import { MonitoringBootstraps } from '@/components/auth/MonitoringBootstraps';
 import { DemoModeProvider } from '@/providers/DemoModeProvider';
 import { AuthFlowProvider } from '../src/hooks/useAuth';
@@ -105,6 +106,7 @@ function RootLayoutInner() {
             <PushNotificationsBootstrap />
             <AppPortalHost />
             <AuthGate>
+            <MasterAuthGate>
               <BottomSheetModalProvider>
               <StatusBar style="light" />
               <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bgBase } }}>
@@ -120,6 +122,7 @@ function RootLayoutInner() {
                 <Stack.Screen name="site/[id]" options={{ animation: 'slide_from_right' }} />
               </Stack>
               </BottomSheetModalProvider>
+            </MasterAuthGate>
             </AuthGate>
             </EsoPayAuthProvider>
             </EsoPayHostBridge>

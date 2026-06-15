@@ -8,8 +8,11 @@ export const ONBOARDING_ROUTE = '/onboarding' as Href;
 /** ESO Inverter Monitoring command dashboard (Monitor tab). */
 export const MONITORING_HOME_ROUTE = '/(tabs)' as Href;
 
-/** Eso Pay Bills wallet home (gold bottom nav). */
+/** Eso Pay wallet home (gold bottom nav). */
 export const ESOPAY_HOME_ROUTE = '/(tabs)/billing/(pay-tabs)' as Href;
+
+export const MASTER_SIGN_IN_ROUTE = '/auth/sign-in' as Href;
+export const MASTER_REGISTER_ROUTE = '/auth/register' as Href;
 
 export const MONITORING_LOGIN_ROUTE = {
   pathname: '/login',

@@ -47,7 +47,7 @@ export function EsoPayPinSetupCard({ pinConfigured, loading, onPress }: Props) {
         <View style={styles.copy}>
           <Text style={styles.title}>Set up your transaction PIN</Text>
           <Text style={styles.body}>
-            Required before your first payment. Your 6-digit PIN unlocks Eso Pay and secures every transaction.
+            Required before your first payment. Your 4-digit PIN unlocks the app and secures every transaction.
           </Text>
           <Text style={styles.cta}>Set up now →</Text>
         </View>

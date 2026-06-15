@@ -1,46 +1,25 @@
-import * as Crypto from 'expo-crypto';
-import { getSecureItem, removeSecureItem, setSecureItem } from '@/lib/secureStorage';
+import {
+  clearMasterPin,
+  hasMasterPin,
+  setMasterPin,
+  verifyMasterPin,
+} from '@/master/masterPin';
+import { MASTER_PIN_LENGTH } from '@/master/constants';
 
-const PIN_KEY_PREFIX = 'monitor.operator_pin.';
-export const OPERATOR_PIN_LENGTH = 4;
-
-function pinKey(userId: string): string {
-  return `${PIN_KEY_PREFIX}${userId}`;
-}
-
-async function hashPin(pin: string, salt: string): Promise<string> {
-  return Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, `${salt}:${pin}`);
-}
+export const OPERATOR_PIN_LENGTH = MASTER_PIN_LENGTH;
 
 export async function hasOperatorPin(userId: string): Promise<boolean> {
-  if (!userId) return false;
-  const stored = await getSecureItem(pinKey(userId));
-  return Boolean(stored);
+  return hasMasterPin(userId);
 }
 
 export async function setOperatorPin(userId: string, pin: string): Promise<void> {
-  if (!userId) throw new Error('Sign in to set your operator PIN');
-  if (!/^\d{4}$/.test(pin)) throw new Error('PIN must be exactly 4 digits');
-
-  const salt = Crypto.randomUUID();
-  const digest = await hashPin(pin, salt);
-  await setSecureItem(pinKey(userId), `${salt}:${digest}`);
+  return setMasterPin(userId, pin);
 }
 
 export async function verifyOperatorPin(userId: string, pin: string): Promise<boolean> {
-  if (!userId || !/^\d{4}$/.test(pin)) return false;
-
-  const stored = await getSecureItem(pinKey(userId));
-  if (!stored) return false;
-
-  const [salt, digest] = stored.split(':');
-  if (!salt || !digest) return false;
-
-  const candidate = await hashPin(pin, salt);
-  return candidate === digest;
+  return verifyMasterPin(userId, pin);
 }
 
 export async function clearOperatorPin(userId: string): Promise<void> {
-  if (!userId) return;
-  await removeSecureItem(pinKey(userId));
+  return clearMasterPin(userId);
 }

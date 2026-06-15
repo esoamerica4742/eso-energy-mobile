@@ -8,6 +8,11 @@ import { useAppAccess } from '@/hooks/useAppAccess';
 import { recoverEsoPaySession } from '@/esopay/auth/recoverEsoPaySession';
 import { selectEsoPayHasAccess, useEsoPayAuthStore } from '@/esopay/auth/store';
 import { useAuth } from '@/hooks/useAuth';
+import {
+  ACCESS_ROUTE,
+  MASTER_SIGN_IN_ROUTE,
+  ONBOARDING_ROUTE,
+} from '@/lib/navigation/productRoutes';
 import { supabaseConfigured } from '@/lib/supabase';
 
 const BILLING_REDIRECT_GRACE_MS = 2500;
@@ -32,7 +37,11 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   const onAppEntry = !pathname || pathname === '/' || pathname === '/index';
   const onOnboarding = segments[0] === 'onboarding';
   const onInverterAuth = segments[0] === 'inverter';
-  const onAccessFlow = segments[0] === 'access' || segments[0] === 'auth' || onInverterAuth;
+  const onAccessFlow =
+    segments[0] === 'access' ||
+    segments[0] === 'auth' ||
+    onInverterAuth ||
+    onOnboarding;
   const onBilling = isBillingRoute(segments, pathname);
   const onLinkFlow =
     segments[0] === 'link-device' ||
@@ -52,7 +61,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     if (authLoading) return;
 
     if (!isAuthenticated && !isPublicRoute && !billingAuthorized) {
-      router.replace('/access' as Href);
+      router.replace(ONBOARDING_ROUTE as Href);
       return;
     }
 
@@ -61,7 +70,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
       if (billingRedirectTimer.current) clearTimeout(billingRedirectTimer.current);
       billingRedirectTimer.current = setTimeout(() => {
         if (!useEsoPayAuthStore.getState().signedIn) {
-          router.replace({ pathname: '/login', params: { module: 'esopay' } } as Href);
+          router.replace(MASTER_SIGN_IN_ROUTE);
         }
       }, BILLING_REDIRECT_GRACE_MS);
     } else if (billingRedirectTimer.current) {
@@ -70,7 +79,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     }
 
     if (session && onLoginScreen && authFlowModule !== 'esopay') {
-      router.replace('/access' as Href);
+      router.replace(ACCESS_ROUTE as Href);
     }
   }, [
     navigationReady,

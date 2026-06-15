@@ -1,1 +1,1 @@
-export { default } from '@/esopay/auth/EsoPaySignIn';
+export { default } from '@/master/screens/MasterSignInScreen';
