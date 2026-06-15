@@ -75,7 +75,7 @@ export const PrepaidTokenDeliveryCard = memo(function PrepaidTokenDeliveryCard({
         </Text>
       </Pressable>
       <Text style={styles.hint}>
-        Also sent to your phone via push notification and SMS.
+        We will also send this to your phone when push or SMS delivery is enabled.
       </Text>
     </View>
   );

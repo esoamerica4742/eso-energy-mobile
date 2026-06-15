@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { ActivityIndicator, Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, type Href } from 'expo-router';
 import { useDemoMode } from '@/providers/DemoModeProvider';
 import Svg, {
@@ -12,6 +13,7 @@ import Svg, {
   Stop,
 } from 'react-native-svg';
 import { Colors, FontSize, Radius, Spacing } from '@/tokens/design';
+import { GOLD } from '@/theme/colors';
 import { fonts } from '@/theme/tokens';
 
 const SITES_ROUTE = '/(tabs)/sites' as Href;
@@ -220,7 +222,7 @@ export function EmptyDashboard({
           ]}
         >
           <LinearGradient
-            colors={['#F8D56A', '#D4AF37', '#A68B2E']}
+            colors={[GOLD, GOLD, GOLD]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.ctaGradient}

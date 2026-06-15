@@ -34,4 +34,18 @@ export const ESO_PAY_ROUTES = {
     meter: (meterId: string) => `/power-shield/meters/${meterId}`,
     feedback: '/power-shield/feedback',
   },
+  security: {
+    transactionPin: '/security/transaction-pin',
+    verifyTransactionPin: '/security/transaction-pin/verify',
+    resetTransactionPin: '/security/transaction-pin/reset',
+    beginPinRecovery: '/security/transaction-pin/recovery/begin',
+  },
+  profile: {
+    kyc: '/profile/kyc',
+    account: '/profile/account',
+  },
+  disputes: {
+    root: '/disputes',
+    detail: (ticketId: string) => `/disputes/${ticketId}`,
+  },
 } as const;

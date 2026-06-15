@@ -19,6 +19,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import type { IconProps } from 'phosphor-react-native';
+import { EsoPaySectionLabel } from '@/esopay/components/EsoPaySectionLabel';
+import { ESO_PAY_GOLD, ESO_PAY_GOLD_MUTED } from '@/esopay/theme/brandColors';
 import { fonts } from '@/esopay/theme/typography';
 
 const BRAND = '#00C48C';
@@ -205,7 +207,7 @@ export const QuickActionGrid = memo(function QuickActionGrid({ items }: Props) {
 
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionLabel}>Pay a Bill</Text>
+      <EsoPaySectionLabel style={styles.sectionLabelTracking}>Pay a Bill</EsoPaySectionLabel>
       <View style={styles.grid}>
         {items.map((item, index) => (
           <QuickActionCard

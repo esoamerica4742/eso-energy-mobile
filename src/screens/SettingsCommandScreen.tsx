@@ -30,9 +30,11 @@ import { useOperatorPin } from '@/hooks/useOperatorPin';
 import { useDemoModeActive } from '@/providers/DemoModeProvider';
 import { useSupabaseSession } from '@/hooks/useSupabaseSession';
 import { signOutMonitoring } from '@/lib/auth/signOutMonitoring';
+import { ACCESS_ROUTE, MONITORING_LOGIN_ROUTE } from '@/lib/navigation/productRoutes';
 import { buildSettingsSnapshot } from '@/lib/settingsData';
 import { supabaseConfigured } from '@/lib/supabase';
 import { useEnodeToast } from '@/providers/EnodeToastProvider';
+import { canManageApiKeys } from '@/lib/monitoring/rbac';
 import { selectRole, useAuthStore } from '@/stores/authStore';
 import { useSiteStore } from '@/stores/siteStore';
 import { useMotionPrefsStore } from '@/stores/motionPrefsStore';
@@ -166,7 +168,7 @@ export function SettingsCommandScreen() {
               value={pinConfigured ? 'Set' : 'Off'}
               onPress={() => {
                 if (!isAuthenticated || isDemoMode) {
-                  router.push('/login' as Href);
+                  router.push(MONITORING_LOGIN_ROUTE);
                   return;
                 }
                 setPinOpen(true);
@@ -208,7 +210,7 @@ export function SettingsCommandScreen() {
               title="Sign in"
               subtitle="Email verification code"
               icon={UserRound}
-              onPress={() => router.push('/login' as Href)}
+              onPress={() => router.push(MONITORING_LOGIN_ROUTE)}
             />
           )}
         </SettingsSectionGroup>
@@ -226,8 +228,8 @@ export function SettingsCommandScreen() {
       <ConfirmDialog
         open={signOutOpen}
         onOpenChange={setSignOutOpen}
-        title="Sign out?"
-        description="You'll need to sign in again to access fleet data and Eso Pay."
+        title="Sign out of monitoring?"
+        description="You'll need to sign in again to access fleet monitoring on this device. Your Eso Pay session stays signed in."
         actionLabel="Sign out"
         destructive
         onAction={() => {

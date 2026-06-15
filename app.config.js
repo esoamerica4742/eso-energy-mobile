@@ -33,7 +33,11 @@ module.exports = ({ config }) => {
 
   const supabaseUrl = (env.EXPO_PUBLIC_SUPABASE_URL ?? '').trim();
   const supabaseAnonKey = (env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '').trim();
-  const easProjectId = env.EXPO_PUBLIC_EAS_PROJECT_ID ?? '';
+  const easProjectId = (
+    env.EXPO_PUBLIC_EAS_PROJECT_ID ??
+    config.extra?.eas?.projectId ??
+    '3977eea0-ade4-440d-9ee0-d0ff1a8bb79f'
+  ).trim();
   const apiBase = supabaseUrl.replace(/\/$/, '');
 
   if (!supabaseUrl || !supabaseAnonKey) {
@@ -44,26 +48,26 @@ module.exports = ({ config }) => {
 
   return {
     ...config,
-    expo: {
-      ...config.expo,
-      extra: {
-        ...config.expo?.extra,
-        supabaseUrl,
-        supabaseAnonKey,
-        webAppUrl: env.EXPO_PUBLIC_WEB_APP_URL ?? supabaseUrl,
-        enodeApiUrl:
-          env.EXPO_PUBLIC_ENODE_API_URL ??
-          (apiBase ? `${apiBase}/functions/v1/enode-api` : ''),
-        enodeRedirectUri:
-          env.EXPO_PUBLIC_ENODE_REDIRECT_URI ?? 'esoenergymobile://link-device/callback',
-        solarmanApiUrl:
-          env.EXPO_PUBLIC_SOLARMAN_API_URL ??
-          (apiBase ? `${apiBase}/functions/v1/solarman-api` : ''),
-        esoPayApiUrl:
-          env.ESO_PAY_API_BASE_URL ??
-          env.EXPO_PUBLIC_ESO_PAY_API_URL ??
-          (apiBase ? `${apiBase}/functions/v1/eso-pay-api` : ''),
-        easProjectId,
+    extra: {
+      ...config.extra,
+      supabaseUrl,
+      supabaseAnonKey,
+      webAppUrl: env.EXPO_PUBLIC_WEB_APP_URL ?? supabaseUrl,
+      enodeApiUrl:
+        env.EXPO_PUBLIC_ENODE_API_URL ??
+        (apiBase ? `${apiBase}/functions/v1/enode-api` : ''),
+      enodeRedirectUri:
+        env.EXPO_PUBLIC_ENODE_REDIRECT_URI ?? 'esoenergymobile://link-device/callback',
+      solarmanApiUrl:
+        env.EXPO_PUBLIC_SOLARMAN_API_URL ??
+        (apiBase ? `${apiBase}/functions/v1/solarman-api` : ''),
+      esoPayApiUrl:
+        env.ESO_PAY_API_BASE_URL ??
+        env.EXPO_PUBLIC_ESO_PAY_API_URL ??
+        (apiBase ? `${apiBase}/functions/v1/eso-pay-api` : ''),
+      easProjectId,
+      eas: {
+        projectId: easProjectId,
       },
     },
   };

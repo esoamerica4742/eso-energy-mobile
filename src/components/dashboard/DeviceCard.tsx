@@ -16,7 +16,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { Zap, Battery, Sun, Gauge, Activity, AlertTriangle } from 'lucide-react-native';
+import { Zap, Battery, Sun, Gauge, Activity } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle } from 'react-native-svg';
 import { useTelemetryStore, selectLatest } from '@/stores/telemetryStore';

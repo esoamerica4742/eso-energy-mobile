@@ -72,6 +72,7 @@ import {
 
 import { BeneficiaryChips } from '@/esopay/components/BeneficiaryChips';
 
+import { EsoPayPrimaryButton } from '@/esopay/components/EsoPayButtons';
 import { GoldCTAButton } from '@/esopay/components/GoldCTAButton';
 
 import { PinEntry } from '@/esopay/components/PinEntry';
@@ -87,6 +88,8 @@ import { useBeneficiaries } from '@/esopay/hooks/useBeneficiaries';
 
 import { useTransactionPin } from '@/esopay/hooks/useTransactionPin';
 import { useBiometricPin } from '@/esopay/hooks/useBiometricPin';
+import { useEsoPayAuthStore } from '@/esopay/auth/store';
+import type { PaymentModalStep } from '@/esopay/components/paymentModal/types';
 import { getPaymentBundles, type PaymentBundle } from '@/esopay/data/bundles';
 
 import { isMonnifyAccountReady } from '@/esopay/services/monnify';
@@ -115,6 +118,7 @@ import {
 import { useRouter } from 'expo-router';
 
 import { esopayFundWalletHref } from '@/esopay/navigation/routes';
+
 
 import { useEnodeToast } from '@/providers/EnodeToastProvider';
 
@@ -202,7 +206,7 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
 
   const [target, setTarget] = useState<PaymentModalTarget | null>(null);
 
-  const [step, setStep] = useState<Step>('form');
+  const [step, setStep] = useState<PaymentModalStep>('form');
 
   const [accountNumber, setAccountNumber] = useState('');
 
@@ -261,6 +265,8 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
     userId,
     userIdReady,
   } = useTransactionPin();
+
+  const setPinUnlocked = useEsoPayAuthStore((s) => s.setLoginPinUnlocked);
 
   const {
     available: biometricAvailable,
@@ -869,7 +875,7 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
 
     },
 
-    [configurePin, executePurchase, pinInput, pinMode, toast, userId, verifyPin],
+    [configurePin, executePurchase, pinInput, pinMode, setPinUnlocked, toast, userId, verifyPin],
 
   );
 
@@ -1217,7 +1223,7 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
 
 
 
-            <GoldCTAButton label="Done" onPress={() => sheetRef.current?.dismiss()} />
+            <EsoPayPrimaryButton label="Done" onPress={() => sheetRef.current?.dismiss()} />
 
           </View>
 
@@ -1816,7 +1822,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.ui,
     fontSize: 15,
     lineHeight: 23,
-    color: '#E8EAED',
+    color: colors.white,
     textAlign: 'center',
     paddingHorizontal: 8,
     marginTop: 4,

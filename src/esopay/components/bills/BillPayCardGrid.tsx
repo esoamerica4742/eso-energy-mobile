@@ -1,8 +1,9 @@
-import { memo, useMemo } from 'react';
+import { memo, useMemo, type ReactNode } from 'react';
 
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
 
 import { BillPayCard, type BillPayCardItem } from '@/esopay/components/bills/BillPayCard';
+import { EsoPaySectionLabel } from '@/esopay/components/EsoPaySectionLabel';
 
 import {
 
@@ -52,30 +53,30 @@ type Props = {
 
   embedded?: boolean;
 
+  /** Optional footer below the grid (e.g. provider support prompt). */
+
+  footer?: ReactNode;
+
+  /** Compact home/bills hub card styling. */
+  hubCards?: boolean;
 };
 
 
 
 function GridList({
-
   items,
-
   embedded,
-
   paddingBottom,
-
   indexOffset = 0,
-
+  footer,
+  hubCards = false,
 }: {
-
   items: BillPayCardItem[];
-
   embedded: boolean;
-
   paddingBottom: number;
-
   indexOffset?: number;
-
+  footer?: ReactNode;
+  hubCards?: boolean;
 }) {
 
   if (items.length === 0) return null;
@@ -112,11 +113,19 @@ function GridList({
 
       columnWrapperStyle={styles.columnWrapper}
 
+      ListFooterComponent={footer ?? undefined}
+
       renderItem={({ item, index }) => (
 
         <View style={styles.gridItem}>
 
-          <BillPayCard {...item} layout="grid" index={indexOffset + index} />
+          <BillPayCard
+            {...item}
+            layout="grid"
+            index={indexOffset + index}
+            animateEntry={!embedded}
+            hubCards={hubCards}
+          />
 
         </View>
 
@@ -131,17 +140,13 @@ function GridList({
 
 
 export const BillPayCardGrid = memo(function BillPayCardGrid({
-
   title,
-
   items,
-
   sections,
-
   paddingBottom = 0,
-
   embedded = false,
-
+  footer,
+  hubCards = false,
 }: Props) {
 
   const flatSections = useMemo(() => {
@@ -182,9 +187,17 @@ export const BillPayCardGrid = memo(function BillPayCardGrid({
 
       <View style={[styles.wrap, embedded && styles.wrapEmbedded]}>
 
-        {title ? <Text style={styles.label}>{title}</Text> : null}
+        {title ? (
+        <EsoPaySectionLabel containerStyle={styles.labelPad}>{title}</EsoPaySectionLabel>
+      ) : null}
 
-        <GridList items={only.items} embedded={embedded} paddingBottom={paddingBottom} />
+        <GridList
+          items={only.items}
+          embedded={embedded}
+          paddingBottom={paddingBottom}
+          footer={footer}
+          hubCards={hubCards}
+        />
 
       </View>
 
@@ -200,7 +213,9 @@ export const BillPayCardGrid = memo(function BillPayCardGrid({
 
     <View style={[styles.wrap, embedded && styles.wrapEmbedded]}>
 
-      {title ? <Text style={styles.label}>{title}</Text> : null}
+      {title ? (
+        <EsoPaySectionLabel containerStyle={styles.labelPad}>{title}</EsoPaySectionLabel>
+      ) : null}
 
       {flatSections.map((section) => {
 
@@ -208,18 +223,18 @@ export const BillPayCardGrid = memo(function BillPayCardGrid({
 
           <View key={section.id} style={styles.sectionBlock}>
 
-            {section.title ? <Text style={styles.sectionLabel}>{section.title}</Text> : null}
+            {section.title ? (
+              <EsoPaySectionLabel containerStyle={styles.sectionLabelPad} style={styles.sectionLabelTracking}>
+                {section.title}
+              </EsoPaySectionLabel>
+            ) : null}
 
             <GridList
-
               items={section.items}
-
               embedded={embedded}
-
               paddingBottom={0}
-
               indexOffset={indexOffset}
-
+              hubCards={hubCards}
             />
 
           </View>
@@ -259,19 +274,22 @@ const styles = StyleSheet.create({
   },
 
   label: {
-
     fontFamily: fonts.uiMedium,
-
     fontSize: 10,
-
     letterSpacing: 2.4,
-
     textTransform: 'uppercase',
-
     color: luxury.warmWhite,
-
     paddingHorizontal: BILL_PAY_GRID_H_PAD,
-
+  },
+  labelPad: {
+    paddingHorizontal: BILL_PAY_GRID_H_PAD,
+  },
+  sectionLabelPad: {
+    paddingHorizontal: BILL_PAY_GRID_H_PAD,
+    marginTop: spacing.xs,
+  },
+  sectionLabelTracking: {
+    letterSpacing: 2.2,
   },
 
   sectionBlock: {

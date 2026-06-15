@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     borderColor: luxury.goldBorder,
   },
   chipActive: {
-    backgroundColor: 'rgba(201,168,76,0.14)',
+    backgroundColor: 'rgba(232,160,32,0.1)',
     borderColor: luxury.gold,
   },
   chipText: {

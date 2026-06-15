@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, Animated, Easing } from 'react-native';
 import { FaultPulseShell } from '@/components/monitoring/WaitingStateMotion';
 import { pendingMetricColor } from '@/lib/monitoring/pendingValue';
-import { Colors, FontSize, Radius, Spacing } from '@/tokens/design';
+import { Colors, FontSize, Spacing } from '@/tokens/design';
 import { fonts } from '@/theme/tokens';
 import type { BatteryData } from '@/types/dashboard';
 

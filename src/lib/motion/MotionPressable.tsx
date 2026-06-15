@@ -1,8 +1,6 @@
 import { type ReactNode } from 'react';
 import { Pressable, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
-import { MotiPressable } from 'moti/interactions';
 import * as Haptics from 'expo-haptics';
-import { motionSpring } from '@/lib/motion/presets';
 import { useReducedMotion } from '@/lib/motion/useReducedMotion';
 
 type Props = Omit<PressableProps, 'style'> & {
@@ -12,7 +10,7 @@ type Props = Omit<PressableProps, 'style'> & {
   scaleTo?: number;
 };
 
-/** Framer Motion–style press feedback with optional haptics */
+/** Press feedback without Moti — MotiPressable crashes on Reanimated 4 worklets. */
 export function MotionPressable({
   children,
   style,
@@ -33,39 +31,24 @@ export function MotionPressable({
     else void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
-  if (reduced) {
-    return (
-      <Pressable
-        style={style}
-        disabled={disabled ?? undefined}
-        onPress={(e) => {
-          fireHaptic();
-          onPress?.(e);
-        }}
-        onPressIn={onPressIn ?? undefined}
-        onPressOut={onPressOut ?? undefined}
-        {...rest}
-      >
-        {children}
-      </Pressable>
-    );
-  }
-
   return (
-    <MotiPressable
-      style={style}
+    <Pressable
+      style={({ pressed }) => [
+        style,
+        !reduced && !disabled && pressed
+          ? { transform: [{ scale: scaleTo }], opacity: 0.92 }
+          : null,
+      ]}
       disabled={disabled ?? undefined}
-      animate={({ pressed }) => ({
-        scale: pressed ? scaleTo : 1,
-        opacity: pressed ? 0.92 : 1,
-      })}
-      transition={motionSpring.snappy}
-      onPress={() => {
+      onPress={(e) => {
         fireHaptic();
-        if (onPress) (onPress as () => void)();
+        onPress?.(e);
       }}
+      onPressIn={onPressIn ?? undefined}
+      onPressOut={onPressOut ?? undefined}
+      {...rest}
     >
       {children}
-    </MotiPressable>
+    </Pressable>
   );
 }

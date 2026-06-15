@@ -3,7 +3,7 @@ import { getSecureItem, removeSecureItem, setSecureItem } from '@/lib/secureStor
 
 const PIN_KEY_PREFIX = 'esopay_tx_pin_';
 const LEGACY_PIN_KEY_PREFIX = 'esopay.tx_pin.';
-export const TRANSACTION_PIN_LENGTH = 4;
+export const TRANSACTION_PIN_LENGTH = 6;
 const STORAGE_SEP = '|';
 
 function pinKey(userId: string): string {
@@ -32,7 +32,7 @@ export async function setTransactionPin(userId: string, pin: string): Promise<vo
   if (!userId) throw new Error('User required to set transaction PIN');
   const normalized = pin.replace(/\D/g, '');
   if (normalized.length !== TRANSACTION_PIN_LENGTH) {
-    throw new Error('PIN must be exactly 4 digits');
+    throw new Error('PIN must be exactly 6 digits');
   }
 
   const salt = Crypto.randomUUID();

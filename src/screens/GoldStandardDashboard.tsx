@@ -61,7 +61,7 @@ export function GoldStandardDashboard({
   embedded = false,
 }: Props) {
   const base = data ?? createDashboardShell();
-  const simulateLive = shouldRunGridIntelligenceSimulation(base);
+  const simulateLive = shouldRunGridIntelligenceSimulation(base, { isDemoMode });
   const simKw = useGridIntelligenceSimulation(simulateLive);
   const resolved = useMemo(
     () => (simulateLive ? applyGridIntelligenceDemoOverlay(base, simKw) : base),

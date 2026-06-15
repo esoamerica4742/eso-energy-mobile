@@ -1,4 +1,5 @@
 import type { UtilityProvider } from '@/esopay/api/types';
+import { GOLD } from '@/theme/colors';
 
 export type BillerBrandStyle = {
   logoText: string;

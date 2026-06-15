@@ -1,13 +1,14 @@
 /**
  * ESO Energy enterprise design tokens — semantic energy dashboard palette.
- * Metallic gold #D4AF37 · Grid #3B82F6 · Battery #10B981 · Fault #EF4444 · Warning #F97316
+ * Metallic gold #C9A84C · Grid #3B82F6 · Battery #10B981 · Fault #EF4444 · Warning #F97316
  */
 
+import { GOLD, GOLD_RGB } from '@/theme/colors';
+
 /** Enterprise signature — metallic gold (solar, accents, active chrome). */
-export const METALLIC_GOLD = '#D4AF37';
+export const METALLIC_GOLD = GOLD;
 
 const SOLAR = METALLIC_GOLD;
-const GOLD_RGB = '212, 175, 55';
 const GRID = '#3B82F6';
 const BATTERY = '#10B981';
 const FAULT = '#EF4444';
@@ -25,9 +26,9 @@ export const Colors = {
   solar: SOLAR,
   gold: SOLAR,
   metallicGold: METALLIC_GOLD,
-  goldSoft: '#E8D5A3',
-  goldMuted: '#A68B2E',
-  goldDim: '#6B5620',
+  goldSoft: GOLD,
+  goldMuted: GOLD,
+  goldDim: GOLD,
   goldWhisper: `rgba(${GOLD_RGB},0.10)`,
   goldBorderStrong: `rgba(${GOLD_RGB},0.28)`,
   goldGlow: `rgba(${GOLD_RGB},0.06)`,

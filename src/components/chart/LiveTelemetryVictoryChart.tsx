@@ -40,7 +40,7 @@ function toVictoryRows(series: ChartSeries[]): Row[] {
   }));
 }
 
-/** Live telemetry chart — Victory Native SVG, decimated updates via signature memo. */
+/** Live telemetry chart — Victory Native SVG. */
 export const LiveTelemetryVictoryChart = memo(function LiveTelemetryVictoryChart({
   series,
   yMin,
@@ -49,7 +49,7 @@ export const LiveTelemetryVictoryChart = memo(function LiveTelemetryVictoryChart
   faultTint = false,
 }: Props) {
   const signature = useMemo(() => seriesSignature(series), [series]);
-  const chartData = useMemo(() => toVictoryRows(series), [signature, series]);
+  const chartData = useMemo(() => toVictoryRows(series), [series]);
 
   return (
     <View style={[styles.wrap, { height }, faultTint && styles.faultWrap]}>

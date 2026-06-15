@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { EsoPaySectionLabel } from '@/esopay/components/EsoPaySectionLabel';
 import { luxury } from '@/esopay/theme/luxury';
 import { fonts } from '@/esopay/theme/typography';
 
@@ -24,7 +25,7 @@ export class QuickPayErrorBoundary extends Component<Props, State> {
     if (this.state.failed) {
       return (
         <View style={styles.fallback}>
-          <Text style={styles.label}>Pay a Bill</Text>
+          <EsoPaySectionLabel>Pay a Bill</EsoPaySectionLabel>
           <Text style={styles.msg}>Shortcuts unavailable — open Bills & Utilities below.</Text>
         </View>
       );

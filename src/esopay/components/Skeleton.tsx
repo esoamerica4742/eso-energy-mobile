@@ -1,6 +1,11 @@
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import { StyleSheet, View, type ViewStyle } from 'react-native';
-import { MotiView } from 'moti';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 import { colors } from '@/esopay/theme/colors';
 import { spacing } from '@/esopay/theme/spacing';
 
@@ -10,6 +15,20 @@ type Props = {
   borderRadius?: number;
   style?: ViewStyle;
 };
+
+function Shimmer() {
+  const translateX = useSharedValue(-120);
+
+  useEffect(() => {
+    translateX.value = withRepeat(withTiming(200, { duration: 1200 }), -1, false);
+  }, [translateX]);
+
+  const shimmerStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
+
+  return <Animated.View style={[styles.shimmer, shimmerStyle]} />;
+}
 
 /** Gold shimmer skeleton block (spec global loading). */
 export const Skeleton = memo(function Skeleton({
@@ -26,12 +45,7 @@ export const Skeleton = memo(function Skeleton({
         style,
       ]}
     >
-      <MotiView
-        from={{ translateX: -120 }}
-        animate={{ translateX: 200 }}
-        transition={{ type: 'timing', duration: 1200, loop: true }}
-        style={styles.shimmer}
-      />
+      <Shimmer />
     </View>
   );
 });
@@ -48,20 +62,20 @@ export function SkeletonCard({ style }: { style?: ViewStyle }) {
 
 const styles = StyleSheet.create({
   base: {
-    backgroundColor: colors.surface2,
+    backgroundColor: colors.surface,
   },
   shimmer: {
     position: 'absolute',
     top: 0,
     bottom: 0,
-    width: 80,
-    backgroundColor: 'rgba(212, 160, 23, 0.14)',
+    width: 96,
+    backgroundColor: 'rgba(232,160,32,0.1)',
   },
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.goldBorder,
     padding: spacing.lg,
+    borderRadius: 16,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
 });

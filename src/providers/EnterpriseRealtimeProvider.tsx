@@ -19,6 +19,11 @@ type EnodeEventRow = {
   payload?: Record<string, unknown>;
 };
 
+function isBillingRoute(segments: string[], pathname: string | null) {
+  if (segments[0] === '(tabs)' && segments[1] === 'billing') return true;
+  return Boolean(pathname?.includes('/billing'));
+}
+
 /**
  * One Realtime channel per company. All `.on()` handlers are chained before `.subscribe()`.
  * Channel name changes when companyId resolves — prevents "callbacks after subscribe" errors.
@@ -27,6 +32,7 @@ export function EnterpriseRealtimeProvider({ children }: { children: React.React
   const pathname = usePathname();
   const segments = useSegments();
   const onLanding = pathname === '/' || pathname === '/index';
+  const onBilling = isBillingRoute(segments, pathname);
   const { isAuthenticated } = useSupabaseSession();
   const { data: companyId, isLoading: companyLoading } = useCompanyId();
   const queryClient = useQueryClient();
@@ -37,7 +43,9 @@ export function EnterpriseRealtimeProvider({ children }: { children: React.React
   toastRef.current = toast;
 
   useEffect(() => {
-    if (!supabaseConfigured || !isAuthenticated || companyLoading || onLanding) return;
+    if (!supabaseConfigured || !isAuthenticated || companyLoading || onLanding || onBilling) {
+      return;
+    }
 
     const scope = companyId ?? 'unscoped';
     const channelName = `realtime:enode-mobile-${scope}`;
@@ -133,7 +141,7 @@ export function EnterpriseRealtimeProvider({ children }: { children: React.React
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [isAuthenticated, companyId, companyLoading, onLanding]);
+  }, [isAuthenticated, companyId, companyLoading, onBilling, onLanding]);
 
   return <>{children}</>;
 }

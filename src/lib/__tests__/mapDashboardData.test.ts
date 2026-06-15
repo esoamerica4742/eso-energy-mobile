@@ -1,10 +1,11 @@
 /** @jest-environment node */
 import { buildDashboardData, computeDailySavings } from '@/lib/mapDashboardData';
+import { NGN_PER_KWH_DISPLACED } from '@/lib/monitoring/monitoringKpiEngine';
 import { resolveSiteConnectionStatus, STALE_THRESHOLD_MS } from '@/lib/telemetryStatus';
 
 describe('computeDailySavings', () => {
   it('returns rounded power * tariff when live', () => {
-    expect(computeDailySavings(312.4)).toBe(Math.round(312.4 * 152870));
+    expect(computeDailySavings(312.4)).toBe(Math.round(312.4 * 24 * NGN_PER_KWH_DISPLACED));
   });
 
   it('returns zero when not live', () => {
@@ -30,7 +31,7 @@ describe('buildDashboardData', () => {
 
     expect(data.site.name).toBe('Lagos Plant');
     expect(data.health.status).toBe('live');
-    expect(data.kpi.primaryValue).toBe(Math.round(405.5 * 152870));
+    expect(data.kpi.primaryValue).toBe(Math.round(405.5 * 24 * NGN_PER_KWH_DISPLACED));
     expect(data.battery.soc).toBe(68);
   });
 

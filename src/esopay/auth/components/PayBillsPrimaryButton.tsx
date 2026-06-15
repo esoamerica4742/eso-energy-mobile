@@ -1,14 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { PayBills, PayBillsFonts } from '@/esopay/auth/payBillsTheme';
+import { ds } from '@/esopay/theme/designSystem';
+import { inter } from '@/theme/fonts';
 
 function LoadingDots() {
-  const dots = [
-    useRef(new Animated.Value(0.35)).current,
-    useRef(new Animated.Value(0.35)).current,
-    useRef(new Animated.Value(0.35)).current,
-  ];
+  const dotsRef = useRef([
+    new Animated.Value(0.35),
+    new Animated.Value(0.35),
+    new Animated.Value(0.35),
+  ]);
+  const dots = dotsRef.current;
 
   useEffect(() => {
     const anims = dots.map((d, i) =>
@@ -53,45 +54,35 @@ export function PayBillsPrimaryButton({ label, onPress, loading = false, disable
         pressed && !isDisabled && styles.wrapPressed,
       ]}
     >
-      <LinearGradient
-        colors={[PayBills.gold1, PayBills.gold2]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.gradient}
-      >
+      <View style={styles.inner}>
         {loading ? <LoadingDots /> : <Text style={styles.label}>{label}</Text>}
-      </LinearGradient>
+      </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: {
-    borderRadius: 12,
+    borderRadius: ds.radius.input,
     overflow: 'hidden',
-    shadowColor: PayBills.gold2,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 28,
-    elevation: 6,
+    backgroundColor: ds.color.gold,
   },
   wrapDisabled: {
-    opacity: 0.35,
-    shadowOpacity: 0,
+    opacity: 0.45,
   },
   wrapPressed: {
-    transform: [{ scale: 0.97 }],
+    transform: [{ scale: 0.98 }],
     opacity: 0.95,
   },
-  gradient: {
-    height: 56,
+  inner: {
+    height: ds.size.buttonHeight,
     alignItems: 'center',
     justifyContent: 'center',
   },
   label: {
-    fontFamily: PayBillsFonts.sora,
-    fontSize: 15,
-    color: PayBills.btnText,
+    fontFamily: inter.semibold,
+    fontSize: ds.type.button.fontSize,
+    color: '#FFFFFF',
   },
   dots: {
     flexDirection: 'row',
@@ -102,6 +93,6 @@ const styles = StyleSheet.create({
     width: 7,
     height: 7,
     borderRadius: 4,
-    backgroundColor: PayBills.btnText,
+    backgroundColor: '#FFFFFF',
   },
 });

@@ -8,6 +8,7 @@ import {
   microFluctuate,
 } from '@/lib/telemetryLivePerception';
 import { mockDashboard } from '@/data/mockDashboard';
+import { NGN_PER_KWH_DISPLACED } from '@/lib/monitoring/monitoringKpiEngine';
 import type { TelemetryPoint } from '@/stores/telemetryStore';
 
 const anchor: TelemetryPoint = {
@@ -60,7 +61,7 @@ describe('telemetryLivePerception', () => {
     const next = applyLiveDisplayMetrics(base, perceived, true);
 
     expect(next.battery.soc).toBe(70);
-    expect(next.kpi.primaryValue).toBe(Math.round(400 * 152870));
+    expect(next.kpi.primaryValue).toBe(Math.round(400 * 24 * NGN_PER_KWH_DISPLACED));
     expect(base.kpi.primaryValue).not.toBe(next.kpi.primaryValue);
   });
 });

@@ -19,6 +19,7 @@ import { useEsoPayScrollPadding } from '@/esopay/hooks/useEsoPayScrollPadding';
 import { esopayFundWalletHref } from '@/esopay/navigation/routes';
 import { NumberTicker } from '@/esopay/components/NumberTicker';
 import { Skeleton } from '@/esopay/components/Skeleton';
+import { EsoPayInlineError } from '@/esopay/components/EsoPayInlineError';
 import { WalletLedgerRow } from '@/esopay/components/WalletLedgerRow';
 import { colors } from '@/esopay/theme/colors';
 import { spacing } from '@/esopay/theme/spacing';

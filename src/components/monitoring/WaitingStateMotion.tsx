@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   tooltipDismiss: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   syncDot: {
     width: 6,

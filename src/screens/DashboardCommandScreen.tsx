@@ -39,14 +39,15 @@ import { buildBatteryLifespanGuard } from '@/lib/batteryLifespanGuard';
 import { buildContractorAuditSnapshot } from '@/lib/contractorAuditData';
 import { buildThermalLoadStressAlert } from '@/lib/thermalLoadStressAlert';
 import { buildDieselFraudAuditHub } from '@/lib/dieselFraudAuditData';
-import { buildDashboardData, computeDailySavings } from '@/lib/mapDashboardData';
+import { buildDashboardData } from '@/lib/mapDashboardData';
 import { applyLiveDisplayMetrics, canStreamFrontendLive } from '@/lib/telemetryLivePerception';
 import { usePerceivedTelemetry } from '@/hooks/usePerceivedTelemetry';
 import { buildInverterData } from '@/lib/mapInverterData';
 import { useDemoModeActive } from '@/providers/DemoModeProvider';
 import { buildTelemetryData } from '@/lib/mapTelemetryData';
 import { enodeClient } from '@/services/enode';
-import { useAuthStore, selectTenantId } from '@/stores/authStore';
+import { canCreateSites, canLinkDevice } from '@/lib/monitoring/rbac';
+import { selectRole, selectTenantId, useAuthStore } from '@/stores/authStore';
 import { useMotionPrefsStore } from '@/stores/motionPrefsStore';
 import { useSiteStore, selectActiveSite } from '@/stores/siteStore';
 import { Colors, MonitoringLayout, Spacing } from '@/tokens/design';
@@ -54,6 +55,8 @@ import { Colors, MonitoringLayout, Spacing } from '@/tokens/design';
 export function DashboardCommandScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const companyId = useAuthStore(selectTenantId);
+  const role = useAuthStore(selectRole);
+  const mayLinkDevice = canLinkDevice(role);
   const authLoading = useAuthStore((s) => s.loading);
   const sites = useSiteStore((s) => s.sites);
   const activeSite = useSiteStore(selectActiveSite);
@@ -112,7 +115,7 @@ export function DashboardCommandScreen() {
         lastTelemetryAt: primaryTelemetry?.timestamp,
         streamPaused: telemetryStream.isStale,
       }),
-    [devices, primaryTelemetry?.timestamp, syncTick, telemetryStream.isStale],
+    [devices, primaryTelemetry?.timestamp, telemetryStream.isStale],
   );
 
   const dashboardData = useMemo(
@@ -400,7 +403,7 @@ export function DashboardCommandScreen() {
       const msg = err instanceof Error ? err.message : 'Connection failed';
       toast.show(msg, 'error');
     }
-  }, [enodeLink, refetchDevices, toast]);
+  }, [enodeLink, mayLinkDevice, refetchDevices, toast]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -486,7 +489,7 @@ export function DashboardCommandScreen() {
           <DashboardKpiStrip snapshot={snapshot} />
 
           <DashboardSection title="ENERGY CORE" meta={snapshot.statusLabel}>
-            <GoldStandardDashboard data={displayDashboardData} showBottomNav={false} embedded />
+            <GoldStandardDashboard data={displayDashboardData} isDemoMode={isDemoMode} showBottomNav={false} embedded />
           </DashboardSection>
 
           <View style={styles.emptyPad}>
@@ -547,7 +550,7 @@ export function DashboardCommandScreen() {
         <OperationalInsightStrip insight={activeInsight} streaming={streamingLive} />
 
         <DashboardSection title="ENERGY CORE" meta={snapshot.statusLabel}>
-          <GoldStandardDashboard data={displayDashboardData} showBottomNav={false} embedded />
+          <GoldStandardDashboard data={displayDashboardData} isDemoMode={isDemoMode} showBottomNav={false} embedded />
         </DashboardSection>
 
         {primaryDevice ? (

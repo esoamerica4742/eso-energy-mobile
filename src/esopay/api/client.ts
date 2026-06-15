@@ -31,9 +31,14 @@ import type {
   PowerShieldFeedbackResponse,
   PowerShieldMeter,
   RecentUtilityPayment,
+  TransactionPinStatus,
+  EsoPayKycStatus,
+  EsoPayDisputeTicket,
+  CreateEsoPayDisputeRequest,
   UtilityProvider,
   ValidateUtilityAccountRequest,
   ValidateUtilityAccountResponse,
+  VerifyTransactionPinResult,
   WalletTransactionCategory,
   InverterOffset,
 } from '@/esopay/api/types';
@@ -316,6 +321,63 @@ export const esoPayApi = {
     submitFeedback: (body: PowerShieldFeedbackRequest) =>
       esopayApiClient
         .post<PowerShieldFeedbackResponse>(ESO_PAY_ROUTES.powerShield.feedback, body)
+        .then((r) => r.data),
+  },
+
+  security: {
+    getTransactionPinStatus: () =>
+      esopayApiClient
+        .get<TransactionPinStatus>(ESO_PAY_ROUTES.security.transactionPin)
+        .then((r) => r.data),
+
+    setTransactionPin: (body: { pin: string; current_pin?: string }) =>
+      esopayApiClient
+        .put<{ ok: boolean } & TransactionPinStatus>(ESO_PAY_ROUTES.security.transactionPin, body)
+        .then((r) => r.data),
+
+    verifyTransactionPin: (body: { pin: string }) =>
+      esopayApiClient
+        .post<VerifyTransactionPinResult>(ESO_PAY_ROUTES.security.verifyTransactionPin, body)
+        .then((r) => r.data),
+
+    resetTransactionPin: (body: { pin: string }) =>
+      esopayApiClient
+        .post<{ ok: boolean } & TransactionPinStatus>(ESO_PAY_ROUTES.security.resetTransactionPin, body)
+        .then((r) => r.data),
+
+    beginTransactionPinRecovery: () =>
+      esopayApiClient
+        .post<{ ok: boolean; recovery_until: string }>(ESO_PAY_ROUTES.security.beginPinRecovery)
+        .then((r) => r.data),
+  },
+
+  profile: {
+    getKycStatus: () =>
+      esopayApiClient.get<EsoPayKycStatus>(ESO_PAY_ROUTES.profile.kyc).then((r) => r.data),
+
+    saveKyc: (body: { bvn?: string; nin?: string }) =>
+      esopayApiClient
+        .put<{ ok: boolean } & EsoPayKycStatus>(ESO_PAY_ROUTES.profile.kyc, body)
+        .then(({ data: { ok: _ok, ...status } }) => status),
+
+    deleteAccount: () =>
+      esopayApiClient.delete<{ ok: boolean }>(ESO_PAY_ROUTES.profile.account).then((r) => r.data),
+  },
+
+  disputes: {
+    list: (params?: { limit?: number }) =>
+      esopayApiClient
+        .get<{ data: EsoPayDisputeTicket[] }>(ESO_PAY_ROUTES.disputes.root, { params })
+        .then((r) => r.data),
+
+    get: (ticketId: string) =>
+      esopayApiClient
+        .get<{ ticket: EsoPayDisputeTicket }>(ESO_PAY_ROUTES.disputes.detail(ticketId))
+        .then((r) => r.data),
+
+    create: (body: CreateEsoPayDisputeRequest) =>
+      esopayApiClient
+        .post<{ ok: boolean; ticket: EsoPayDisputeTicket }>(ESO_PAY_ROUTES.disputes.root, body)
         .then((r) => r.data),
   },
 };

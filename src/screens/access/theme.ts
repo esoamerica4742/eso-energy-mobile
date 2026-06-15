@@ -1,10 +1,11 @@
 import { Platform } from 'react-native';
+import { GOLD } from '@/theme/colors';
 
 export const ACCESS_THEME = {
   bg: '#08080D',
   card: '#0F0F1A',
-  gold: '#D4AF37',
-  goldDim: '#8B6F2E',
+  gold: GOLD,
+  goldDim: GOLD,
   white: '#F7F4EE',
   body: '#A0A0A0',
   border: 'rgba(201,168,76,0.12)',
@@ -12,7 +13,7 @@ export const ACCESS_THEME = {
   borderCardEsoPay: 'rgba(201,168,76,0.11)',
   iconTintMonitoring: 'rgba(201,168,76,0.14)',
   iconTintEsoPay: 'rgba(201,168,76,0.08)',
-  accentBar: '#C9A84C',
+  accentBar: GOLD,
   accentBarFade: 'rgba(201,168,76,0.35)',
   ctaPress: 'rgba(201,168,76,0.06)',
   divider: 'rgba(201,168,76,0.08)',

@@ -10,18 +10,16 @@ const workspaceRoot = path.resolve(projectRoot, '..');
 const isWin = os.platform() === 'win32';
 const metroCacheRoot = path.join(projectRoot, '.metro-cache');
 const fs = require('fs');
-for (const sub of ['bundler', 'haste-map']) {
-  fs.mkdirSync(path.join(metroCacheRoot, sub), { recursive: true });
+
+if (!isWin) {
+  for (const sub of ['bundler', 'haste-map']) {
+    fs.mkdirSync(path.join(metroCacheRoot, sub), { recursive: true });
+  }
 }
 
 /**
- * Permanent EMFILE mitigation (Windows + monorepo parent folder):
- * - Watch only eso-energy-mobile (not eso-energy-com / parent node_modules)
- * - Project-local Metro cache (not os.tmpdir())
- * - Single bundler worker on Windows
- * - Disable auto-save cache churn on Windows
- *
- * Always start with: npm run start | start:lan | start:phone
+ * Windows + monorepo parent folder EMFILE mitigation.
+ * Always start dev builds with: npm run start:dev or npm run start:dev:stable
  */
 const config = getDefaultConfig(projectRoot);
 
@@ -30,12 +28,21 @@ config.projectRoot = projectRoot;
 config.maxWorkers = isWin ? 1 : Number(process.env.METRO_MAX_WORKERS) || 2;
 config.stickyWorkers = !isWin;
 
-config.cacheStores = [
-  new FileStore({
-    root: path.join(metroCacheRoot, 'bundler'),
-  }),
-];
-config.fileMapCacheDirectory = path.join(metroCacheRoot, 'haste-map');
+if (isWin) {
+  config.cacheStores = [];
+  config.resetCache = true;
+} else {
+  config.cacheStores = [
+    new FileStore({
+      root: path.join(metroCacheRoot, 'bundler'),
+    }),
+  ];
+  config.fileMapCacheDirectory = path.join(metroCacheRoot, 'haste-map');
+}
+
+function escapePath(dir) {
+  return dir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 const ignoredOutsideMobile = [
   path.join(workspaceRoot, 'eso-energy-com'),
@@ -54,21 +61,15 @@ config.resolver.blockList = exclusionList([
   /\/ios\/Pods\/.*/,
   /\/coverage\/.*/,
   /\/\.metro-cache\/.*/,
+  // Package-root platform folders only — not nested paths like reanimated layoutReanimation/web.
+  /\/node_modules\/[^/]+\/(android|ios|macos|windows|tvos|web)(\/|$)/,
 ]);
 
+config.resolver.nodeModulesPaths = [path.join(projectRoot, 'node_modules')];
 config.resolver.useWatchman = false;
 
 config.watcher = {
   ...config.watcher,
-  additionalExclusions: [
-    path.join(workspaceRoot, 'eso-energy-com'),
-    path.join(workspaceRoot, 'node_modules'),
-    path.join(workspaceRoot, '.git'),
-    path.join(projectRoot, '.metro-cache'),
-    path.join(projectRoot, 'android'),
-    path.join(projectRoot, 'ios'),
-    path.join(projectRoot, '.expo'),
-  ],
   healthCheck: {
     enabled: isWin,
     interval: 30000,
@@ -81,24 +82,14 @@ config.watcher = {
   },
 };
 
-function escapePath(dir) {
-  return dir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+if (isWin) {
+  config.watcher.unstable_workerThreads = false;
 }
 
 config.resolver.unstable_enablePackageExports = true;
 config.resolver.unstable_conditionNames = ['require', 'import', 'react-native'];
 
-const originalResolveRequest = config.resolver.resolveRequest;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-  if (moduleName === 'react-native-reanimated') {
-    return {
-      type: 'sourceFile',
-      filePath: path.join(
-        __dirname,
-        'node_modules/react-native-reanimated/lib/module/index.js',
-      ),
-    };
-  }
   if (moduleName === '@supabase/supabase-js') {
     return {
       type: 'sourceFile',
@@ -107,9 +98,6 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
         'node_modules/@supabase/supabase-js/dist/index.cjs',
       ),
     };
-  }
-  if (originalResolveRequest) {
-    return originalResolveRequest(context, moduleName, platform);
   }
   return context.resolveRequest(context, moduleName, platform);
 };

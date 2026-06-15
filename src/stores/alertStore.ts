@@ -20,6 +20,8 @@ export interface Alert {
 interface AlertState {
   alerts: Alert[];
   unreadCount: number;
+  syncError: string | null;
+  realtimeStatus: 'idle' | 'connected' | 'error';
 
   seed: (alerts: Alert[]) => void;
   prepend: (alert: Alert) => void;
@@ -27,6 +29,9 @@ interface AlertState {
   setAcknowledged: (id: string, acknowledged: boolean) => void;
   acknowledgeAll: () => void;
   clearOlderThan: (ms: number) => void;
+  setSyncError: (message: string | null) => void;
+  setRealtimeStatus: (status: AlertState['realtimeStatus']) => void;
+  reset: () => void;
 }
 
 const MAX_ALERTS = 200;
@@ -34,6 +39,8 @@ const MAX_ALERTS = 200;
 export const useAlertStore = create<AlertState>((set) => ({
   alerts: [],
   unreadCount: 0,
+  syncError: null,
+  realtimeStatus: 'idle',
 
   seed: (incoming) =>
     set({
@@ -86,6 +93,18 @@ export const useAlertStore = create<AlertState>((set) => ({
       alerts: s.alerts.filter((a) => new Date(a.timestamp).getTime() > cutoff),
     }));
   },
+
+  setSyncError: (message) => set({ syncError: message }),
+
+  setRealtimeStatus: (status) => set({ realtimeStatus: status }),
+
+  reset: () =>
+    set({
+      alerts: [],
+      unreadCount: 0,
+      syncError: null,
+      realtimeStatus: 'idle',
+    }),
 }));
 
 export const SEVERITY_ORDER: Record<AlertSeverity, number> = { critical: 0, warning: 1, info: 2 };

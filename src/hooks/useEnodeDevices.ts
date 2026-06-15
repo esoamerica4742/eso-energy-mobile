@@ -27,7 +27,7 @@ export function useEnodeDevices(options?: { syncOnMount?: boolean; enabled?: boo
     staleTime: CacheTier.live.staleTime,
     gcTime: CacheTier.live.gcTime,
     placeholderData: defaultQueryOptions.placeholderData,
-    refetchInterval: enabled && !isDemoMode ? 30_000 : false,
+    refetchInterval: enabled && !isDemoMode ? 60_000 : false,
     retry: isDemoMode ? 0 : 2,
   });
 }

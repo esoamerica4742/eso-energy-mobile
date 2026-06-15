@@ -1,6 +1,7 @@
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import {
   ESOPAY_HOME_ROUTE,
+  ESOPAY_PIN_GATE_ROUTE,
   MONITORING_HOME_ROUTE,
 } from '@/lib/navigation/productRoutes';
 
@@ -14,7 +15,7 @@ export default function AuthWelcomeRedirect() {
   const params = useLocalSearchParams();
   const module = paramString(params.module) || 'inverter';
   if (module === 'esopay') {
-    return <Redirect href={ESOPAY_HOME_ROUTE} />;
+    return <Redirect href={ESOPAY_PIN_GATE_ROUTE} />;
   }
   return <Redirect href={MONITORING_HOME_ROUTE} />;
 }

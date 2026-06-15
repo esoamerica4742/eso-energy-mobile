@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -20,7 +20,13 @@ import { WalletBalanceCard } from '@/esopay/components/WalletBalanceCard';
 import { colors } from '@/esopay/theme/colors';
 import { esopayFonts } from '@/esopay/theme/fonts';
 import { EsoPayTokens as T } from '@/esopay/theme/tokens';
+import {
+  getMonnifyProvisionErrorMessage,
+  getMonnifyProvisionLoadingHint,
+} from '@/esopay/lib/monnifyProvisionErrors';
 import { formatCurrencyAmount } from '@/esopay/utils/currency';
+import { EsoPayKycModal } from '@/esopay/components/EsoPayKycModal';
+import { useEsoPayKyc } from '@/esopay/hooks/useEsoPayKyc';
 
 type Props = {
   amountKobo?: number;

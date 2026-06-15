@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { AuthFlowLayout } from '@/components/auth/AuthFlowLayout';
 import { AuthButton } from '../components/AuthButton';
 import { AuthInput } from '../components/AuthInput';
 import { AuthTopBar } from '../components/AuthTopBar';
@@ -24,6 +25,7 @@ import { setLastProduct } from '@/lib/navigation/lastProduct';
 import { ESOPAY_HOME_ROUTE, MONITORING_HOME_ROUTE } from '@/lib/navigation/productRoutes';
 import { supabase } from '../lib/supabase';
 import { C, COUNTRIES, F } from '../theme/authTheme';
+import { MONITORING_AUTH } from '@/theme/monitoringAuthTheme';
 
 function paramString(value) {
   if (Array.isArray(value)) return value[0] ?? '';
@@ -61,13 +63,21 @@ export default function RegisterScreen() {
     (async () => {
       const user = isEsoPay ? await getEsoPayCurrentUser() : await getCurrentUser();
       const complete = isEsoPay ? isEsoPayProfileComplete(user) : isMonitoringProfileComplete(user);
-      if (cancelled || !complete) return;
-      router.replace(isEsoPay ? ESOPAY_HOME_ROUTE : MONITORING_HOME_ROUTE);
+      if (cancelled) return;
+      if (complete) {
+        router.replace(isEsoPay ? ESOPAY_HOME_ROUTE : MONITORING_HOME_ROUTE);
+        return;
+      }
+      const meta = user?.user_metadata ?? {};
+      if (meta.full_name?.trim()) setName(meta.full_name.trim());
+      if (meta.company?.trim()) setCompany(meta.company.trim());
+      if (meta.job_title?.trim()) setTitle(meta.job_title.trim());
+      if (meta.phone?.trim()) setPhone(meta.phone.trim());
     })();
     return () => {
       cancelled = true;
     };
-  }, [email, module, router]);
+  }, [email, isEsoPay, module, router]);
 
   const handleRegister = async () => {
     const next = {};
@@ -143,6 +153,118 @@ export default function RegisterScreen() {
     router.replace(MONITORING_HOME_ROUTE);
   };
 
+  const countryPickerModal = (
+    <Modal visible={pickerOpen} transparent animationType="fade">
+      <MotionPressable style={styles.modalBackdrop} onPress={() => setPickerOpen(false)} haptic="none">
+        <View style={[styles.modalSheet, !isEsoPay && styles.modalSheetMonitoring]}>
+          <ScrollView>
+            {COUNTRIES.map((c) => (
+              <MotionPressable
+                key={c.name}
+                style={styles.countryOption}
+                haptic="selection"
+                onPress={() => {
+                  setCountry(c);
+                  setPickerOpen(false);
+                }}
+              >
+                <Text style={styles.countryOptionText}>
+                  {c.flag}  {c.name}
+                </Text>
+              </MotionPressable>
+            ))}
+          </ScrollView>
+        </View>
+      </MotionPressable>
+    </Modal>
+  );
+
+  if (!isEsoPay) {
+    return (
+      <SafeAreaView style={styles.safeMonitoring} edges={['top', 'left', 'right']}>
+        <AuthFlowLayout
+          backgroundColor={MONITORING_AUTH.bg}
+          footer={
+            <AuthButton
+              variant="monitoring"
+              label="Create My Account →"
+              onPress={handleRegister}
+              loading={isLoading}
+              disabled={!isFormValid}
+            />
+          }
+          footerStyle={styles.monitoringFooter}
+        >
+          <AuthTopBar step={3} progressPercent={100} />
+
+          <MotionView variant="fadeInDown" delay={0} style={styles.monitoringHeadlineWrap}>
+            <Text style={styles.monitoringHeadline}>Almost there.</Text>
+            <Text style={styles.monitoringSub}>Tell us a little about yourself.</Text>
+          </MotionView>
+
+          <View style={styles.monitoringFields}>
+            <AuthInput
+              variant="monitoring"
+              label="Full Name"
+              value={name}
+              onChangeText={setName}
+              placeholder="James Osei"
+              autoFocus
+              autoCapitalize="words"
+              error={errors.name}
+              onBlur={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+            />
+            <View style={styles.fieldGap}>
+              <AuthInput
+                variant="monitoring"
+                label="Company Name"
+                value={company}
+                onChangeText={setCompany}
+                placeholder="Accra Power Holdings"
+                autoCapitalize="words"
+                error={errors.company}
+                onBlur={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+              />
+            </View>
+            <View style={styles.fieldGap}>
+              <AuthInput
+                variant="monitoring"
+                label="Job Title"
+                value={title}
+                onChangeText={setTitle}
+                placeholder="Operations Director"
+                autoCapitalize="words"
+                error={errors.title}
+                onBlur={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+              />
+            </View>
+            <View style={styles.fieldGap}>
+              <Text style={styles.monitoringLabel}>Country</Text>
+              <MotionPressable
+                style={styles.monitoringCountryBtn}
+                haptic="light"
+                onPress={() => setPickerOpen(true)}
+              >
+                <Text style={styles.monitoringCountryText}>
+                  {country.flag}  {country.name}
+                </Text>
+                <Feather name="chevron-down" size={18} color={MONITORING_AUTH.subtext} />
+              </MotionPressable>
+            </View>
+          </View>
+
+          {errors.form ? <Text style={styles.formError}>{errors.form}</Text> : null}
+
+          <View style={styles.monitoringTrustRow}>
+            <Feather name="lock" size={11} color={MONITORING_AUTH.mutedIcon} />
+            <Text style={styles.monitoringTrustText}>Your information is never sold.</Text>
+          </View>
+        </AuthFlowLayout>
+        {countryPickerModal}
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <KeyboardWrapper>
@@ -150,14 +272,8 @@ export default function RegisterScreen() {
           <AuthTopBar step={3} progressPercent={100} />
 
           <MotionView variant="fadeInDown" delay={0} style={{ marginTop: 48 }}>
-            <Text style={styles.headline}>
-              {isEsoPay ? 'Create your account.' : 'Almost there.'}
-            </Text>
-            <Text style={styles.sub}>
-              {isEsoPay
-                ? 'A few details for your personal Eso Pay wallet.'
-                : 'Tell us a little about yourself.'}
-            </Text>
+            <Text style={styles.headline}>Create your account.</Text>
+            <Text style={styles.sub}>A few details for your personal Eso Pay wallet.</Text>
           </MotionView>
 
           <View style={{ marginTop: 40 }}>
@@ -171,44 +287,17 @@ export default function RegisterScreen() {
               error={errors.name}
               onBlur={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
             />
-            {isEsoPay ? (
-              <View style={{ marginTop: 20 }}>
-                <AuthInput
-                  label="Phone (optional)"
-                  value={phone}
-                  onChangeText={setPhone}
-                  placeholder="0803 123 4567"
-                  keyboardType="phone-pad"
-                  autoCapitalize="none"
-                  onBlur={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
-                />
-              </View>
-            ) : (
-              <>
-                <View style={{ marginTop: 20 }}>
-                  <AuthInput
-                    label="Company Name"
-                    value={company}
-                    onChangeText={setCompany}
-                    placeholder="Accra Power Holdings"
-                    autoCapitalize="words"
-                    error={errors.company}
-                    onBlur={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
-                  />
-                </View>
-                <View style={{ marginTop: 20 }}>
-                  <AuthInput
-                    label="Job Title"
-                    value={title}
-                    onChangeText={setTitle}
-                    placeholder="Operations Director"
-                    autoCapitalize="words"
-                    error={errors.title}
-                    onBlur={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
-                  />
-                </View>
-              </>
-            )}
+            <View style={{ marginTop: 20 }}>
+              <AuthInput
+                label="Phone (optional)"
+                value={phone}
+                onChangeText={setPhone}
+                placeholder="0803 123 4567"
+                keyboardType="phone-pad"
+                autoCapitalize="none"
+                onBlur={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+              />
+            </View>
 
             <View style={{ marginTop: 20 }}>
               <Text style={styles.label}>Country</Text>
@@ -225,13 +314,11 @@ export default function RegisterScreen() {
             </View>
           </View>
 
-          {errors.form ? (
-            <Text style={styles.formError}>{errors.form}</Text>
-          ) : null}
+          {errors.form ? <Text style={styles.formError}>{errors.form}</Text> : null}
 
           <View style={{ marginTop: 36 }}>
             <AuthButton
-              label={isEsoPay ? 'Create Eso Pay Account →' : 'Create My Account →'}
+              label="Create Eso Pay Account →"
               onPress={handleRegister}
               loading={isLoading}
               disabled={!isFormValid}
@@ -244,36 +331,14 @@ export default function RegisterScreen() {
           </View>
         </View>
       </KeyboardWrapper>
-
-      <Modal visible={pickerOpen} transparent animationType="fade">
-        <MotionPressable style={styles.modalBackdrop} onPress={() => setPickerOpen(false)} haptic="none">
-          <View style={styles.modalSheet}>
-            <ScrollView>
-              {COUNTRIES.map((c) => (
-                <MotionPressable
-                  key={c.name}
-                  style={styles.countryOption}
-                  haptic="selection"
-                  onPress={() => {
-                    setCountry(c);
-                    setPickerOpen(false);
-                  }}
-                >
-                  <Text style={styles.countryOptionText}>
-                    {c.flag}  {c.name}
-                  </Text>
-                </MotionPressable>
-              ))}
-            </ScrollView>
-          </View>
-        </MotionPressable>
-      </Modal>
+      {countryPickerModal}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.DARK_1 },
+  safeMonitoring: { flex: 1, backgroundColor: MONITORING_AUTH.bg },
   pad: { flex: 1, paddingHorizontal: 24, paddingBottom: 32 },
   headline: { fontFamily: F.cormorant, fontSize: 44, lineHeight: 48, color: C.WHITE },
   sub: {
@@ -311,6 +376,54 @@ const styles = StyleSheet.create({
     color: C.OFF_WHITE,
     opacity: 0.25,
   },
+  monitoringFooter: { marginTop: 20 },
+  monitoringHeadlineWrap: { marginTop: 24 },
+  monitoringHeadline: {
+    fontFamily: F.cormorant,
+    fontSize: 44,
+    lineHeight: 48,
+    color: '#FFFFFF',
+  },
+  monitoringSub: {
+    marginTop: 10,
+    fontFamily: F.sansLight,
+    fontSize: 15,
+    lineHeight: 22,
+    color: MONITORING_AUTH.subtext,
+  },
+  monitoringFields: { marginTop: 24 },
+  fieldGap: { marginTop: 12 },
+  monitoringLabel: {
+    fontFamily: F.sansMed,
+    fontSize: 12,
+    color: MONITORING_AUTH.subtext,
+    letterSpacing: 0.5,
+    marginBottom: 8,
+  },
+  monitoringCountryBtn: {
+    backgroundColor: MONITORING_AUTH.card,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: MONITORING_AUTH.card,
+    height: 56,
+    paddingHorizontal: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  monitoringCountryText: { fontFamily: F.sansLight, fontSize: 16, color: '#FFFFFF' },
+  monitoringTrustRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    justifyContent: 'center',
+  },
+  monitoringTrustText: {
+    marginLeft: 6,
+    fontFamily: F.sansLight,
+    fontSize: 11,
+    color: MONITORING_AUTH.subtext,
+  },
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -323,10 +436,13 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     maxHeight: 360,
   },
+  modalSheetMonitoring: {
+    backgroundColor: MONITORING_AUTH.card,
+  },
   countryOption: { paddingHorizontal: 24, paddingVertical: 16 },
   countryOptionText: { fontFamily: F.sansMed, fontSize: 16, color: C.WHITE },
   formError: {
-    marginTop: 16,
+    marginTop: 12,
     fontFamily: F.sansLight,
     fontSize: 13,
     color: C.ERROR,

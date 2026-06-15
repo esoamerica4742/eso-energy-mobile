@@ -452,7 +452,9 @@ export function useValidateUtilityAccount() {
   });
 }
 
-type PurchaseUtilityVariables = Omit<PurchaseUtilityRequest, 'idempotency_key'>;
+type PurchaseUtilityVariables = Omit<PurchaseUtilityRequest, 'idempotency_key'> & {
+  transaction_pin: string;
+};
 
 export function usePurchaseUtility() {
   const host = useEsoPayHost();

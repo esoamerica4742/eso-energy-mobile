@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+const GOLD = '#C9A84C';
+
 module.exports = {
   content: ['./app/**/*.{js,jsx,ts,tsx}', './src/**/*.{js,jsx,ts,tsx}'],
   presets: [require('nativewind/preset')],
@@ -13,7 +15,7 @@ module.exports = {
         'paybills-gold-gray': '#7A7168',
         'stripe-purple': '#635BFF',
         'stripe-teal': '#00C896',
-        'stripe-gold': '#D4AF37',
+        'stripe-gold': GOLD,
         'stripe-bg': '#F6F9FC',
         'stripe-navy': '#0A2540',
         'stripe-border': '#e6e6f0',
@@ -23,7 +25,7 @@ module.exports = {
           to: '#141419',
         },
         'electric-teal': '#00E5FF',
-        'command-gold': '#D4AF37',
+        'command-gold': GOLD,
         'eso-base': '#0b0f19',
         'eso-surface': '#111827',
         'eso-elevated': '#1a2234',

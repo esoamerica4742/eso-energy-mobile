@@ -1,0 +1,98 @@
+/**
+ * Eso Pay global design system — ultra-premium luxury fintech.
+ * Inter only · deep navy · solar gold accent · no gradients.
+ */
+import { GOLD } from '@/theme/colors';
+import { inter } from '@/theme/fonts';
+
+export const ESO_PAY_CANVAS_BG = '#020B1A' as const;
+
+export const ds = {
+  color: {
+    bg: ESO_PAY_CANVAS_BG,
+    surface1: '#0D1018',
+    surface2: '#111827',
+    surface3: '#161B28',
+    border: '#1C2030',
+    borderSubtle: '#2A3040',
+    borderActive: '#D3991A',
+    gold: '#D3991A',
+    goldDim: '#8A6F32',
+    teal: '#D3991A',
+    error: '#FF5C5C',
+    warning: '#F59E0B',
+    textPrimary: '#F5F0E8',
+    textSecondary: '#9CA3AF',
+    textMuted: '#4A5568',
+    textDisabled: '#4A5568',
+    textPlaceholder: '#4A5568',
+    display: '#F5F0E8',
+    navBg: 'rgba(2, 11, 26, 0.88)',
+    overlay: 'rgba(0,0,0,0.65)',
+    shadow: 'rgba(0,0,0,0.5)',
+    tealMuted: 'rgba(211, 153, 26, 0.1)',
+    goldMuted12: 'rgba(211, 153, 26, 0.12)',
+    goldMuted20: 'rgba(211, 153, 26, 0.2)',
+    goldMuted35: 'rgba(211, 153, 26, 0.35)',
+    goldMuted08: 'rgba(211, 153, 26, 0.08)',
+    goldMuted04: 'rgba(211, 153, 26, 0.04)',
+    errorMuted: 'rgba(255,92,92,0.1)',
+    warningMuted: 'rgba(245,158,11,0.1)',
+  },
+  font: {
+    display: inter.bold,
+    headline: inter.bold,
+    title: inter.semibold,
+    subtitle: inter.semibold,
+    body: inter.regular,
+    bodyStrong: inter.medium,
+    label: inter.medium,
+    caption: inter.regular,
+    amount: inter.bold,
+    button: inter.semibold,
+  },
+  type: {
+    display: { fontSize: 40, lineHeight: 46, letterSpacing: -1 },
+    headline: { fontSize: 28, lineHeight: 34 },
+    title: { fontSize: 18, lineHeight: 24 },
+    subtitle: { fontSize: 16, lineHeight: 22 },
+    body: { fontSize: 15, lineHeight: 22 },
+    label: { fontSize: 13, lineHeight: 18 },
+    caption: { fontSize: 12, lineHeight: 16 },
+    section: { fontSize: 13, lineHeight: 18, letterSpacing: 2 },
+    amount: { fontSize: 42, lineHeight: 48, letterSpacing: -1.2 },
+    button: { fontSize: 16, lineHeight: 22, letterSpacing: 0.3 },
+    nav: { fontSize: 10, lineHeight: 13, letterSpacing: 0.4 },
+    chip: { fontSize: 11, lineHeight: 14 },
+  },
+  radius: {
+    chip: 10,
+    input: 14,
+    card: 18,
+    wallet: 28,
+    modal: 24,
+    pill: 999,
+    otp: 12,
+    nav: 28,
+  },
+  space: {
+    screen: 20,
+    section: 28,
+    component: 14,
+    inline: 8,
+  },
+  size: {
+    buttonHeight: 54,
+    ghostHeight: 52,
+    inputHeight: 56,
+    otpBox: 56,
+    iconDefault: 20,
+    iconFeature: 24,
+    navIcon: 22,
+    sectionAccent: 3,
+  },
+  motion: {
+    duration: 250,
+    spring: { stiffness: 300, damping: 20 },
+  },
+} as const;

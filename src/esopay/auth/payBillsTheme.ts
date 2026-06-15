@@ -1,3 +1,4 @@
+import { GOLD } from '@/theme/colors';
 import { inter } from '@/theme/fonts';
 
 /** ESO Pay Bills auth — design tokens (private banking / monochrome) */
@@ -15,9 +16,9 @@ export const PayBills = {
   textSecondary: '#666666',
   textMuted: '#333333',
   textHelper: '#444444',
-  textBack: '#C9A84C',
+  textBack: GOLD,
   btnText: '#FFFFFF',
-  error: '#FF4444',
+  error: '#E53E3E',
   success: '#22C55E',
   maxWidth: 390,
 } as const;

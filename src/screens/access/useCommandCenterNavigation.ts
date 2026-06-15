@@ -2,13 +2,13 @@ import { useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import {
-  ESOPAY_HOME_ROUTE,
   ESOPAY_LOGIN_ROUTE,
-  MONITORING_HOME_ROUTE,
   MONITORING_LOGIN_ROUTE,
   type AppProduct,
 } from '@/lib/navigation/productRoutes';
-import { setLastProduct } from '@/lib/navigation/lastProduct';
+import { resolveMonitoringLaunchRoute } from '@/monitoring/navigation/resolveMonitoringLaunchRoute';
+import { resolveEsoPayLaunchRoute } from '@/esopay/navigation/resolveEsoPayLaunchRoute';
+import { getLastProduct, setLastProduct } from '@/lib/navigation/lastProduct';
 import { selectEsoPayHasAccess, useEsoPayAuthStore } from '@/esopay/auth/store';
 import { selectIsLoggedIn, useAuthStore } from '@/stores/authStore';
 import { useAuth } from '@/hooks/useAuth';
@@ -25,8 +25,6 @@ export function useCommandCenterNavigation() {
 
   const navigateToProduct = useCallback(
     async (product: AppProduct) => {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-
       if (product === 'monitoring') {
         await setLastProduct('monitoring');
         setModule('inverter');
@@ -34,7 +32,8 @@ export function useCommandCenterNavigation() {
           router.push(MONITORING_LOGIN_ROUTE);
           return;
         }
-        router.replace(MONITORING_HOME_ROUTE);
+        const monitoringUser = useAuthStore.getState().user;
+        router.replace(await resolveMonitoringLaunchRoute(monitoringUser));
         return;
       }
 
@@ -44,15 +43,31 @@ export function useCommandCenterNavigation() {
         router.push(ESOPAY_LOGIN_ROUTE);
         return;
       }
-      router.replace(ESOPAY_HOME_ROUTE);
+      const userId = useEsoPayAuthStore.getState().user?.id;
+      useEsoPayAuthStore.getState().setPinSessionUnlocked(false);
+      router.replace(await resolveEsoPayLaunchRoute(userId));
     },
     [isEsoPayAuthenticated, isMonitoringAuthenticated, router, setModule],
   );
 
-  const openSignIn = useCallback(() => {
-    void Haptics.selectionAsync();
-    router.push('/login');
-  }, [router]);
+  const signInToProduct = useCallback(
+    async (product: AppProduct) => {
+      await Haptics.selectionAsync();
+      await setLastProduct(product);
+      setModule(product === 'esopay' ? 'esopay' : 'inverter');
+      router.push(product === 'esopay' ? ESOPAY_LOGIN_ROUTE : MONITORING_LOGIN_ROUTE);
+    },
+    [router, setModule],
+  );
 
-  return { navigateToProduct, openSignIn };
+  const openSignIn = useCallback(async () => {
+    const last = await getLastProduct();
+    if (last) {
+      await signInToProduct(last);
+      return;
+    }
+    await signInToProduct('esopay');
+  }, [signInToProduct]);
+
+  return { navigateToProduct, signInToProduct, openSignIn };
 }

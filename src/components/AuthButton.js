@@ -7,11 +7,12 @@ import Animated, {
   useSharedValue,
   withRepeat,
   withSequence,
-  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import { MotionPressable } from '@/lib/motion';
 import { useReducedMotion } from '@/lib/motion/useReducedMotion';
+import { ESOPAY_SIGN_IN } from '@/esopay/auth/esoPaySignInTheme';
+import { inter } from '@/theme/fonts';
 import { C, F } from '../theme/authTheme';
 
 export function AuthButton({
@@ -20,10 +21,22 @@ export function AuthButton({
   loading = false,
   disabled = false,
   variant = 'primary',
+  /** Eso Pay email step only — flat gold matching Add Funds. */
+  goldCta = false,
 }) {
   const reduced = useReducedMotion();
   const scale = useSharedValue(1);
   const pulse = useSharedValue(1);
+  const activeOpacity = useSharedValue(disabled ? 0 : 1);
+
+  const isEsoPay = variant === 'esopay';
+  const isGhost = variant === 'ghost';
+  const isDisabled = disabled || loading;
+
+  useEffect(() => {
+    const duration = isEsoPay ? 150 : 200;
+    activeOpacity.value = withTiming(disabled ? 0 : 1, { duration });
+  }, [disabled, activeOpacity, isEsoPay]);
 
   useEffect(() => {
     if (loading && !disabled) {
@@ -41,9 +54,17 @@ export function AuthButton({
     opacity: loading && !disabled ? pulse.value : 1,
   }));
 
+  const enabledLayerStyle = useAnimatedStyle(() => ({
+    opacity: activeOpacity.value,
+  }));
+
+  const disabledLayerStyle = useAnimatedStyle(() => ({
+    opacity: 1 - activeOpacity.value,
+  }));
+
   const handlePress = () => {
     if (disabled || loading) return;
-    if (variant === 'primary') {
+    if (variant === 'primary' || isEsoPay) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     } else {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -51,12 +72,43 @@ export function AuthButton({
     onPress?.();
   };
 
-  const isGhost = variant === 'ghost';
+  if (isEsoPay) {
+    return (
+      <MotionPressable
+        onPress={handlePress}
+        disabled={isDisabled}
+        haptic="medium"
+        scaleTo={reduced ? 1 : 0.97}
+      >
+        <Animated.View style={[styles.esopayStack, animStyle]}>
+          <Animated.View style={[styles.esopayLayer, disabledLayerStyle]}>
+            <View style={styles.esopayDisabled}>
+              <Text style={styles.esopayDisabledText}>{label}</Text>
+            </View>
+          </Animated.View>
+          <Animated.View style={[styles.esopayLayer, styles.esopayLayerTop, enabledLayerStyle]}>
+            <View style={[styles.esopayActive, goldCta && styles.esopayActiveGold]}>
+              {loading ? (
+                <ActivityIndicator
+                  color={goldCta ? ESOPAY_SIGN_IN.buttonText : '#FFFFFF'}
+                  size="small"
+                />
+              ) : (
+                <Text style={[styles.esopayActiveText, goldCta && styles.esopayActiveTextGold]}>
+                  {label}
+                </Text>
+              )}
+            </View>
+          </Animated.View>
+        </Animated.View>
+      </MotionPressable>
+    );
+  }
 
   return (
     <MotionPressable
       onPress={handlePress}
-      disabled={disabled || loading}
+      disabled={isDisabled}
       haptic={variant === 'primary' ? 'medium' : 'light'}
       scaleTo={reduced ? 1 : 0.97}
     >
@@ -135,5 +187,49 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: C.OFF_WHITE,
     opacity: 0.6,
+  },
+  esopayStack: {
+    height: 56,
+    position: 'relative',
+  },
+  esopayLayer: {
+    ...StyleSheet.absoluteFill,
+  },
+  esopayLayerTop: {
+    zIndex: 1,
+  },
+  esopayDisabled: {
+    flex: 1,
+    borderRadius: 14,
+    backgroundColor: ESOPAY_SIGN_IN.surface,
+    borderWidth: 1,
+    borderColor: ESOPAY_SIGN_IN.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  esopayDisabledText: {
+    fontFamily: inter.medium,
+    fontSize: 17,
+    color: ESOPAY_SIGN_IN.disabledText,
+  },
+  esopayActive: {
+    flex: 1,
+    borderRadius: 14,
+    backgroundColor: ESOPAY_SIGN_IN.teal,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  esopayActiveGold: {
+    backgroundColor: ESOPAY_SIGN_IN.gold,
+  },
+  esopayActiveText: {
+    fontFamily: inter.bold,
+    fontSize: 17,
+    color: '#FFFFFF',
+  },
+  esopayActiveTextGold: {
+    fontFamily: inter.semibold,
+    fontSize: 16,
+    color: ESOPAY_SIGN_IN.buttonText,
   },
 });

@@ -10,10 +10,12 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 import type { BillFilterTab } from '@/esopay/data/utilities';
+import { EsoPaySectionLabel } from '@/esopay/components/EsoPaySectionLabel';
 import { luxury } from '@/esopay/theme/luxury';
+import { ESO_PAY_GOLD, ESO_PAY_GOLD_MUTED } from '@/esopay/theme/brandColors';
 import { fonts } from '@/esopay/theme/typography';
 
-const GOLD = '#C9A84C';
+const ELECTRICITY_ACCENT = NAV_GOLD;
 
 export type BillCategoryTile = {
   key: string;
@@ -25,7 +27,7 @@ export type BillCategoryTile = {
 
 /** Opay-style quick category shortcuts — tap jumps to that folder */
 export const BILL_CATEGORY_TILES: BillCategoryTile[] = [
-  { key: 'elec', label: 'Electricity', filter: 'ELECTRICITY', color: GOLD, Icon: Zap },
+  { key: 'elec', label: 'Electricity', filter: 'ELECTRICITY', color: '#F59E0B', Icon: Zap },
   { key: 'air', label: 'Airtime', filter: 'AIRTIME', color: '#10B981', Icon: Phone },
   { key: 'data', label: 'Data', filter: 'DATA', color: '#38BDF8', Icon: ChartBar },
   { key: 'tv', label: 'Cable TV', filter: 'CABLE TV', color: '#A855F7', Icon: Tv },
@@ -41,7 +43,7 @@ type Props = {
 export const BillCategoriesRow = memo(function BillCategoriesRow({ activeFilter, onSelect }: Props) {
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionLabel}>Pay a bill</Text>
+      <EsoPaySectionLabel style={styles.sectionLabelTracking}>Pay a bill</EsoPaySectionLabel>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -59,8 +61,8 @@ export const BillCategoriesRow = memo(function BillCategoriesRow({ activeFilter,
               onPress={() => onSelect(tile.filter)}
               style={({ pressed }) => [
                 styles.tile,
-                { borderColor: active ? tile.color : 'rgba(201,168,76,0.15)' },
-                active && { backgroundColor: `${tile.color}18` },
+                { borderColor: active ? tile.color : 'rgba(255,255,255,0.08)' },
+                active && { backgroundColor: ESO_PAY_GOLD_MUTED },
                 pressed && styles.tilePressed,
               ]}
               accessibilityRole="button"

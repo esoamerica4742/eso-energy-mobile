@@ -10,11 +10,12 @@ import {
 } from 'react-native';
 import { format } from 'date-fns';
 import { useRouter } from 'expo-router';
-import { useWalletTransactions } from '@/esopay/api/hooks/useBilling';
 import type { EsoPayWalletTransaction, WalletTransactionCategory } from '@/esopay/api/types';
 import { EsoPayHeader } from '@/esopay/components/EsoPayHeader';
 import { EsoPayScreenShell } from '@/esopay/components/EsoPayScreenShell';
 import { useEsoPayScrollPadding } from '@/esopay/hooks/useEsoPayScrollPadding';
+import { useWalletTransactionsInfinite } from '@/esopay/hooks/useWalletTransactionsInfinite';
+import { EsoPayInlineError } from '@/esopay/components/EsoPayInlineError';
 import { WalletLedgerRow } from '@/esopay/components/WalletLedgerRow';
 import { colors } from '@/esopay/theme/colors';
 import { spacing } from '@/esopay/theme/spacing';
@@ -36,10 +37,17 @@ export function HistoryScreen() {
   const scrollPad = useEsoPayScrollPadding({ tabBar: false });
   const [filter, setFilter] = useState<HistoryFilter>('ALL');
   const category = FILTER_TO_CATEGORY[filter];
-  const ledgerQuery = useWalletTransactions({ page: 1, limit: 50, category });
+
+  const ledgerQuery = useWalletTransactionsInfinite({ limit: 30, category });
+
+  const rows = useMemo(
+    () => ledgerQuery.data?.pages.flatMap((page) => page.data) ?? [],
+    [ledgerQuery.data?.pages],
+  );
+
+  const total = ledgerQuery.data?.pages[0]?.total ?? rows.length;
 
   const sections = useMemo(() => {
-    const rows = ledgerQuery.data?.data ?? [];
     const grouped = new Map<string, EsoPayWalletTransaction[]>();
     for (const row of rows) {
       const key = format(new Date(row.created_at), 'd MMMM yyyy');
@@ -48,10 +56,15 @@ export function HistoryScreen() {
       grouped.set(key, bucket);
     }
     return Array.from(grouped.entries()).map(([title, data]) => ({ title, data }));
-  }, [ledgerQuery.data?.data]);
+  }, [rows]);
 
   const onRefresh = useCallback(() => {
     void ledgerQuery.refetch();
+  }, [ledgerQuery]);
+
+  const loadMore = useCallback(() => {
+    if (!ledgerQuery.hasNextPage || ledgerQuery.isFetchingNextPage) return;
+    void ledgerQuery.fetchNextPage();
   }, [ledgerQuery]);
 
   return (
@@ -71,9 +84,14 @@ export function HistoryScreen() {
             tintColor={colors.gold}
           />
         }
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.35}
         ListHeaderComponent={
           <>
             <Text style={styles.title}>History</Text>
+            <Text style={styles.count}>
+              {rows.length > 0 ? `${rows.length} of ${total} transactions` : ' '}
+            </Text>
             <View style={styles.filters}>
               {(['ALL', 'BILLS', 'WALLET', 'AIRTIME'] as HistoryFilter[]).map((key) => (
                 <Pressable
@@ -97,9 +115,23 @@ export function HistoryScreen() {
             ))}
           </View>
         )}
+        ListFooterComponent={
+          ledgerQuery.isFetchingNextPage ? (
+            <ActivityIndicator color={colors.gold} style={{ marginVertical: spacing.lg }} />
+          ) : ledgerQuery.hasNextPage ? (
+            <Pressable onPress={loadMore} style={styles.loadMore}>
+              <Text style={styles.loadMoreText}>Load more</Text>
+            </Pressable>
+          ) : null
+        }
         ListEmptyComponent={
           ledgerQuery.isLoading ? (
             <ActivityIndicator color={colors.gold} style={{ marginTop: spacing.xxl }} />
+          ) : ledgerQuery.isError ? (
+            <EsoPayInlineError
+              message="We could not load your transaction history."
+              onRetry={() => void ledgerQuery.refetch()}
+            />
           ) : (
             <Text style={styles.empty}>No transactions yet.</Text>
           )
@@ -118,7 +150,14 @@ const styles = StyleSheet.create({
     fontFamily: appFonts.bold,
     fontSize: FontSize.title,
     color: Colors.textPrimary,
+    marginBottom: 4,
+  },
+  count: {
+    fontFamily: fonts.ui,
+    fontSize: 12,
+    color: colors.muted,
     marginBottom: spacing.lg,
+    minHeight: 16,
   },
   filters: {
     flexDirection: 'row',
@@ -162,5 +201,14 @@ const styles = StyleSheet.create({
     color: colors.muted,
     textAlign: 'center',
     marginTop: spacing.xxxl,
+  },
+  loadMore: {
+    alignItems: 'center',
+    paddingVertical: spacing.lg,
+  },
+  loadMoreText: {
+    fontFamily: fonts.uiMedium,
+    fontSize: 14,
+    color: colors.gold,
   },
 });

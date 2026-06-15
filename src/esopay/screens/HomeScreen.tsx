@@ -1,11 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { format } from 'date-fns';
 import * as Haptics from 'expo-haptics';
 import { EsoPayHomeHero } from '@/esopay/components/EsoPayHomeHero';
 import { EsoPayPinSetupCard } from '@/esopay/components/EsoPayPinSetupCard';
 import { EsoPayTransactionPinModal } from '@/esopay/components/EsoPayTransactionPinModal';
+import { EsoPayInlineError } from '@/esopay/components/EsoPayInlineError';
 import { MonnifyWalletCard } from '@/esopay/components/MonnifyWalletCard';
 import { useTransactionPin } from '@/esopay/hooks/useTransactionPin';
 import { useEnodeToast } from '@/providers/EnodeToastProvider';
@@ -13,17 +13,18 @@ import { useHomeWalletBalance } from '@/esopay/hooks/useHomeWalletBalance';
 import { EsoPayRecentBillers } from '@/esopay/components/EsoPayRecentBillers';
 import { HomeRecentTransactions } from '@/esopay/components/HomeRecentTransactions';
 import { PayAgainSection } from '@/esopay/components/PayAgainSection';
-import { LuxuryGrainOverlay } from '@/esopay/components/LuxuryGrainOverlay';
 import { EsoPayScreenShell } from '@/esopay/components/EsoPayScreenShell';
 import { useEsoPayAuthStore } from '@/esopay/auth/store';
 import { useEsoPayScrollPadding } from '@/esopay/hooks/useEsoPayScrollPadding';
+import { homeGreeting } from '@/esopay/lib/homeGreeting';
+import { grid } from '@/esopay/theme/homeGrid';
 import {
   esopayFundWalletHref,
   ESOPAY_BILLS_HREF,
   ESOPAY_HISTORY_HREF,
   ESOPAY_WALLET_HREF,
 } from '@/esopay/navigation/routes';
-import { spacing } from '@/esopay/theme/spacing';
+
 
 const HOME_SCREEN_DEBUG = false;
 
@@ -34,12 +35,18 @@ function formatFirstName(raw: string): string {
 }
 
 export function HomeScreen() {
-  const scrollPad = useEsoPayScrollPadding({ topExtra: spacing.sm });
+  const scrollPad = useEsoPayScrollPadding({ topExtra: 0 });
   const router = useRouter();
   const toast = useEnodeToast();
   const { balanceKobo, walletQuery } = useHomeWalletBalance();
   const user = useEsoPayAuthStore((s) => s.user);
-  const { pinConfigured, isChecking: pinChecking, configurePin, userIdReady } = useTransactionPin();
+  const {
+    pinConfigured,
+    isChecking: pinChecking,
+    configurePin,
+    verifyPin,
+    userIdReady,
+  } = useTransactionPin();
   const [pinOpen, setPinOpen] = useState(false);
 
   const firstName = useMemo(() => {
@@ -52,9 +59,7 @@ export function HomeScreen() {
     return formatFirstName(raw);
   }, [user]);
 
-  const now = new Date();
-  const greeting = `Hi ${firstName}`;
-  const dateLabel = format(now, 'EEEE, d MMMM yyyy');
+  const greeting = useMemo(() => homeGreeting(firstName), [firstName]);
   const headerPad = useMemo(() => ({ paddingTop: scrollPad.paddingTop }), [scrollPad.paddingTop]);
   const bodyPad = useMemo(() => ({ paddingBottom: scrollPad.paddingBottom }), [scrollPad.paddingBottom]);
 
@@ -78,10 +83,35 @@ export function HomeScreen() {
 
   return (
     <EsoPayScreenShell>
-      <LuxuryGrainOverlay />
       <View style={styles.container}>
-        <View style={[styles.header, headerPad]}>
-          <EsoPayHomeHero greeting={greeting} dateLabel={dateLabel} />
+        <View style={[styles.heroBlock, headerPad]}>
+          <EsoPayHomeHero greeting={greeting} />
+
+          <View style={styles.walletAnchor}>
+            {walletQuery.isError && walletQuery.data == null ? (
+              <EsoPayInlineError
+                title="Wallet unavailable"
+                message="We could not load your balance. Check your connection and try again."
+                onRetry={() => void walletQuery.refetch()}
+              />
+            ) : (
+              <MonnifyWalletCard
+                balanceKobo={balanceKobo}
+                loading={walletQuery.isLoading && walletQuery.data == null}
+                stableDisplay
+                onFundPress={() => navigate(esopayFundWalletHref())}
+                onManagePress={() => navigate(ESOPAY_WALLET_HREF)}
+              />
+            )}
+            {walletQuery.isError && walletQuery.data != null ? (
+              <EsoPayInlineError
+                title="Balance may be outdated"
+                message="We could not refresh your wallet. The amount shown may not be current."
+                onRetry={() => void walletQuery.refetch()}
+                retryLabel="Refresh balance"
+              />
+            ) : null}
+          </View>
         </View>
 
         <ScrollView
@@ -102,20 +132,11 @@ export function HomeScreen() {
             }}
           />
 
-          <MonnifyWalletCard
-            balanceKobo={balanceKobo}
-            loading={walletQuery.isLoading && walletQuery.data == null}
-            stableDisplay
-            onFundPress={() => navigate(esopayFundWalletHref())}
-            onHistoryPress={() => navigate(ESOPAY_HISTORY_HREF)}
-            onDetailsPress={() => navigate(ESOPAY_WALLET_HREF)}
-          />
-
           <EsoPayRecentBillers onSeeAll={() => navigate(ESOPAY_BILLS_HREF)} />
 
-          <PayAgainSection />
-
           <HomeRecentTransactions onViewAll={() => navigate(ESOPAY_HISTORY_HREF)} />
+
+          <PayAgainSection />
         </ScrollView>
       </View>
 
@@ -123,8 +144,9 @@ export function HomeScreen() {
         open={pinOpen}
         onOpenChange={setPinOpen}
         pinConfigured={pinConfigured}
-        onSave={async (pin) => {
-          await configurePin(pin);
+        verifyCurrentPin={async (pin) => (await verifyPin(pin)).ok}
+        onSave={async (pin, currentPin) => {
+          await configurePin(pin, currentPin);
           toast.show('Transaction PIN saved — use it when you pay bills', 'success');
         }}
       />
@@ -137,16 +159,21 @@ const styles = StyleSheet.create({
     flex: 1,
     zIndex: 1,
   },
-  header: {
-    paddingHorizontal: spacing.screen,
+  heroBlock: {
+    paddingHorizontal: grid.sm,
+    marginBottom: 0,
+  },
+  walletAnchor: {
+    marginTop: 18,
+    marginBottom: 30,
   },
   scroll: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: spacing.screen,
-    gap: spacing.xxl,
-    paddingBottom: spacing.xxxl,
+    paddingHorizontal: grid.sm,
+    gap: grid.sm,
+    paddingTop: grid.xs,
   },
   debug: {
     flex: 1,
@@ -156,7 +183,7 @@ const styles = StyleSheet.create({
     borderColor: 'orange',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    padding: grid.md,
   },
   debugText: {
     color: 'white',

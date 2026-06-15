@@ -1,6 +1,5 @@
 import { memo } from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import {
   ChartBar,
@@ -18,22 +17,29 @@ import {
   UTILITY_CATEGORY_SLUGS,
   type UtilityCategorySlug,
 } from '@/esopay/data/nigeriaBillers';
-import { luxury } from '@/esopay/theme/luxury';
+import {
+  BILL_CATEGORY_CARD_HEIGHT,
+  BILL_PAY_GRID_COLS,
+  BILL_PAY_GRID_H_PAD,
+  BILL_PAY_GRID_ITEM_MARGIN,
+} from '@/esopay/components/bills/billPayCardTheme';
+import { EsoPaySectionLabel } from '@/esopay/components/EsoPaySectionLabel';
+import { ESO_PAY_GOLD, ESO_PAY_GOLD_MUTED } from '@/esopay/theme/brandColors';
+import { ds } from '@/esopay/theme/designSystem';
 import { spacing } from '@/esopay/theme/spacing';
-import { fonts } from '@/esopay/theme/typography';
+import { inter } from '@/theme/fonts';
 
-const TILE_THEME: Record<
-  UtilityCategorySlug,
-  { Icon: LucideIcon; gradient: [string, string]; glow: string }
-> = {
-  electricity: { Icon: Zap, gradient: ['#F59E0B', '#B45309'], glow: 'rgba(245,158,11,0.25)' },
-  airtime: { Icon: Phone, gradient: ['#10B981', '#047857'], glow: 'rgba(16,185,129,0.22)' },
-  data: { Icon: ChartBar, gradient: ['#38BDF8', '#0369A1'], glow: 'rgba(56,189,248,0.22)' },
-  tv: { Icon: Tv, gradient: ['#A855F7', '#6B21A8'], glow: 'rgba(168,85,247,0.22)' },
-  education: { Icon: GraduationCap, gradient: ['#FB923C', '#C2410C'], glow: 'rgba(251,146,60,0.22)' },
-  betting: { Icon: Target, gradient: ['#F43F5E', '#BE123C'], glow: 'rgba(244,63,94,0.22)' },
-  water: { Icon: Droplets, gradient: ['#0EA5E9', '#0284C7'], glow: 'rgba(14,165,233,0.22)' },
-  waste: { Icon: Recycle, gradient: ['#84CC16', '#65A30D'], glow: 'rgba(132,204,22,0.22)' },
+const GOLD_TILE = { accent: ESO_PAY_GOLD, iconBg: ESO_PAY_GOLD_MUTED };
+
+const TILE_THEME: Record<UtilityCategorySlug, { Icon: LucideIcon; accent: string; iconBg: string }> = {
+  electricity: { Icon: Zap, ...GOLD_TILE },
+  airtime: { Icon: Phone, ...GOLD_TILE },
+  data: { Icon: ChartBar, ...GOLD_TILE },
+  tv: { Icon: Tv, ...GOLD_TILE },
+  education: { Icon: GraduationCap, ...GOLD_TILE },
+  betting: { Icon: Target, ...GOLD_TILE },
+  water: { Icon: Droplets, ...GOLD_TILE },
+  waste: { Icon: Recycle, ...GOLD_TILE },
 };
 
 type Props = {
@@ -41,16 +47,15 @@ type Props = {
 };
 
 export const BillsCategoryHub = memo(function BillsCategoryHub({ onSelect }: Props) {
-  const { width, height } = useWindowDimensions();
-  const gap = 14;
-  const horizontalPad = spacing.lg * 2;
-  const tileWidth = (width - horizontalPad - gap) / 2;
-  // Fit 3 rows within available body (below title) on most phones
-  const tileHeight = Math.min(132, Math.max(108, (height * 0.42 - gap * 2) / 3));
+  const { width } = useWindowDimensions();
+  const horizontalPad = BILL_PAY_GRID_H_PAD * 2;
+  const colGap = BILL_PAY_GRID_ITEM_MARGIN * 2 * BILL_PAY_GRID_COLS;
+  const tileWidth = (width - horizontalPad - colGap) / BILL_PAY_GRID_COLS;
+  const tileHeight = BILL_CATEGORY_CARD_HEIGHT;
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.eyebrow}>Pay utilities</Text>
+      <EsoPaySectionLabel>Pay utilities</EsoPaySectionLabel>
       <Text style={styles.headline}>What would you like to pay?</Text>
 
       <View style={styles.grid}>
@@ -71,16 +76,16 @@ export const BillsCategoryHub = memo(function BillsCategoryHub({ onSelect }: Pro
                 {
                   width: tileWidth,
                   height: tileHeight,
-                  shadowColor: theme.glow,
+                  margin: BILL_PAY_GRID_ITEM_MARGIN,
                 },
                 pressed && styles.tilePressed,
               ]}
               accessibilityRole="button"
               accessibilityLabel={meta.title}
             >
-              <LinearGradient colors={theme.gradient} style={styles.iconOrb}>
-                <Icon size={28} color="#FFFFFF" strokeWidth={2.2} />
-              </LinearGradient>
+              <View style={[styles.iconOrb, { backgroundColor: theme.iconBg }]}>
+                <Icon size={26} color={theme.accent} strokeWidth={2.2} />
+              </View>
               <Text style={styles.tileTitle}>{meta.title}</Text>
               <Text style={styles.tileSub}>{meta.subtitle}</Text>
             </Pressable>
@@ -96,39 +101,28 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: spacing.md,
   },
-  eyebrow: {
-    fontFamily: fonts.uiMedium,
-    fontSize: 10,
-    letterSpacing: 2.4,
-    textTransform: 'uppercase',
-    color: luxury.warmWhite,
-  },
   headline: {
-    fontFamily: fonts.uiBold,
+    fontFamily: inter.bold,
     fontSize: 22,
-    color: luxury.textPrimary,
+    color: ds.color.textPrimary,
     letterSpacing: -0.3,
     marginBottom: spacing.sm,
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 14,
+    marginHorizontal: -BILL_PAY_GRID_ITEM_MARGIN,
     flex: 1,
     alignContent: 'flex-start',
   },
   tile: {
-    borderRadius: 18,
-    backgroundColor: luxury.surface,
+    borderRadius: ds.radius.card,
+    backgroundColor: ds.color.surface1,
     borderWidth: 1,
-    borderColor: luxury.goldBorder,
+    borderColor: ds.color.border,
     padding: spacing.md,
     justifyContent: 'flex-end',
     gap: 6,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 1,
-    shadowRadius: 16,
-    elevation: 4,
   },
   tilePressed: {
     opacity: 0.92,
@@ -140,18 +134,18 @@ const styles = StyleSheet.create({
     right: spacing.md,
     width: 48,
     height: 48,
-    borderRadius: 16,
+    borderRadius: ds.radius.chip,
     alignItems: 'center',
     justifyContent: 'center',
   },
   tileTitle: {
-    fontFamily: fonts.uiBold,
+    fontFamily: inter.semibold,
     fontSize: 16,
-    color: luxury.textPrimary,
+    color: ds.color.textPrimary,
   },
   tileSub: {
-    fontFamily: fonts.ui,
+    fontFamily: inter.regular,
     fontSize: 11,
-    color: luxury.textMuted,
+    color: ds.color.textMuted,
   },
 });

@@ -6,7 +6,8 @@ import {
   persistEsoPaySessionBackup,
 } from '@/esopay/auth/esoPaySessionBackup';
 import { clearPersistedEsoPayUserId, persistEsoPayUserId } from '@/esopay/auth/esoPayUserId';
-import { supabase, supabaseConfigured } from '@/lib/supabase';
+import { detachMonitoringSessionAfterEsoPayLogin } from '@/lib/auth/detachMonitoringSession';
+import { clearEsoPayUserProfile } from '@/esopay/storage/esoPayUserProfileStorage';
 
 export async function establishEsoPaySession(session: Session): Promise<void> {
   if (!esoPaySupabaseConfigured) {
@@ -43,15 +44,6 @@ export function clearEsoPaySession(): void {
   void clearPersistedEsoPayUserId();
   if (esoPaySupabaseConfigured) {
     void esoPaySupabase.auth.signOut();
-  }
-}
-
-export async function detachMonitoringSessionAfterEsoPayLogin(): Promise<void> {
-  if (!supabaseConfigured) return;
-  try {
-    await supabase.auth.signOut({ scope: 'local' });
-  } catch {
-    // Monitoring store may already be empty.
   }
 }
 

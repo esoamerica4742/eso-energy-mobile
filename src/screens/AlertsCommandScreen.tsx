@@ -5,6 +5,7 @@ import { useBottomTabBarHeight } from "expo-router/js-tabs";
 import { FlashList } from '@shopify/flash-list';
 import { Swipeable } from 'react-native-gesture-handler';
 import { AlertsEmptyState } from '@/components/alerts/AlertsEmptyState';
+import { AlertsErrorState } from '@/components/alerts/AlertsErrorState';
 import { AlertsFilterSegment } from '@/components/alerts/AlertsFilterSegment';
 import { AlertsKpiStrip } from '@/components/alerts/AlertsKpiStrip';
 import { PremiumAlertCard } from '@/components/alerts/PremiumAlertCard';
@@ -19,13 +20,18 @@ import {
   filterAlerts,
   type AlertFilter,
 } from '@/lib/alertsData';
+import { canDismissAlerts } from '@/lib/monitoring/rbac';
+import { useEnodeToast } from '@/providers/EnodeToastProvider';
+import { selectRole, useAuthStore } from '@/stores/authStore';
 import { useSiteStore } from '@/stores/siteStore';
 import { Colors, FontSize, Spacing } from '@/tokens/design';
 import { fonts, spacing as themeSpacing } from '@/theme/tokens';
-import type { Alert } from '@/stores/alertStore';
+import { useAlertStore, type Alert } from '@/stores/alertStore';
 
 export function AlertsCommandScreen() {
   const tabBarHeight = useBottomTabBarHeight();
+  const role = useAuthStore(selectRole);
+  const canDismiss = canDismissAlerts(role);
   const { alerts, unreadCount, isPending, isFetching, refetch } = useAlerts();
   const dismissAlert = useAcknowledgeAlert();
   const sites = useSiteStore((s) => s.sites);
@@ -102,7 +108,7 @@ export function AlertsCommandScreen() {
         />
       </Swipeable>
     ),
-    [onDismiss, siteNameById],
+    [canDismiss, onDismiss, siteNameById],
   );
 
   const pulseStatus =
@@ -139,7 +145,11 @@ export function AlertsCommandScreen() {
           renderItem={renderItem}
           drawDistance={360}
           ListHeaderComponent={listHeader}
-          ListEmptyComponent={isPending ? null : <AlertsEmptyState filtered={filter !== 'all'} />}
+          ListEmptyComponent={
+            isPending
+              ? null
+              : () => <AlertsEmptyState filtered={filter !== 'all'} />
+          }
           contentContainerStyle={{
             paddingBottom: tabBarHeight + themeSpacing.xxxl,
           }}

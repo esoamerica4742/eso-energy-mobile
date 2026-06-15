@@ -21,6 +21,17 @@ export const ESOPAY_LOGIN_ROUTE = {
   params: { module: 'esopay' },
 } as Href;
 
+/** Eso Pay transaction PIN gate (billing stack). */
+export const ESOPAY_PIN_GATE_ROUTE = '/(tabs)/billing/pin-gate' as Href;
+
+export const ESOPAY_PIN_SETUP_ROUTE = {
+  pathname: '/auth/esopay-pin-setup',
+  params: {},
+} as Href;
+
+/** Monitoring operator PIN unlock screen. */
+export const MONITORING_UNLOCK_ROUTE = '/inverter/unlock' as Href;
+
 export type AppProduct = 'monitoring' | 'esopay';
 
 export function productHomeRoute(product: AppProduct): Href {

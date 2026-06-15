@@ -1,37 +1,55 @@
+import { StyleSheet } from 'react-native';
 import type { PowerShieldAlertLevel, PowerShieldMeter } from '@/esopay/api/types';
 import { countdownProgress } from '@/esopay/lib/powerShieldUi';
+import { ds } from '@/esopay/theme/designSystem';
 
-/** Power Shield v3 — Nigerian energy spec. */
+/** Power Shield — aligned to global Eso Pay design system. */
 export const PS = {
-  bg: '#0A0A0A',
-  card: '#111111',
-  amber: '#F5A623',
-  amberBorder: 'rgba(245, 166, 35, 0.12)',
-  amberGlow: 'rgba(245, 166, 35, 0.35)',
-  amberDim: 'rgba(245, 166, 35, 0.14)',
-  text: '#FFFFFF',
-  textMuted: '#888888',
-  textDim: '#555555',
-  green: '#22C55E',
-  red: '#FF4444',
-  crimson: '#DC2626',
-  crimsonDim: 'rgba(127, 29, 29, 0.45)',
-  crimsonBorder: 'rgba(220, 38, 38, 0.55)',
-  surface: '#111111',
-  border: 'rgba(255,255,255,0.08)',
-  gold: '#C9A84C',
-  goldDim: 'rgba(201, 168, 76, 0.14)',
-  inactive: '#555555',
-  track: 'rgba(255, 255, 255, 0.08)',
+  bg: ds.color.bg,
+  card: ds.color.surface1,
+  surface: ds.color.surface1,
+  surface2: ds.color.surface2,
+  border: ds.color.border,
+  borderSubtle: ds.color.borderSubtle,
+  gold: ds.color.gold,
+  teal: ds.color.gold,
+  text: ds.color.textPrimary,
+  textSecondary: ds.color.textSecondary,
+  textMuted: ds.color.textMuted,
+  textDisabled: ds.color.textDisabled,
+  error: ds.color.error,
+  warning: ds.color.warning,
+  inactive: ds.color.textDisabled,
+  green: ds.color.gold,
+  crimson: ds.color.error,
+  amber: ds.color.warning,
+  amberDim: ds.color.warningMuted,
+  amberBorder: ds.color.warning,
+  goldDim: ds.color.goldMuted12,
+  goldGlow: ds.color.goldMuted20,
+  locked: ds.color.textDisabled,
+  textDim: ds.color.textMuted,
+  crimsonBorder: ds.color.error,
+  crimsonDim: ds.color.errorMuted,
+  track: ds.color.border,
 } as const;
 
-/** Power Shield typography — Inter (global app font). */
+export function ringColorForProgress(pct: number | null | undefined): string {
+  if (pct == null) return PS.inactive;
+  if (pct <= 5) return PS.crimson;
+  if (pct <= 10) return PS.amber;
+  return PS.gold;
+}
+
 export const psFont = {
-  display: 'Inter_700Bold',
-  displayMedium: 'Inter_600SemiBold',
-  body: 'Inter_400Regular',
-  bodyMedium: 'Inter_500Medium',
-  bodyBold: 'Inter_700Bold',
+  display: ds.font.headline,
+  displayMedium: ds.font.title,
+  body: ds.font.body,
+  bodyMedium: ds.font.bodyStrong,
+  bodyBold: ds.font.headline,
+  regular: ds.font.body,
+  medium: ds.font.bodyStrong,
+  bold: ds.font.headline,
 } as const;
 
 export function remainingFraction(meter: PowerShieldMeter | null | undefined): number {
@@ -58,26 +76,43 @@ export function formatBurnUnitsLabel(dailySpendKobo: number): string {
   return `Burning ${units} units/day`;
 }
 
+export const formatBurnRateLabel = formatBurnUnitsLabel;
+
+export const psStyles = StyleSheet.create({
+  daysLarge: {
+    fontFamily: psFont.display,
+    fontSize: ds.type.title.fontSize,
+    color: PS.text,
+    textAlign: 'center',
+  },
+  burnRate: {
+    fontFamily: psFont.bodyMedium,
+    fontSize: ds.type.caption.fontSize,
+    color: PS.textSecondary,
+    textAlign: 'center',
+  },
+});
+
 export function urgencyColor(
   hours: number | null | undefined,
   alertLevel?: PowerShieldAlertLevel,
 ): string {
   const days = daysRemainingCount(hours);
   if (alertLevel === 'expired' || alertLevel === 'critical' || (days != null && days < 2)) {
-    return PS.crimson;
+    return PS.error;
   }
-  if (alertLevel === 'warn_10' || (days != null && days <= 4)) return PS.amber;
-  if (days != null && days > 4) return PS.green;
-  return PS.amber;
+  if (alertLevel === 'warn_10' || (days != null && days <= 4)) return PS.warning;
+  if (days != null && days > 4) return PS.gold;
+  return PS.warning;
 }
 
 export function arcColorForMeter(meter: PowerShieldMeter | null | undefined): string {
   const pct = meter?.volume_remaining_pct ?? meter?.capacity_remaining_pct ?? null;
-  if (pct != null && pct <= 5) return PS.red;
-  return PS.amber;
+  if (pct != null && pct <= 5) return PS.error;
+  return PS.gold;
 }
 
-export type StatusPill = { label: string; emoji: string; bg: string; text: string };
+export type StatusPill = { label: string; bg: string; border: string; dot: string; text: string };
 
 export function statusPillForMeter(
   isActive: boolean,
@@ -86,31 +121,33 @@ export function statusPillForMeter(
   if (!isActive || !meter) {
     return {
       label: 'Inactive',
-      emoji: '○',
-      bg: 'rgba(85, 85, 85, 0.2)',
-      text: PS.inactive,
+      bg: PS.surface2,
+      border: PS.border,
+      dot: PS.textDisabled,
+      text: PS.textMuted,
     };
   }
   const atRisk =
     meter.alert_level === 'warn_10' ||
     meter.alert_level === 'critical' ||
     meter.alert_level === 'expired' ||
-    (meter.capacity_remaining_pct != null && meter.capacity_remaining_pct <= 10) ||
-    false;
+    (meter.capacity_remaining_pct != null && meter.capacity_remaining_pct <= 10);
 
   if (atRisk) {
     return {
       label: 'At Risk',
-      emoji: '⚠️',
-      bg: 'rgba(255, 68, 68, 0.12)',
-      text: PS.red,
+      bg: ds.color.errorMuted,
+      border: PS.error,
+      dot: PS.error,
+      text: PS.error,
     };
   }
   return {
     label: 'Protected',
-    emoji: '🟢',
-    bg: 'rgba(34, 197, 94, 0.12)',
-    text: PS.green,
+    bg: ds.color.goldMuted12,
+    border: PS.gold,
+    dot: PS.gold,
+    text: PS.gold,
   };
 }
 

@@ -1,5 +1,6 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Colors } from '@/tokens/design';
+import { LinearGradient } from 'expo-linear-gradient';
+import { GOLD } from '@/theme/colors';
 
 type Props = {
   message?: string;
@@ -7,10 +8,22 @@ type Props = {
   onRetry?: () => void;
 };
 
-/** Shown while the heavy landing bundle loads — avoids a blank white Expo Go screen. */
-export function MobileBootScreen({ message = 'Loading ESO Energy…', error, onRetry }: Props) {
+/** Premium boot shell while routing and fonts hydrate. */
+export function MobileBootScreen({
+  message = 'Preparing your command centers…',
+  error,
+  onRetry,
+}: Props) {
   return (
     <View style={styles.root}>
+      <LinearGradient
+        colors={['rgba(201,168,76,0.08)', 'transparent']}
+        style={styles.glow}
+        pointerEvents="none"
+      />
+      <View style={styles.avatar}>
+        <Text style={styles.avatarLetter}>E</Text>
+      </View>
       <Text style={styles.brand}>ESO ENERGY</Text>
       {error ? (
         <>
@@ -24,9 +37,8 @@ export function MobileBootScreen({ message = 'Loading ESO Energy…', error, onR
         </>
       ) : (
         <>
-          <ActivityIndicator color={Colors.gold} size="large" />
+          <ActivityIndicator color={GOLD} size="large" />
           <Text style={styles.message}>{message}</Text>
-          <Text style={styles.hint}>First load can take up to a minute on Expo Go.</Text>
         </>
       )}
     </View>
@@ -36,54 +48,70 @@ export function MobileBootScreen({ message = 'Loading ESO Energy…', error, onR
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: '#08080D',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 28,
   },
+  glow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 280,
+  },
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: GOLD,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  avatarLetter: {
+    color: '#08080D',
+    fontSize: 24,
+    fontWeight: '700',
+  },
   brand: {
-    color: Colors.gold,
+    color: GOLD,
     fontSize: 12,
-    letterSpacing: 2.4,
+    letterSpacing: 2.8,
     fontWeight: '700',
     marginBottom: 28,
   },
   message: {
-    marginTop: 18,
-    color: '#E4E4E7',
-    fontSize: 15,
+    color: '#A0A0A0',
+    fontSize: 14,
+    marginTop: 16,
     textAlign: 'center',
-  },
-  hint: {
-    marginTop: 10,
-    color: '#71717A',
-    fontSize: 12,
-    textAlign: 'center',
-    lineHeight: 18,
   },
   errorTitle: {
-    color: '#FFFFFF',
+    color: '#F7F4EE',
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '600',
+    marginBottom: 8,
     textAlign: 'center',
   },
   errorBody: {
-    marginTop: 10,
-    color: '#FCA5A5',
-    fontSize: 13,
+    color: '#A0A0A0',
+    fontSize: 14,
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 22,
   },
   button: {
     marginTop: 20,
-    backgroundColor: Colors.gold,
-    borderRadius: 10,
-    paddingHorizontal: 22,
+    paddingHorizontal: 24,
     paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(201,168,76,0.35)',
+    backgroundColor: 'rgba(201,168,76,0.1)',
   },
   buttonText: {
-    color: '#060809',
-    fontWeight: '700',
-    fontSize: 14,
+    color: GOLD,
+    fontSize: 15,
+    fontWeight: '600',
   },
 });

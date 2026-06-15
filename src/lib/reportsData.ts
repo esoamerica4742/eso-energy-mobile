@@ -87,7 +87,7 @@ export function buildReportsSnapshot(
     performanceIndex,
     solarContributionPct,
     dieselSavedLabel,
-    exportReadyCount: 3,
+    exportReadyCount: summary.siteCount > 0 ? 3 : 0,
     fleetSummary: summary,
     healthyRatioPct,
   };
@@ -106,7 +106,7 @@ export function buildReportExports(
       title: 'Weekly diesel audit',
       subtitle: 'Generator runtime offset vs solar',
       heroValue: snapshot.dieselSavedLabel,
-      heroLabel: 'Estimated savings',
+      heroLabel: 'Est. diesel offset',
       format: 'PDF',
       status: 'ready',
       trend: buildSparklineTrend(`${seedSite}-diesel`, loadBase * 0.6),

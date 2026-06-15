@@ -12,6 +12,7 @@ import {
 import { BalanceDisplay } from '@/esopay/components/BalanceDisplay';
 import { EsoPayHeader } from '@/esopay/components/EsoPayHeader';
 import { EsoPayScreenShell } from '@/esopay/components/EsoPayScreenShell';
+import { EsoPayPrimaryButton } from '@/esopay/components/EsoPayButtons';
 import { GoldCTAButton } from '@/esopay/components/GoldCTAButton';
 import { NumberTicker } from '@/esopay/components/NumberTicker';
 import { esopayFonts } from '@/esopay/theme/fonts';
@@ -22,6 +23,10 @@ import {
   esopayBillDetailHref,
 } from '@/esopay/navigation/routes';
 import { useEnodeToast } from '@/providers/EnodeToastProvider';
+import { PinEntry } from '@/esopay/components/PinEntry';
+import { EsoPayTransactionPinModal } from '@/esopay/components/EsoPayTransactionPinModal';
+import { useTransactionPin } from '@/esopay/hooks/useTransactionPin';
+import { useEsoPayAuthStore } from '@/esopay/auth/store';
 
 type Props = {
   billId: string;
@@ -118,7 +123,7 @@ export function PaymentConfirmScreen({ billId }: Props) {
         <EsoPayHeader title="Confirm Payment" canGoBack onBack={goBack} />
         <View style={styles.center}>
           <Text style={styles.error}>Bill not found.</Text>
-          <GoldCTAButton label="Go back" onPress={goBack} />
+          <EsoPayPrimaryButton label="Go back" onPress={goBack} />
         </View>
       </EsoPayScreenShell>
     );
@@ -272,6 +277,19 @@ const styles = StyleSheet.create({
     fontFamily: esopayFonts.body,
     fontSize: T.type.body.size,
     color: T.color.text.primary,
+  },
+  pinBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.72)',
+    justifyContent: 'center',
+    padding: T.layout.screenMargin,
+  },
+  pinCard: {
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: T.color.border.subtle,
+    backgroundColor: T.color.bg.surface,
+    padding: T.spacing.lg,
   },
   disclaimer: {
     marginTop: T.spacing.lg,

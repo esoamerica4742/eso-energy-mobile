@@ -47,6 +47,13 @@ const UUID_RE =
 const DEFAULT_ALERT_LIMIT = 50;
 const MAX_ALERT_LIMIT = 100;
 
+export class AlertsFetchError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AlertsFetchError';
+  }
+}
+
 function logAlertsDebug(message: string, detail?: string) {
   if (!__DEV__) return;
   if (detail) {
@@ -132,11 +139,14 @@ export async function acknowledgeAlert(alertId: string): Promise<void> {
   }
 }
 
+export type RealtimeAlertChannelStatus = 'SUBSCRIBED' | 'CHANNEL_ERROR' | 'TIMED_OUT' | 'CLOSED';
+
 export function subscribeToAlerts(
   companyId: string,
   handlers: {
     onInsert: (alert: Alert) => void;
     onResolve?: (alertId: string) => void;
+    onStatus?: (status: RealtimeAlertChannelStatus) => void;
   },
 ): RealtimeChannel {
   const tenantId = parseCompanyId(companyId);
@@ -175,5 +185,10 @@ export function subscribeToAlerts(
         handlers.onResolve?.(row.id);
       },
     )
-    .subscribe();
+    .subscribe((status) => {
+      if (status === 'SUBSCRIBED') handlers.onStatus?.('SUBSCRIBED');
+      else if (status === 'CHANNEL_ERROR') handlers.onStatus?.('CHANNEL_ERROR');
+      else if (status === 'TIMED_OUT') handlers.onStatus?.('TIMED_OUT');
+      else if (status === 'CLOSED') handlers.onStatus?.('CLOSED');
+    });
 }

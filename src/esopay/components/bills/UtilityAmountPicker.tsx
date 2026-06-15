@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { CheckCircle2 } from 'lucide-react-native';
+import { EsoPayPrimaryButton } from '@/esopay/components/EsoPayButtons';
 import { GoldCTAButton } from '@/esopay/components/GoldCTAButton';
 import {
   getUtilityAmountOptions,

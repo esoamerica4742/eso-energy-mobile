@@ -1,17 +1,42 @@
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MotiView } from 'moti';
-import { Easing } from 'react-native-reanimated';
-import { useReducedMotion } from '@/lib/motion/useReducedMotion';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { ACCESS_FONTS, ACCESS_THEME } from '@/screens/access/theme';
 import { AccessEntrance } from '@/screens/access/components/AccessEntrance';
+import { useReducedMotion } from '@/lib/motion/useReducedMotion';
 
 type Props = {
   topInset: number;
 };
 
 export function AccessBrandHeader({ topInset }: Props) {
-  const reduced = useReducedMotion();
+  const reducedMotion = useReducedMotion();
+  const pulse = useSharedValue(0);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    pulse.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 2200, easing: Easing.inOut(Easing.quad) }),
+        withTiming(0, { duration: 2200, easing: Easing.inOut(Easing.quad) }),
+      ),
+      -1,
+      true,
+    );
+  }, [pulse, reducedMotion]);
+
+  const pulseStyle = useAnimatedStyle(() => ({
+    opacity: 0.14 + pulse.value * 0.18,
+    transform: [{ scale: 1 + pulse.value * 0.08 }],
+  }));
 
   return (
     <AccessEntrance
@@ -21,19 +46,7 @@ export function AccessBrandHeader({ topInset }: Props) {
       style={[styles.brandRow, { paddingTop: topInset }]}
     >
       <View style={styles.avatarShell}>
-        {!reduced ? (
-          <MotiView
-            from={{ scale: 1, opacity: 0.2 }}
-            animate={{ scale: 1.45, opacity: 0 }}
-            transition={{
-              type: 'timing',
-              duration: 2000,
-              loop: true,
-              easing: Easing.out(Easing.ease),
-            }}
-            style={styles.avatarPulse}
-          />
-        ) : null}
+        <Animated.View style={[styles.avatarPulse, pulseStyle]} />
         <LinearGradient
           colors={[ACCESS_THEME.gold, ACCESS_THEME.goldDim]}
           start={{ x: 0.15, y: 0 }}

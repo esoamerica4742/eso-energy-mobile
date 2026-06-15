@@ -1,8 +1,18 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { InteractionManager, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  InteractionManager,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { Clock } from 'phosphor-react-native';
 import * as Haptics from 'expo-haptics';
 import Animated, {
   useAnimatedStyle,
@@ -11,9 +21,9 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import { AuthFlowLayout } from '@/components/auth/AuthFlowLayout';
 import { AuthButton } from '../components/AuthButton';
 import { AuthTopBar } from '../components/AuthTopBar';
-import { KeyboardWrapper } from '../components/KeyboardWrapper';
 import { OtpBox } from '../components/OtpBox';
 import { MotionPressable, MotionView } from '@/lib/motion';
 import {
@@ -22,7 +32,6 @@ import {
   isMonitoringProfileComplete,
 } from '../lib/authProfile';
 import { sendEmailOtp, sendEsoPayEmailOtp, verifyEmailOtp, verifyEsoPayEmailOtp } from '../lib/authOtp';
-import { useAuth } from '../hooks/useAuth';
 import {
   clearEsoPaySession,
   completeEsoPayEmailSignIn,
@@ -30,8 +39,11 @@ import {
 } from '@/esopay/auth/syncEsoPaySession';
 import { setLastProduct } from '@/lib/navigation/lastProduct';
 import { ESOPAY_HOME_ROUTE, MONITORING_HOME_ROUTE } from '@/lib/navigation/productRoutes';
-import { AUTH_HORIZONTAL_PAD } from '@/components/auth/authLayout';
-import { footerBottomPadding, FOOTER_BOTTOM_EXTRA, HEADER_TOP_EXTRA } from '@/lib/layout/safeArea';
+import { EsoPayVerifyEmailChip } from '@/esopay/auth/components/EsoPayVerifyEmailChip';
+import { ESOPAY_SIGN_IN } from '@/esopay/auth/esoPaySignInTheme';
+import { inter } from '@/theme/fonts';
+import { ESOPAY_SIGN_IN } from '@/esopay/auth/esoPaySignInTheme';
+import { inter } from '@/theme/fonts';
 import { C, F } from '../theme/authTheme';
 
 const BOXES = 6;
@@ -42,12 +54,15 @@ function paramString(value) {
 }
 
 export default function VerifyScreen() {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const params = useLocalSearchParams();
   const email = paramString(params.email);
   const module = paramString(params.module) || 'inverter';
-  const { setOnboardingComplete } = useAuth();
+  const isEsoPay = module === 'esopay';
+  const authVariant = isEsoPay ? 'esopay' : 'default';
+  const isEsoPay = module === 'esopay';
+  const authVariant = isEsoPay ? 'esopay' : 'default';
+  const screenBg = isEsoPay ? ESOPAY_SIGN_IN.bg : C.DARK_1;
   const inputRef = useRef(null);
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -61,7 +76,10 @@ export default function VerifyScreen() {
   const boxScale3 = useSharedValue(1);
   const boxScale4 = useSharedValue(1);
   const boxScale5 = useSharedValue(1);
-  const boxScales = [boxScale0, boxScale1, boxScale2, boxScale3, boxScale4, boxScale5];
+  const boxScales = useMemo(
+    () => [boxScale0, boxScale1, boxScale2, boxScale3, boxScale4, boxScale5],
+    [boxScale0, boxScale1, boxScale2, boxScale3, boxScale4, boxScale5],
+  );
 
   useEffect(() => {
     setOtp('');
@@ -219,106 +237,143 @@ export default function VerifyScreen() {
       : null;
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <KeyboardWrapper dismissKeyboardOnTap={false}>
-        <View style={[styles.pad, { paddingTop: HEADER_TOP_EXTRA }]}>
-          <AuthTopBar step={2} progressPercent={66} />
+    <SafeAreaView style={[styles.safe, { backgroundColor: screenBg }]} edges={['top', 'left', 'right']}>
+      <AuthFlowLayout
+        backgroundColor={screenBg}
+        keyboardPersistTaps="always"
+        footer={
+          <AuthButton
+            variant={authVariant}
+            label="Verify Code →"
+            onPress={handleVerify}
+            loading={isLoading}
+            disabled={otp.length !== 6}
+          />
+        }
+        footerStyle={styles.verifyFooter}
+      >
+        <AuthTopBar step={2} progressPercent={66} variant={authVariant} />
 
-          <MotionView variant="fadeInDown" delay={0} style={{ marginTop: 48 }}>
-            <Text style={styles.headline}>Check your{'\n'}email.</Text>
+        <MotionView variant="fadeInDown" delay={0} style={{ marginTop: 48 }}>
+          <Text style={[styles.headline, isEsoPay && styles.headlineEsoPay]}>
+            Check your{'\n'}email.
+          </Text>
+          {isEsoPay ? (
+            <EsoPayVerifyEmailChip email={email} />
+          ) : (
             <View style={styles.emailRow}>
               <Feather name="mail" size={14} color={C.GOLD_MID} />
               <Text style={styles.email}>{email}</Text>
             </View>
-            <MotionPressable
-              haptic="light"
-              onPress={() => router.back()}
-            >
-              <Text style={styles.wrongEmail}>Wrong email?</Text>
-            </MotionPressable>
-            <Text style={styles.sub}>Enter the 6-digit code we sent.</Text>
-            <Text style={styles.hint}>
-              Please check your spam and promotions folders if the verification code does not
-              arrive within a few seconds.
+          )}
+          <MotionPressable haptic="light" onPress={() => router.back()}>
+            <Text style={[styles.wrongEmail, isEsoPay && styles.wrongEmailEsoPay]}>
+              Wrong email?
             </Text>
-          </MotionView>
+          </MotionPressable>
+          <Text style={[styles.sub, isEsoPay && styles.subEsoPay]}>
+            Enter the 6-digit code we sent.
+          </Text>
+          <Text style={[styles.hint, isEsoPay && styles.hintEsoPay]}>
+            Please check your spam and promotions folders if the verification code does not arrive
+            within a few seconds.
+          </Text>
+        </MotionView>
 
-          <View style={styles.otpWrap}>
-            <Animated.View style={[styles.otpRow, shakeStyle]} pointerEvents="none">
-              {Array.from({ length: BOXES }).map((_, i) => (
-                <OtpBox
-                  key={i}
-                  char={otp[i] || ''}
-                  focused={otp.length === i}
-                  filled={Boolean(otp[i])}
-                  error={Boolean(errorMsg)}
-                  scale={boxScales[i]}
-                />
-              ))}
-            </Animated.View>
-            <TextInput
-              ref={inputRef}
-              value={otp}
-              onChangeText={onDigit}
-              keyboardType="number-pad"
-              inputMode="numeric"
-              maxLength={6}
-              autoFocus
-              showSoftInputOnFocus
-              autoComplete={Platform.OS === 'android' ? 'sms-otp' : 'one-time-code'}
-              textContentType="oneTimeCode"
-              importantForAutofill="yes"
-              autoCorrect={false}
-              autoCapitalize="none"
-              style={styles.otpInputOverlay}
-              caretHidden
-              selectionColor="transparent"
-            />
-          </View>
-
-          {errorMsg ? <Text style={styles.errorMsg}>{errorMsg}</Text> : null}
-
-          <View style={styles.verifyCta}>
-            <AuthButton
-              label="Verify Code →"
-              onPress={handleVerify}
-              loading={isLoading}
-              disabled={otp.length !== 6}
-            />
-          </View>
-
-          <View style={styles.trustRow}>
-            <Feather name="clock" size={11} color={C.TEAL} />
-            <Text style={styles.trustGold}>Code expires in 10 minutes</Text>
-          </View>
-
-          <View
-            style={[
-              styles.resend,
-              { paddingBottom: footerBottomPadding(insets, FOOTER_BOTTOM_EXTRA) },
-            ]}
-          >
-            {timerLabel ? (
-              <Text style={styles.timer}>{timerLabel}</Text>
-            ) : (
-              <MotionPressable onPress={handleResend} disabled={resending} haptic="light">
-                <Text style={styles.resendLink}>
-                  {resending ? 'Sending…' : "Didn't get it? Resend code"}
-                </Text>
-              </MotionPressable>
-            )}
-          </View>
-
+        <View style={styles.otpWrap}>
+          <Animated.View style={[styles.otpRow, shakeStyle]} pointerEvents="none">
+            {Array.from({ length: BOXES }).map((_, i) => (
+              <OtpBox
+                key={i}
+                char={otp[i] || ''}
+                focused={otp.length === i}
+                filled={Boolean(otp[i])}
+                error={Boolean(errorMsg)}
+                scale={boxScales[i]}
+                variant={authVariant}
+              />
+            ))}
+          </Animated.View>
+          <TextInput
+            ref={inputRef}
+            value={otp}
+            onChangeText={onDigit}
+            keyboardType="number-pad"
+            inputMode="numeric"
+            maxLength={6}
+            autoFocus
+            showSoftInputOnFocus
+            autoComplete={Platform.OS === 'android' ? 'sms-otp' : 'one-time-code'}
+            textContentType="oneTimeCode"
+            importantForAutofill="yes"
+            autoCorrect={false}
+            autoCapitalize="none"
+            style={styles.otpInputOverlay}
+            caretHidden
+            selectionColor="transparent"
+          />
         </View>
-      </KeyboardWrapper>
+
+        {errorMsg ? <Text style={styles.errorMsg}>{errorMsg}</Text> : null}
+
+        <View style={styles.trustRow}>
+          {isEsoPay ? (
+            <Clock size={14} color={ESOPAY_SIGN_IN.teal} weight="duotone" />
+          ) : (
+            <Feather name="clock" size={11} color={C.TEAL} />
+          )}
+          <Text style={[styles.trustGold, isEsoPay && styles.trustGoldEsoPay]}>
+            Code expires in 10 minutes
+          </Text>
+        </View>
+
+        <View style={styles.resend}>
+          {timerLabel ? (
+            <Text style={styles.timer}>{timerLabel}</Text>
+          ) : (
+            <MotionPressable onPress={handleResend} disabled={resending} haptic="light">
+              <Text style={[styles.resendLink, isEsoPay && styles.resendLinkEsoPay]}>
+                {resending ? 'Sending…' : "Didn't get it? Resend code"}
+              </Text>
+            </MotionPressable>
+          )}
+        </View>
+      </AuthFlowLayout>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: C.DARK_1 },
-  pad: { flex: 1, paddingHorizontal: AUTH_HORIZONTAL_PAD },
+  safe: { flex: 1 },
+  verifyFooter: { paddingTop: 28 },
   headline: { fontFamily: F.cormorant, fontSize: 44, lineHeight: 48, color: C.WHITE },
+  headlineEsoPay: {
+    fontFamily: inter.semibold,
+    fontSize: 34,
+    lineHeight: 40,
+    letterSpacing: -0.4,
+    color: ESOPAY_SIGN_IN.warmWhite,
+  },
+  subEsoPay: {
+    fontFamily: inter.regular,
+    color: ESOPAY_SIGN_IN.muted,
+    opacity: 1,
+  },
+  hintEsoPay: {
+    fontFamily: inter.regular,
+    color: ESOPAY_SIGN_IN.legal,
+    opacity: 1,
+  },
+  wrongEmailEsoPay: {
+    fontFamily: inter.medium,
+    color: ESOPAY_SIGN_IN.teal,
+  },
+  headlineEsoPay: {
+    fontFamily: inter.semibold,
+    fontSize: 40,
+    lineHeight: 46,
+    color: ESOPAY_SIGN_IN.warmWhite,
+  },
   emailRow: { flexDirection: 'row', alignItems: 'center', marginTop: 14 },
   email: { marginLeft: 8, fontFamily: F.sansMed, fontSize: 14, color: C.WHITE },
   wrongEmail: {
@@ -344,9 +399,9 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   otpWrap: { marginTop: 44, position: 'relative', minHeight: 58 },
-  otpRow: { flexDirection: 'row', gap: 10 },
+  otpRow: { flexDirection: 'row', gap: 8, justifyContent: 'space-between' },
   otpInputOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     opacity: 0.02,
     color: 'transparent',
     fontSize: 24,
@@ -360,7 +415,6 @@ const styles = StyleSheet.create({
     color: C.ERROR,
     textAlign: 'center',
   },
-  verifyCta: { marginTop: 28 },
   trustRow: { flexDirection: 'row', alignItems: 'center', marginTop: 20, justifyContent: 'center' },
   trustGold: {
     marginLeft: 6,
@@ -369,7 +423,17 @@ const styles = StyleSheet.create({
     color: C.OFF_WHITE,
     opacity: 0.25,
   },
+  trustGoldEsoPay: {
+    fontFamily: inter.regular,
+    fontSize: 12,
+    color: ESOPAY_SIGN_IN.muted,
+    opacity: 1,
+  },
   resend: { marginTop: 32, alignItems: 'center' },
   timer: { fontFamily: F.mono, fontSize: 12, color: C.OFF_WHITE, opacity: 0.35 },
   resendLink: { fontFamily: F.sansLight, fontSize: 13, color: C.TEAL },
+  resendLinkEsoPay: {
+    fontFamily: inter.medium,
+    color: ESOPAY_SIGN_IN.teal,
+  },
 });

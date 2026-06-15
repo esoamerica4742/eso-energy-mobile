@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Pressable, StyleSheet, Text, type ViewStyle } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { luxury } from '@/esopay/theme/luxury';
+import { SECONDARY_LINK_COLOR } from '@/esopay/theme/brandColors';
 import { fonts } from '@/esopay/theme/typography';
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
   style?: ViewStyle;
 };
 
-/** Small gold-outlined pill — home "See all" / "View all" CTAs. */
+/** Gold secondary nav action — "See all", "View all", "open history", etc. */
 export const EsoPayOutlinePillButton = memo(function EsoPayOutlinePillButton({
   label,
   onPress,
@@ -51,6 +51,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uiMedium,
     fontSize: 12,
     letterSpacing: 0.35,
-    color: luxury.warmWhite,
+    color: SECONDARY_LINK_COLOR,
   },
 });

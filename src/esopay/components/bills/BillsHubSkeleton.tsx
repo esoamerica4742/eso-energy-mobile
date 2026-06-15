@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Skeleton } from '@/esopay/components/Skeleton';
 import {
   BILL_PAY_GRID_COLS,
@@ -7,6 +7,7 @@ import {
   BILL_PAY_GRID_ITEM_MARGIN,
   BILL_PAY_GRID_MIN_HEIGHT,
 } from '@/esopay/components/bills/billPayCardTheme';
+import { EsoPaySectionLabel } from '@/esopay/components/EsoPaySectionLabel';
 import { luxury } from '@/esopay/theme/luxury';
 import { spacing } from '@/esopay/theme/spacing';
 import { fonts } from '@/esopay/theme/typography';
@@ -35,7 +36,7 @@ export const BillsHubSkeleton = memo(function BillsHubSkeleton({
 }: Props) {
   return (
     <View style={styles.wrap}>
-      <Text style={styles.title}>Services</Text>
+      <EsoPaySectionLabel style={styles.titleMuted}>Services</EsoPaySectionLabel>
       {showSectionLabels ? <Skeleton height={10} width={72} borderRadius={4} style={styles.groupLabel} /> : null}
       <View style={styles.grid}>
         {Array.from({ length: PLACEHOLDER_CARDS }, (_, i) => (

@@ -11,11 +11,14 @@ import {
   View,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
-import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
+
 import { Receipt, Search, Sparkles } from 'lucide-react-native';
 import { useRecentUtilityPayments } from '@/esopay/api/hooks/useBilling';
 import { BillHistoryRow } from '@/esopay/components/bills/BillHistoryRow';
+import type { BillPayCardItem } from '@/esopay/components/bills/BillPayCard';
+import { BillPayCategoryIcon } from '@/esopay/components/bills/BillPayCategoryIcon';
 import { BillPayCardGrid, type BillPayGridSection } from '@/esopay/components/bills/BillPayCardGrid';
 import { BillsPayAgainStrip } from '@/esopay/components/bills/BillsPayAgainStrip';
 import { BillsHistorySkeleton } from '@/esopay/components/bills/BillsHistorySkeleton';
@@ -46,10 +49,12 @@ import {
 } from '@/esopay/lib/billHubHighlights';
 import { filterPayAgainStrip, pickPayAgainRows } from '@/esopay/lib/billsPayAgain';
 import { normalizeBillCategory } from '@/esopay/navigation/billCategories';
+import { EsoPayInlineError } from '@/esopay/components/EsoPayInlineError';
 import { esopayUtilityCategoryHref } from '@/esopay/navigation/routes';
 import { useEsoPayScrollPadding } from '@/esopay/hooks/useEsoPayScrollPadding';
 import { useQuickPayInsights } from '@/esopay/hooks/useQuickPayInsights';
 import { EsoPayScreenShell } from '@/esopay/components/EsoPayScreenShell';
+import { EsoPaySectionLabel } from '@/esopay/components/EsoPaySectionLabel';
 import { luxury } from '@/esopay/theme/luxury';
 import { fonts } from '@/esopay/theme/typography';
 
@@ -327,7 +332,7 @@ export function BillsScreen() {
         {showInitialSkeleton ? (
           <BillsHubSkeleton />
         ) : (
-          <BillPayCardGrid sections={hubGridSections} embedded />
+          <BillPayCardGrid sections={hubGridSections} embedded hubCards />
         )}
 
         {filteredHubCards.length === 0 && !showInitialSkeleton ? (
@@ -341,7 +346,7 @@ export function BillsScreen() {
         ) : null}
 
         <View style={[styles.section, styles.padded]}>
-          <Text style={styles.sectionHeading}>Transaction history</Text>
+          <EsoPaySectionLabel style={styles.txHistoryHeading}>Transaction history</EsoPaySectionLabel>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -515,7 +520,12 @@ const styles = StyleSheet.create({
     color: luxury.goldAccent,
     letterSpacing: 0.2,
   },
-  filterRow: { gap: 8, paddingVertical: 4 },
+  filterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingVertical: 4,
+  },
   filterChip: {
     paddingHorizontal: 14,
     paddingVertical: 8,

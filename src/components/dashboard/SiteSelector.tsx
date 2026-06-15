@@ -15,14 +15,14 @@ import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import * as Haptics from 'expo-haptics';
 import { MapPin, ChevronDown, Check } from 'lucide-react-native';
 import { useSiteStore } from '@/stores/siteStore';
-import { usePowerShieldCriticalPanic } from '@/esopay/hooks/usePowerShieldCriticalPanic';
-import { colors, fontSize, fonts, radius, spacing } from '@/theme/tokens';
+import { useMonitoringCrisisMode } from '@/hooks/useMonitoringCrisisMode';
+import { colors, fontSize, fonts, spacing } from '@/theme/tokens';
 
 export function SiteSelector() {
   const { sites, activeSiteId, setActiveSite, activeSite } = useSiteStore();
   const sheetRef = useRef<BottomSheet>(null);
   const current  = activeSite();
-  const crisis = usePowerShieldCriticalPanic();
+  const crisis = useMonitoringCrisisMode(activeSiteId);
   const pulse = useSharedValue(1);
 
   useEffect(() => {

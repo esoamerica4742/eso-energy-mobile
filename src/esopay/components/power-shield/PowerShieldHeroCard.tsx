@@ -1,16 +1,16 @@
 import { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import type { PowerShieldMeter } from '@/esopay/api/types';
-import { PowerShieldShieldGauge } from '@/esopay/components/power-shield/PowerShieldShieldGauge';
-import { PowerShieldShimmerCTA } from '@/esopay/components/power-shield/PowerShieldShimmerCTA';
+import { EsoPayGoldButton } from '@/esopay/components/EsoPayButtons';
+import { PowerShieldOrb } from '@/esopay/components/power-shield/PowerShieldOrb';
 import {
   PS,
   formatBurnUnitsLabel,
   psFont,
-  remainingFraction,
   statusPillForMeter,
 } from '@/esopay/components/power-shield/powerShieldTheme';
 import { formatCapacityPct } from '@/esopay/lib/powerShieldUi';
+import { ds } from '@/esopay/theme/designSystem';
 
 type Props = {
   active: boolean;
@@ -27,47 +27,61 @@ export const PowerShieldHeroCard = memo(function PowerShieldHeroCard({
 }: Props) {
   const dailyKobo =
     meter?.user_daily_spend_kobo ?? meter?.learned_daily_spend_kobo ?? meter?.daily_spend_kobo ?? 0;
-  const remaining = active && meter ? remainingFraction(meter) : 0;
-  const headline = active && meter
-    ? `${formatCapacityPct(meter.capacity_remaining_pct ?? meter.volume_remaining_pct)} remaining`
-    : '—';
-  const headlineColor = !active
-    ? PS.inactive
-    : meter?.alert_level === 'critical'
-      ? PS.crimson
-      : meter?.alert_level === 'warn_10'
-        ? PS.amber
-        : PS.green;
   const pill = statusPillForMeter(active, meter);
+
+  const statusCopy =
+    active && dailyKobo > 0
+      ? formatBurnUnitsLabel(dailyKobo)
+      : 'Burn rate unlocks after your first top-up';
+
+  const headline =
+    active && meter
+      ? `${formatCapacityPct(meter.capacity_remaining_pct ?? meter.volume_remaining_pct)} remaining`
+      : null;
 
   return (
     <View style={styles.card}>
-      <PowerShieldShieldGauge
-        active={active}
-        remaining={remaining}
-        meter={meter}
-        animateArc={active}
-      />
-
-      <Text style={[styles.daysHeadline, { color: headlineColor }]}>{headline}</Text>
-
-      <Text style={styles.burnRate}>
-        {active && dailyKobo > 0
-          ? formatBurnUnitsLabel(dailyKobo)
-          : 'Burn rate unlocks after your first top-up'}
-      </Text>
-
-      <View style={[styles.statusPill, { backgroundColor: pill.bg }]}>
-        <Text style={styles.statusEmoji}>{pill.emoji}</Text>
-        <Text style={[styles.statusLabel, { color: pill.text }]}>{pill.label}</Text>
+      <View
+        style={[
+          styles.pill,
+          styles.pillPosition,
+          active
+            ? { backgroundColor: pill.bg, borderColor: pill.border }
+            : styles.pillInactive,
+        ]}
+      >
+        <View
+          style={[
+            styles.pillDot,
+            active ? { backgroundColor: pill.dot } : styles.pillDotInactive,
+          ]}
+        />
+        <Text
+          style={[
+            styles.pillText,
+            active ? { color: pill.text } : styles.pillTextInactive,
+          ]}
+        >
+          {pill.label}
+        </Text>
       </View>
 
-      <View style={styles.divider} />
+      <PowerShieldOrb active={active} />
 
-      <PowerShieldShimmerCTA
-        label={active ? 'Recharge meter' : 'Activate Power Shield'}
+      {headline ? <Text style={styles.headline}>{headline}</Text> : null}
+
+      <View style={styles.dividerWrap}>
+        <View style={styles.divider} />
+      </View>
+
+      <Text style={styles.statusCopy}>{statusCopy}</Text>
+
+      <EsoPayGoldButton
+        label={active ? 'Power Shield Active' : 'Activate Power Shield'}
         onPress={onActivate}
         loading={activating}
+        active={active}
+        style={styles.cta}
       />
     </View>
   );
@@ -75,51 +89,83 @@ export const PowerShieldHeroCard = memo(function PowerShieldHeroCard({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 24,
-    backgroundColor: PS.card,
-    borderWidth: 1,
-    borderColor: PS.amberBorder,
-    paddingVertical: 28,
-    paddingHorizontal: 22,
-    gap: 14,
+    position: 'relative',
+    borderRadius: ds.radius.wallet,
+    backgroundColor: PS.surface,
+    borderWidth: 1.5,
+    borderColor: PS.gold,
+    paddingTop: ds.space.section,
+    paddingHorizontal: ds.space.section,
+    paddingBottom: 24,
+    gap: ds.space.component,
     alignItems: 'center',
-    shadowColor: PS.amber,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    elevation: 6,
   },
-  daysHeadline: {
+  headline: {
     fontFamily: psFont.display,
-    fontSize: 32,
-    letterSpacing: -0.5,
+    fontSize: ds.type.title.fontSize,
+    color: PS.text,
     textAlign: 'center',
+    marginTop: 4,
   },
-  burnRate: {
-    fontFamily: psFont.body,
-    fontSize: 13,
-    color: PS.textMuted,
-    textAlign: 'center',
-  },
-  statusPill: {
-    flexDirection: 'row',
+  dividerWrap: {
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 999,
-  },
-  statusEmoji: {
-    fontSize: 12,
-  },
-  statusLabel: {
-    fontFamily: psFont.bodyMedium,
-    fontSize: 13,
+    marginTop: 4,
   },
   divider: {
-    width: '100%',
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    marginVertical: 4,
+    width: 40,
+    height: 1,
+    backgroundColor: PS.border,
+  },
+  statusCopy: {
+    fontFamily: psFont.body,
+    fontSize: ds.type.label.fontSize,
+    lineHeight: ds.type.label.lineHeight,
+    color: PS.textSecondary,
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: ds.radius.pill,
+    borderWidth: 1,
+  },
+  pillPosition: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 1,
+  },
+  pillInactive: {
+    backgroundColor: PS.surface2,
+    borderRadius: 20,
+    borderWidth: 0,
+    paddingHorizontal: 12,
+    gap: 0,
+  },
+  pillDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  pillDotInactive: {
+    backgroundColor: PS.textMuted,
+    marginRight: 6,
+  },
+  pillText: {
+    fontFamily: psFont.bodyMedium,
+    fontSize: ds.type.caption.fontSize,
+  },
+  pillTextInactive: {
+    fontFamily: psFont.medium,
+    fontSize: 11,
+    fontWeight: '500',
+    color: PS.textSecondary,
+  },
+  cta: {
+    marginTop: 12,
   },
 });

@@ -35,6 +35,7 @@ import {
 import { esopayBuyUtilitiesHref } from '@/esopay/navigation/routes';
 
 import { getQuickActionHelper } from '@/esopay/lib/billPayCardHelpers';
+import { ESO_PAY_GOLD } from '@/esopay/theme/brandColors';
 
 import type { Href } from 'expo-router';
 
@@ -44,7 +45,7 @@ const ACTION_COLORS = {
 
   electricity: '#F59E0B',
 
-  airtime: '#00C48C',
+  airtime: '#E8A020',
 
   data: '#38BDF8',
 
@@ -72,7 +73,7 @@ type Options = {
 
   /** When set (Billing tab), filter utilities in-place instead of switching tabs. */
 
-  onCategorySelect?: (category: BillCategoryChip) => void;
+  onCategorySelect?: (category: BillCategoryChip | 'MORE') => void;
 
 };
 

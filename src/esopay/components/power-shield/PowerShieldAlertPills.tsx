@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -224,7 +224,7 @@ export const PowerShieldAlertPills = memo(function PowerShieldAlertPills({
 
     });
 
-  }, [alertLevel, locked, notifyWarn10, notifyCritical5, onArmHaptic]);
+  }, [alertLevel, locked, onArmHaptic, pills]);
 
 
 

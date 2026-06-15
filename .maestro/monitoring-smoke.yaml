@@ -1,0 +1,25 @@
+appId: host.exp.exponent
+---
+- launchApp
+- assertVisible: "ESO"
+- tapOn:
+    text: "ESO Inverter Monitoring"
+    optional: true
+- tapOn:
+    text: "Sign in"
+    optional: true
+- tapOn:
+    text: "Monitor"
+    optional: true
+- tapOn:
+    text: "Sites"
+    optional: true
+- tapOn:
+    text: "Reports"
+    optional: true
+- tapOn:
+    text: "Alerts"
+    optional: true
+- tapOn:
+    text: "Settings"
+    optional: true

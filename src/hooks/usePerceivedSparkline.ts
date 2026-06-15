@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { appendSparklinePoint, seedSparklineFromMetric } from '@/lib/perceivedRealtime';
 import { PERCEIVED_METRICS_TICK_MS } from '@/lib/telemetryLivePerception';
 

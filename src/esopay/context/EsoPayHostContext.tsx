@@ -14,13 +14,10 @@ import {
 import { recoverEsoPaySession } from '@/esopay/auth/recoverEsoPaySession';
 import { useEsoPayAuthStore } from '@/esopay/auth/store';
 import { useEsoPayUserId } from '@/esopay/hooks/useEsoPayUserId';
-import { mapParentRoleToEsoPay } from '@/esopay/context/roles';
+import { resolveEsoPayUserRole } from '@/esopay/context/roles';
 import type { EsoPayHostContextValue } from '@/esopay/context/types';
-import { useEnodeDevices } from '@/hooks/useEnodeDevices';
-import { exitDemoModeFully } from '@/lib/demoModeBridge';
 import { DEMO_COMPANY_ID, getDemoDevices } from '@/lib/demoFleet';
 import { useDemoModeActive } from '@/providers/DemoModeProvider';
-import { selectRole, useAuthStore } from '@/stores/authStore';
 
 const EsoPayHostContext = createContext<EsoPayHostContextValue | null>(null);
 
@@ -71,28 +68,20 @@ export function useEsoPayHost(): EsoPayHostContextValue {
 }
 
 /**
- * Bridges parent-app Supabase session into the Eso Pay host contract.
- * Wallet scope is the signed-in user — not a company tenant.
+ * Eso Pay host contract — wallet scoped to the signed-in Eso Pay user only.
+ * Does not read monitoring auth, tenant, or Enode device state.
  */
 export function EsoPayHostBridge({ children }: { children: ReactNode }) {
   const isDemoMode = useDemoModeActive();
   const esoPaySession = useEsoPayAuthStore((s) => s.session);
   const esoPaySignedIn = useEsoPayAuthStore((s) => s.signedIn);
   const { userId: persistedUserId } = useEsoPayUserId();
-  const monitoringSession = useAuthStore((s) => s.session);
-  const billingSession = esoPaySession;
-  const tenantRole = useAuthStore(selectRole);
 
   useEffect(() => {
     if (esoPaySignedIn && !esoPaySession?.access_token) {
       void recoverEsoPaySession();
     }
   }, [esoPaySignedIn, esoPaySession?.access_token]);
-
-  const devicesQuery = useEnodeDevices({
-    syncOnMount: false,
-    enabled: Boolean(monitoringSession),
-  });
 
   const refreshAuthToken = useCallback(async () => refreshEsoPayAccessToken(), []);
 
@@ -103,19 +92,16 @@ export function EsoPayHostBridge({ children }: { children: ReactNode }) {
   /** Wallet API errors must not sign the user out — use signOutEsoPay() explicitly. */
   const onSessionExpired = useCallback(() => {}, []);
 
-  const authToken = billingSession?.access_token ?? '';
-  const userId = billingSession?.user?.id ?? persistedUserId ?? '';
+  const authToken = esoPaySession?.access_token ?? '';
+  const userId = esoPaySession?.user?.id ?? persistedUserId ?? '';
 
   const walletScopeId = isDemoMode ? DEMO_COMPANY_ID : userId;
-  const resolvedRole = isDemoMode ? 'owner' : mapParentRoleToEsoPay(tenantRole);
+  const resolvedRole = resolveEsoPayUserRole({ esoPaySignedIn: isDemoMode || esoPaySignedIn });
 
   const activeInverterIds = useMemo(() => {
-    if (isDemoMode) {
-      return getDemoDevices().map((device) => device.id);
-    }
-    const devices = devicesQuery.data ?? [];
-    return devices.map((device) => device.id);
-  }, [devicesQuery.data, isDemoMode]);
+    if (!isDemoMode) return [];
+    return getDemoDevices().map((device) => device.id);
+  }, [isDemoMode]);
 
   const isReady = isDemoMode
     ? Boolean(walletScopeId)
@@ -145,7 +131,6 @@ export function EsoPayHostBridge({ children }: { children: ReactNode }) {
       resolvedRole,
       userId,
       walletScopeId,
-      esoPaySession,
     ],
   );
 

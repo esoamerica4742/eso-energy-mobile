@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react';
+import { StyleSheet, View } from 'react-native';
 import type { BillPayCardItem } from '@/esopay/components/bills/BillPayCard';
 import { BillPayCategoryIcon } from '@/esopay/components/bills/BillPayCategoryIcon';
 import type { BillPayHubCardConfig } from '@/esopay/data/billPayHubCatalog';
 import type { UtilityCategorySlug } from '@/esopay/data/nigeriaBillers';
 import { getBillPayCardHelper, getQuickActionHelper } from '@/esopay/lib/billPayCardHelpers';
+import { PROVIDER_ICON_BG, PROVIDER_ICON_COLOR } from '@/esopay/lib/categoryBillPayVisual';
 import type { HubHighlightKind } from '@/esopay/lib/billHubHighlights';
 
 function subtitleFor(card: BillPayHubCardConfig): string {
@@ -12,12 +14,15 @@ function subtitleFor(card: BillPayHubCardConfig): string {
 }
 
 function iconFor(card: BillPayHubCardConfig): ReactNode {
-  if (card.slug) {
-    return <BillPayCategoryIcon slug={card.slug} color={card.iconColor} />;
-  }
   const slug: UtilityCategorySlug =
-    card.key === 'tv-license' ? 'tv' : card.key === 'insurance' ? 'education' : 'electricity';
-  return <BillPayCategoryIcon slug={slug} color={card.iconColor} />;
+    card.slug ??
+    (card.key === 'tv-license' ? 'tv' : card.key === 'insurance' ? 'education' : 'electricity');
+
+  return (
+    <View style={styles.iconContainer}>
+      <BillPayCategoryIcon slug={slug} color={PROVIDER_ICON_COLOR} />
+    </View>
+  );
 }
 
 export function buildBillPayHubCardItems(
@@ -36,7 +41,7 @@ export function buildBillPayHubCardItems(
     visual: {
       tint: card.tint,
       borderGlow: card.borderGlow,
-      iconColor: card.iconColor,
+      iconColor: PROVIDER_ICON_COLOR,
     },
     highlightBadge: highlights?.get(card.key) ?? null,
     index,
@@ -44,3 +49,12 @@ export function buildBillPayHubCardItems(
     accessibilityLabel: card.label,
   }));
 }
+
+const styles = StyleSheet.create({
+  iconContainer: {
+    backgroundColor: PROVIDER_ICON_BG,
+    borderRadius: 12,
+    padding: 8,
+    alignSelf: 'flex-start',
+  },
+});

@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { BranchRow } from '@/lib/aura';
 import { buildSiteFleetRows } from '@/lib/siteFleet';
-import { useEnodeDevices, ENODE_DEVICES_KEY } from '@/hooks/useEnodeDevices';
+import { useEnodeDevices } from '@/hooks/useEnodeDevices';
 import { useEnodeTelemetryLatest } from '@/hooks/useEnodeTelemetryLatest';
 import { enodeClient } from '@/services/enode';
 import { useAuthStore, selectTenantId } from '@/stores/authStore';

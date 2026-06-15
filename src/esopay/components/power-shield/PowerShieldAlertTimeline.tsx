@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
 
   trackBg: {
 
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
 
     backgroundColor: PS.track,
 
@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
 
   bellWrapLit: {
 
-    borderColor: 'rgba(245, 166, 35, 0.35)',
+    borderColor: 'rgba(232, 160, 32, 0.35)',
 
     backgroundColor: PS.amberDim,
 

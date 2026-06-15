@@ -1,12 +1,13 @@
 import { type ReactNode } from 'react';
-import { type StyleProp, type ViewStyle } from 'react-native';
-import { MotiView, type MotiTransition } from 'moti';
+import { View, type StyleProp, type ViewStyle } from 'react-native';
+import type { MotionVariantName } from '@/lib/motion/presets';
+import { motionVariants, staggerDelay } from '@/lib/motion/presets';
 import {
-  motionSpring,
-  motionVariants,
-  type MotionVariantName,
-  staggerDelay,
-} from '@/lib/motion/presets';
+  SPRING_CARD,
+  SPRING_PRIMARY,
+  SPRING_SUBTLE,
+} from '@/lib/motion/springMotion';
+import { SpringEntrance } from '@/lib/motion/SpringEntrance';
 import { useReducedMotion } from '@/lib/motion/useReducedMotion';
 
 type MotionState = Record<string, number | string | undefined>;
@@ -19,57 +20,78 @@ type Props = {
   exit?: MotionState;
   delay?: number;
   index?: number;
-  transition?: MotiTransition;
+  transition?: unknown;
   style?: StyleProp<ViewStyle>;
   className?: string;
 };
 
+function readNumber(state: Record<string, unknown>, key: string, fallback: number): number {
+  const value = state[key];
+  return typeof value === 'number' ? value : fallback;
+}
+
+function resolveEntrance(
+  variant: MotionVariantName,
+  from?: MotionState,
+): { offsetY: number; scaleFrom: number; spring: typeof SPRING_PRIMARY } {
+  const base = motionVariants[variant].from as Record<string, unknown>;
+  const fromState = { ...base, ...from };
+  const translateY = readNumber(fromState, 'translateY', 0);
+  const scale = readNumber(fromState, 'scale', 0.94);
+
+  if (variant === 'fadeInDown' || translateY < 0) {
+    return { offsetY: translateY || -10, scaleFrom: scale, spring: SPRING_SUBTLE };
+  }
+  if (variant === 'scaleIn') {
+    return { offsetY: 0, scaleFrom: scale, spring: SPRING_SUBTLE };
+  }
+  if (variant === 'slideInRight') {
+    return { offsetY: 12, scaleFrom: 0.96, spring: SPRING_CARD };
+  }
+  return {
+    offsetY: translateY || 20,
+    scaleFrom: scale,
+    spring: variant === 'fadeInUp' ? SPRING_PRIMARY : SPRING_SUBTLE,
+  };
+}
+
 export function MotionView({
   children,
-  variant = 'fadeInUp',
+  variant = 'fadeIn',
   from,
-  animate,
-  exit,
   delay = 0,
   index,
-  transition,
   style,
 }: Props) {
-  const reduced = useReducedMotion();
-  const preset = motionVariants[variant];
-  const resolvedDelay = delay + (index != null ? staggerDelay(index) : 0);
-  const exitState = 'exit' in preset ? preset.exit : { opacity: 0 };
+  const reducedMotion = useReducedMotion();
+  const totalDelay = delay + (index != null ? staggerDelay(index) : 0);
+  const entrance = resolveEntrance(variant, from);
 
-  if (reduced) {
-    return <>{children}</>;
+  if (reducedMotion) {
+    return <View style={style}>{children}</View>;
   }
 
   return (
-    <MotiView
-      from={from ?? preset.from}
-      animate={animate ?? preset.animate}
-      exit={exit ?? exitState}
-      transition={transition ?? motionSpring.gentle}
-      delay={resolvedDelay}
+    <SpringEntrance
+      delay={totalDelay}
+      offsetY={entrance.offsetY}
+      scaleFrom={entrance.scaleFrom}
+      spring={entrance.spring}
       style={style}
     >
       {children}
-    </MotiView>
+    </SpringEntrance>
   );
 }
 
 export function MotionStagger({
   children,
-  baseDelay = 0,
-  variant = 'fadeInUp',
+  style,
 }: {
   children: ReactNode;
   baseDelay?: number;
   variant?: MotionVariantName;
+  style?: StyleProp<ViewStyle>;
 }) {
-  return (
-    <MotionView variant={variant} delay={baseDelay}>
-      {children}
-    </MotionView>
-  );
+  return <View style={style}>{children}</View>;
 }

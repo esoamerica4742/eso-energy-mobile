@@ -22,6 +22,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Colors, FontSize, Radius, Shadow, Spacing } from '@/tokens/design';
 import { fonts } from '@/theme/tokens';
 import { prefetchForTab } from '@/lib/prefetch';
+
+const MONITORING_TEAL = '#00C9A7';
+const MONITORING_TEAL_BG = 'rgba(0,201,167,0.15)';
 import { useAuthStore, selectTenantId } from '@/stores/authStore';
 import { useSiteStore, selectActiveSite } from '@/stores/siteStore';
 
@@ -53,7 +56,7 @@ export function PremiumTabBar({ state, navigation, unreadCount }: Props) {
   const orderedRoutes = useMemo(() => {
     const byName = new Map(state.routes.map((route) => [route.name, route]));
     return TAB_ORDER.map((name) => byName.get(name)).filter(Boolean) as typeof state.routes;
-  }, [state.routes]);
+  }, [state]);
 
   const activeRouteName = state.routes[state.index]?.name ?? 'index';
   const activeOrderedIndex = Math.max(
@@ -156,7 +159,7 @@ function TabItem({
     transform: [{ scale: badgeScale.value }],
   }));
 
-  const tint = focused ? Colors.gold : Colors.textMuted;
+  const tint = focused ? MONITORING_TEAL : Colors.textMuted;
 
   return (
     <Pressable

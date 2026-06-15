@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { luxury } from '@/esopay/theme/luxury';
+import { ds } from '@/esopay/theme/designSystem';
 
 type Props = {
   children: ReactNode;
 };
 
-/** Forces Eso Pay void background regardless of parent theme (spec §1.7). */
+/** Forces Eso Pay void background regardless of parent theme. */
 export function EsoPayScreenShell({ children }: Props) {
   return (
     <View style={styles.root}>
@@ -20,6 +20,6 @@ export function EsoPayScreenShell({ children }: Props) {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: luxury.bg,
+    backgroundColor: ds.color.bg,
   },
 });

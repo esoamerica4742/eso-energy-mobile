@@ -26,6 +26,7 @@ import type { UtilityProvider } from '@/esopay/api/types';
 
 import { useUtilityProviders } from '@/esopay/api/hooks/useBilling';
 
+import { ProviderSupportPromptCard } from '@/esopay/components/bills/ProviderSupportPromptCard';
 import { EsoPayHeader } from '@/esopay/components/EsoPayHeader';
 
 import { EsoPayScreenShell } from '@/esopay/components/EsoPayScreenShell';
@@ -34,6 +35,7 @@ import { usePaymentModal } from '@/esopay/context/PaymentModalContext';
 
 import { esopayFonts } from '@/esopay/theme/fonts';
 
+import { ESO_PAY_GOLD_MUTED } from '@/esopay/theme/brandColors';
 import { EsoPayTokens as T } from '@/esopay/theme/tokens';
 
 
@@ -302,7 +304,7 @@ const styles = StyleSheet.create({
 
     borderRadius: T.radius.sm,
 
-    backgroundColor: T.color.bg.inset,
+    backgroundColor: ESO_PAY_GOLD_MUTED,
 
     borderWidth: 1,
 

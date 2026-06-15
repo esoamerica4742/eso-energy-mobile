@@ -37,6 +37,7 @@ export const esoPayKeys = {
   utilityPaymentStatus: (companyId: string, paymentReference: string) =>
     [...esoPayKeys.all, 'utility-payment-status', companyId, paymentReference] as const,
 
+  kyc: (companyId: string) => [...esoPayKeys.all, 'kyc', companyId] as const,
 };
 
 export function esoPayBillListPrefix(companyId: string) {

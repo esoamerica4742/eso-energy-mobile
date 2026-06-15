@@ -8,19 +8,22 @@ import {
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
-import Animated, { Easing, FadeInUp } from 'react-native-reanimated';
+import { SpringEntrance } from '@/lib/motion/SpringEntrance';
+import { SPRING_PRIMARY } from '@/lib/motion/springMotion';
 import { PowerShieldDailySpendSetup } from '@/esopay/components/PowerShieldDailySpendSetup';
 import { PowerShieldMeterCard } from '@/esopay/components/PowerShieldMeterCard';
-import { PowerShieldAlertTimeline } from '@/esopay/components/power-shield/PowerShieldAlertTimeline';
+import { PowerShieldFeatureCards } from '@/esopay/components/power-shield/PowerShieldFeatureCards';
 import { PowerShieldHeader } from '@/esopay/components/power-shield/PowerShieldHeader';
 import { PowerShieldHeroCard } from '@/esopay/components/power-shield/PowerShieldHeroCard';
 import { PowerShieldHowItWorksSection } from '@/esopay/components/power-shield/PowerShieldHowItWorks';
+import { EsoPayInlineError } from '@/esopay/components/EsoPayInlineError';
 import { PS } from '@/esopay/components/power-shield/powerShieldTheme';
 import { usePowerShield, useSyncPowerShield } from '@/esopay/hooks/usePowerShield';
 import { usePowerShieldNotifications } from '@/esopay/hooks/usePowerShieldNotifications';
 import { useEsoPayScrollPadding } from '@/esopay/hooks/useEsoPayScrollPadding';
 import { usePaymentModal } from '@/esopay/context/PaymentModalContext';
 import { ESOPAY_BILLS_HREF } from '@/esopay/navigation/routes';
+import { ds } from '@/esopay/theme/designSystem';
 import { spacing } from '@/esopay/theme/spacing';
 
 export function IntelligenceScreen() {
@@ -86,7 +89,7 @@ export function IntelligenceScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={() => void onRefresh()}
-            tintColor={PS.amber}
+            tintColor={PS.gold}
           />
         }
       >
@@ -94,11 +97,20 @@ export function IntelligenceScreen() {
 
         {dashboardQuery.isLoading ? (
           <View style={styles.loading}>
-            <ActivityIndicator color={PS.amber} size="large" />
+            <ActivityIndicator color={PS.gold} size="large" />
           </View>
+        ) : dashboardQuery.isError ? (
+          <EsoPayInlineError
+            title="Could not load Power Shield"
+            message="Check your connection and try again."
+            onRetry={() => void dashboardQuery.refetch()}
+          />
         ) : (
-          <Animated.View
-            entering={FadeInUp.duration(400).easing(Easing.out(Easing.cubic))}
+          <SpringEntrance
+            delay={0}
+            offsetY={20}
+            scaleFrom={0.92}
+            spring={SPRING_PRIMARY}
             style={styles.heroBlock}
           >
             <PowerShieldHeroCard
@@ -107,11 +119,8 @@ export function IntelligenceScreen() {
               onActivate={() => void handleHeroAction()}
               activating={activating || syncMutation.isPending}
             />
-            <PowerShieldAlertTimeline
-              alertLevel={primaryMeter?.alert_level}
-              active={isActivated}
-            />
-          </Animated.View>
+            <PowerShieldFeatureCards />
+          </SpringEntrance>
         )}
 
         {isActivated && primaryMeter?.needs_daily_spend_setup ? (
@@ -144,12 +153,12 @@ const styles = StyleSheet.create({
   },
   scrollView: { flex: 1 },
   scrollContent: {
-    paddingHorizontal: spacing.lg,
-    gap: spacing.xl,
+    paddingHorizontal: ds.space.screen,
+    gap: ds.space.section,
     paddingBottom: spacing.xxxl,
   },
   heroBlock: {
-    gap: spacing.lg,
+    gap: ds.space.component,
     marginTop: spacing.sm,
   },
   loading: {

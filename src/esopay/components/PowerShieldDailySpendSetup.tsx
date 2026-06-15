@@ -27,7 +27,7 @@ export const PowerShieldDailySpendSetup = memo(function PowerShieldDailySpendSet
   return (
     <View style={[styles.card, compact && styles.cardCompact]}>
       <View style={styles.header}>
-        <Gauge size={16} color={PS.amber} strokeWidth={2.2} />
+        <Gauge size={16} color={PS.gold} strokeWidth={2.2} />
         <Text style={styles.title}>Calibrate daily spend</Text>
       </View>
       <Text style={styles.body}>
@@ -52,7 +52,7 @@ export const PowerShieldDailySpendSetup = memo(function PowerShieldDailySpendSet
         })}
       </View>
       {updateMeter.isPending ? (
-        <ActivityIndicator color={PS.amber} size="small" style={styles.spinner} />
+        <ActivityIndicator color={PS.gold} size="small" style={styles.spinner} />
       ) : null}
     </View>
   );

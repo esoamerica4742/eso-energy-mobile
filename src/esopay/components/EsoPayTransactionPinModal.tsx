@@ -3,9 +3,8 @@ import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { X } from 'lucide-react-native';
 import { PinEntry } from '@/esopay/components/PinEntry';
 import { TRANSACTION_PIN_LENGTH } from '@/esopay/storage/transactionPin';
-import { colors } from '@/esopay/theme/colors';
 import { spacing } from '@/esopay/theme/spacing';
-import { fonts } from '@/esopay/theme/typography';
+import { inter } from '@/theme/fonts';
 
 type Props = {
   open: boolean;
@@ -87,12 +86,18 @@ export function EsoPayTransactionPinModal({ open, onOpenChange, pinConfigured, o
     <Modal visible={open} animationType="slide" transparent onRequestClose={close}>
       <View style={styles.backdrop}>
         <View style={styles.card}>
+          <View style={styles.dragHandle} />
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Transaction PIN</Text>
-            <Pressable onPress={close} hitSlop={12} accessibilityLabel="Close">
-              <X size={22} color={colors.muted} />
-            </Pressable>
           </View>
+          <Pressable
+            onPress={close}
+            hitSlop={12}
+            accessibilityLabel="Close"
+            style={styles.closeButton}
+          >
+            <X size={20} color="rgba(245, 240, 232, 0.5)" />
+          </Pressable>
 
           <PinEntry
             title={title}
@@ -113,27 +118,39 @@ const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.72)',
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
   },
   card: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.goldBorder,
+    backgroundColor: '#0F1520',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(232, 160, 32, 0.2)',
     paddingBottom: spacing.xxl,
   },
+  dragHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(245, 240, 232, 0.2)',
+    marginTop: 12,
+    marginBottom: 8,
+    alignSelf: 'center',
+  },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
     paddingBottom: spacing.sm,
   },
   headerTitle: {
-    fontFamily: fonts.display,
-    fontSize: 18,
-    color: colors.white,
+    fontFamily: inter.semibold,
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#F5F0E8',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    padding: 16,
   },
 });

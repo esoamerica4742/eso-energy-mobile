@@ -31,7 +31,8 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   const onLoginScreen = segments[0] === 'login';
   const onAppEntry = !pathname || pathname === '/' || pathname === '/index';
   const onOnboarding = segments[0] === 'onboarding';
-  const onAccessFlow = segments[0] === 'access' || segments[0] === 'auth';
+  const onInverterAuth = segments[0] === 'inverter';
+  const onAccessFlow = segments[0] === 'access' || segments[0] === 'auth' || onInverterAuth;
   const onBilling = isBillingRoute(segments, pathname);
   const onLinkFlow =
     segments[0] === 'link-device' ||
@@ -42,7 +43,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   const billingAuthorized = onBilling && esoPayHasAccess;
   const { module: authFlowModule } = useAuth();
 
-  const billingRedirectTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
+  const billingRedirectTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     if (!navigationReady || !supabaseConfigured) return;

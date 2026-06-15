@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   ActivityIndicator,
@@ -17,10 +17,13 @@ import {
   useValidateUtilityAccount,
 } from '@/esopay/api/hooks/useBilling';
 import { BillPayCardGrid } from '@/esopay/components/bills/BillPayCardGrid';
+import { ProviderSupportPromptCard } from '@/esopay/components/bills/ProviderSupportPromptCard';
 import { EsoPayHeader } from '@/esopay/components/EsoPayHeader';
 import { EsoPayScreenShell } from '@/esopay/components/EsoPayScreenShell';
+import { EsoPayPrimaryButton } from '@/esopay/components/EsoPayButtons';
 import { GoldCTAButton } from '@/esopay/components/GoldCTAButton';
 import { UtilityAmountPicker } from '@/esopay/components/bills/UtilityAmountPicker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePaymentModal } from '@/esopay/context/PaymentModalContext';
 import type { PaymentBundle } from '@/esopay/data/bundles';
 import {
@@ -37,6 +40,8 @@ import { luxury } from '@/esopay/theme/luxury';
 import { spacing } from '@/esopay/theme/spacing';
 import { fonts } from '@/esopay/theme/typography';
 import { parseNairaInputToKobo } from '@/esopay/utils/currency';
+import { EsoPayBettingLegalModal } from '@/esopay/components/EsoPayBettingLegalModal';
+import { hasBettingLegalAck, setBettingLegalAck } from '@/esopay/storage/bettingLegalAck';
 
 type FlowStep = 'biller' | 'account' | 'amount';
 
@@ -69,13 +74,13 @@ const stepStyles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(201,168,76,0.25)',
+    backgroundColor: 'rgba(232,160,32,0.25)',
   },
   dotActive: { backgroundColor: luxury.gold, width: 10, height: 10, borderRadius: 5 },
   line: {
     width: 36,
     height: 2,
-    backgroundColor: 'rgba(201,168,76,0.2)',
+    backgroundColor: 'rgba(232,160,32,0.2)',
     marginHorizontal: 4,
   },
   lineActive: { backgroundColor: luxury.gold },
@@ -84,7 +89,9 @@ const stepStyles = StyleSheet.create({
 export function UtilityCategoryFlowScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ category?: string }>();
+  const insets = useSafeAreaInsets();
   const scrollPad = useEsoPayScrollPadding({ tabBar: true, topExtra: 0 });
+  const providerListPaddingBottom = insets.bottom + 40;
   const { openPayment } = usePaymentModal();
   const providersQuery = useUtilityProviders();
   const recentQuery = useRecentUtilityPayments({ limit: 24 });
@@ -339,9 +346,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     padding: spacing.sm,
     borderRadius: 10,
-    backgroundColor: 'rgba(201,168,76,0.12)',
+    backgroundColor: 'rgba(232,160,32,0.12)',
     borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.28)',
+    borderColor: 'rgba(232,160,32,0.28)',
   },
   offlineText: {
     fontFamily: fonts.ui,

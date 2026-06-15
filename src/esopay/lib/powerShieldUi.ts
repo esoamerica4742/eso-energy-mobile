@@ -1,4 +1,5 @@
 import type { PowerShieldAlertLevel, PowerShieldMeter } from '@/esopay/api/types';
+import { GOLD } from '@/theme/colors';
 
 
 
@@ -44,7 +45,7 @@ export const POWER_SHIELD_ALERT_COPY: Record<
 
     title: 'Token likely depleted',
 
-    tone: '#EF4444',
+    tone: '#E53E3E',
 
     hint: 'Recharge immediately to restore supply.',
 
@@ -54,7 +55,7 @@ export const POWER_SHIELD_ALERT_COPY: Record<
 
     title: 'Activate Power Shield',
 
-    tone: '#C9A84C',
+    tone: GOLD,
 
     hint: 'Pay electricity once — we track prepaid capacity and alert before blackout.',
 

@@ -49,7 +49,7 @@ export function useEnodeDashboardTelemetry({
           return `${deviceId}:${realtime.updatedAt ?? ''}`;
         })
         .join('|'),
-    [deviceIdsKey, realtimeByDevice],
+    [deviceIds, realtimeByDevice],
   );
 
   useRealtimeTelemetry({

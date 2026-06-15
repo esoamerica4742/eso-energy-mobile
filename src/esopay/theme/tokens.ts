@@ -1,4 +1,6 @@
 import type { ViewStyle } from 'react-native';
+import { ESO_PAY_GOLD } from '@/esopay/theme/brandColors';
+import { goldRgba } from '@/theme/colors';
 
 /**
  * Eso Pay design tokens — single source of truth (spec v1.0.0 §1.2–1.6).
@@ -36,7 +38,7 @@ const EsoPayTokensRaw = {
       dim: '#059669',
     },
     red: {
-      alert: '#EF4444',
+      alert: '#E53E3E',
       dim: '#8B1A28',
     },
     amber: {
@@ -52,7 +54,7 @@ const EsoPayTokensRaw = {
     },
     border: {
       subtle: 'rgba(255,255,255,0.06)',
-      active: 'rgba(212, 160, 23, 0.35)',
+      active: goldRgba(0.35),
     },
   },
 
@@ -131,7 +133,7 @@ const EsoPayTokensRaw = {
       elevation: 12,
     } satisfies ShadowStyle,
     inputFocus: {
-      shadowColor: '#D4A017',
+      shadowColor: ESO_PAY_GOLD,
       shadowOffset: { width: 0, height: 0 },
       shadowOpacity: 0.25,
       shadowRadius: 8,

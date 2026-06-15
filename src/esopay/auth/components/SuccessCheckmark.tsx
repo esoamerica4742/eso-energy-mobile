@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, View } from 'react-native';
+import { Animated, Easing, StyleSheet } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { PayBills } from '@/esopay/auth/payBillsTheme';
 

@@ -26,13 +26,15 @@ import { useTelemetryStore, selectLatest } from '@/stores/telemetryStore';
 import { buildInverterData } from '@/lib/mapInverterData';
 import { enodeClient } from '@/services/enode';
 import type { TelemetryPoint } from '@/stores/telemetryStore';
+import { tagInsights } from '@/lib/monitoring/fleetInsights';
+import { NGN_PER_KWH_DISPLACED } from '@/lib/monitoring/monitoringKpiEngine';
 import { colors, fontSize, fonts, spacing } from '@/theme/tokens';
 
 function computeSavings(point: TelemetryPoint | null | undefined) {
   const powerKw = point?.power_kw ?? 312.4;
   const loadKw = point?.load_kw ?? 420.5;
   const batteryPct = point?.battery_pct ?? 78;
-  const dailySavings = Math.round(powerKw * 152870);
+  const dailySavings = Math.round(powerKw * 24 * NGN_PER_KWH_DISPLACED);
   const monthToDate = Math.round(dailySavings * 27.2);
   const dieselAvoided = Math.round(batteryPct * 4.48);
   const solarShare = Math.max(0, Math.min(100, Math.round(batteryPct * 0.95)));

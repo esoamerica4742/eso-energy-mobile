@@ -17,7 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { Thermometer, Zap, Battery, Activity, type LucideIcon } from 'lucide-react-native';
 import { useTelemetryStore, selectLatest } from '@/stores/telemetryStore';
-import { colors, fontSize, fonts, spacing } from '@/theme/tokens';
+import { colors, fonts, spacing } from '@/theme/tokens';
 
 type Props = {
   deviceId: string;

@@ -49,6 +49,14 @@ import {
 } from 'lucide-react-native';
 
 import { useRouter } from 'expo-router';
+import { signOutEsoPay } from '@/esopay/auth/signOutEsoPay';
+import { ACCESS_ROUTE } from '@/lib/navigation/productRoutes';
+import {
+  openEsoEnergyPrivacy,
+  openEsoEnergySupportEmail,
+  openEsoEnergyTerms,
+  openEsoEnergyWebsite,
+} from '@/esopay/lib/esoEnergyLinks';
 
 import { useEsoPayAuthStore } from '@/esopay/auth/store';
 
@@ -56,8 +64,13 @@ import { EsoPayScreenShell } from '@/esopay/components/EsoPayScreenShell';
 
 import { EsoPayTransactionPinModal } from '@/esopay/components/EsoPayTransactionPinModal';
 import { EsoPayLoginPinModal } from '@/esopay/components/EsoPayLoginPinModal';
+import { EsoPayDisputeModal } from '@/esopay/components/EsoPayDisputeModal';
+import { useEsoPayHost } from '@/esopay/context/EsoPayHostContext';
+import { deleteEsoPayAccount } from '@/esopay/lib/deleteEsoPayAccount';
+
 
 import { useBiometricPin } from '@/esopay/hooks/useBiometricPin';
+import { useLoginPin } from '@/esopay/hooks/useLoginPin';
 
 import { useEsoPayScrollPadding } from '@/esopay/hooks/useEsoPayScrollPadding';
 
@@ -66,9 +79,15 @@ import { useEsoPayUserId } from '@/esopay/hooks/useEsoPayUserId';
 import { useBeneficiaries } from '@/esopay/hooks/useBeneficiaries';
 
 import { useTransactionPin } from '@/esopay/hooks/useTransactionPin';
-import { useLoginPin } from '@/esopay/hooks/useLoginPin';
+import { useEsoPayKyc } from '@/esopay/hooks/useEsoPayKyc';
 
-import { ESOPAY_HISTORY_HREF } from '@/esopay/navigation/routes';
+import { useRegisterPowerShieldPush } from '@/esopay/hooks/usePowerShield';
+import { registerEsoPayRemotePush } from '@/esopay/lib/esoPayPushRegistration';
+
+import {
+  ESOPAY_HISTORY_HREF,
+  ESOPAY_WALLET_HREF,
+} from '@/esopay/navigation/routes';
 
 import {
 
@@ -88,9 +107,12 @@ import { spacing } from '@/esopay/theme/spacing';
 
 import { fonts } from '@/esopay/theme/typography';
 
+import { ConfirmDialog } from '@/components/primitives/AlertDialog';
 import { Colors, FontSize } from '@/tokens/design';
 
 import { fonts as appFonts } from '@/theme/tokens';
+import { ESO_PAY_GOLD, ESO_PAY_GOLD_MUTED, ESO_PAY_SURFACE } from '@/esopay/theme/brandColors';
+import { inter } from '@/theme/fonts';
 
 import { useEnodeToast } from '@/providers/EnodeToastProvider';
 
@@ -245,10 +267,12 @@ export function SettingsScreen() {
   const scrollPad = useEsoPayScrollPadding({ topExtra: spacing.md });
 
   const user = useEsoPayAuthStore((s) => s.user);
+  const setPinUnlocked = useEsoPayAuthStore((s) => s.setLoginPinUnlocked);
 
   const toast = useEnodeToast();
 
   const { userId } = useEsoPayUserId();
+  const host = useEsoPayHost();
 
 
 
@@ -270,7 +294,21 @@ export function SettingsScreen() {
 
   const { allBeneficiaries, remove } = useBeneficiaries();
 
-  const { pinConfigured, isChecking: pinChecking, configurePin, userIdReady } = useTransactionPin();
+  const {
+    pinConfigured,
+    isChecking: pinChecking,
+    configurePin,
+    verifyPin,
+    userIdReady,
+  } = useTransactionPin();
+  const { status: kycStatus } = useEsoPayKyc();
+
+  const profileBadge = (() => {
+    const identityVerified = Boolean(kycStatus?.bvn_configured || kycStatus?.nin_configured);
+    if (identityVerified && pinConfigured) return 'Wallet identity verified';
+    if (pinConfigured) return 'Secured with transaction PIN';
+    return 'Complete setup to fund wallet';
+  })();
   const {
     pinConfigured: loginPinConfigured,
     isChecking: loginPinChecking,
@@ -299,6 +337,10 @@ export function SettingsScreen() {
 
   const [pinOpen, setPinOpen] = useState(false);
   const [loginPinOpen, setLoginPinOpen] = useState(false);
+  const [signOutOpen, setSignOutOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [disputeOpen, setDisputeOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [notifications, setNotifications] = useState<NotificationPreferences>({
 
@@ -450,7 +492,7 @@ export function SettingsScreen() {
 
               <Shield size={12} color={luxury.gold} strokeWidth={2.2} />
 
-              <Text style={styles.profileBadgeText}>Verified Eso Pay account</Text>
+              <Text style={styles.profileBadgeText}>{profileBadge}</Text>
 
             </View>
 
@@ -885,7 +927,7 @@ const styles = StyleSheet.create({
 
     borderRadius: 999,
 
-    backgroundColor: 'rgba(212,175,55,0.12)',
+    backgroundColor: 'rgba(201,168,76,0.12)',
 
   },
 
@@ -989,7 +1031,7 @@ const styles = StyleSheet.create({
 
     justifyContent: 'center',
 
-    backgroundColor: 'rgba(212,175,55,0.1)',
+    backgroundColor: 'rgba(201,168,76,0.1)',
 
   },
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { OperationalInsight } from '@/lib/perceivedRealtime';
 
 const ROTATE_MS = 8_000;

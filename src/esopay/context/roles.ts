@@ -17,3 +17,13 @@ export function mapParentRoleToEsoPay(parentRole: UserRole | null | undefined): 
 export function canInitiateEsoPayPayment(role: EsoPayUserRole): boolean {
   return role === 'owner' || role === 'admin';
 }
+
+/** Individual Eso Pay users are wallet owners when signed in. */
+export function resolveEsoPayUserRole(input: {
+  esoPaySignedIn: boolean;
+  parentRole?: UserRole | null;
+}): EsoPayUserRole {
+  if (!input.esoPaySignedIn) return 'viewer';
+  if (input.parentRole) return mapParentRoleToEsoPay(input.parentRole);
+  return 'owner';
+}

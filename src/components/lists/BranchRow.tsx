@@ -9,7 +9,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import Svg, { Circle, Path, Polyline } from 'react-native-svg';
+import Svg, { Circle, Polyline } from 'react-native-svg';
 import type { BranchRow as Branch } from '@/lib/aura';
 import { StatusBadge } from '@/components/atoms/StatusBadge';
 import { BatteryBar } from '@/components/atoms/BatteryBar';

@@ -32,6 +32,6 @@ export function buildMetroEnv(mobileRoot, extra = {}) {
 export function logMetroEnvHint() {
   if (!isWin) return;
   console.log(
-    '[ESO Energy] Windows Metro: maxWorkers=1, cache=.metro-cache — use npm run start:phone (not raw npx expo).',
+    '[ESO Energy] Windows Metro: maxWorkers=1, in-memory cache — use npm run start:dev:stable (not raw npx expo).',
   );
 }

@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(13, 17, 23, 0.72)',
   },
   scrim: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(13, 17, 23, 0.55)',
   },
   content: {

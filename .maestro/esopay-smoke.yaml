@@ -1,0 +1,38 @@
+appId: host.exp.exponent
+---
+# Eso Pay smoke — run on dev build with test account or skip auth-gated steps.
+- launchApp
+- assertVisible:
+    text: "ESO"
+    optional: true
+- tapOn:
+    text: "ESO Pay Bills"
+    optional: true
+- tapOn:
+    text: "Sign in to Eso Pay"
+    optional: true
+- tapOn:
+    text: "Send Code"
+    optional: true
+# Post-auth (optional — requires signed-in session):
+- tapOn:
+    text: "Eso Pay"
+    optional: true
+- tapOn:
+    text: "Bills"
+    optional: true
+- tapOn:
+    text: "History"
+    optional: true
+- tapOn:
+    text: "Settings"
+    optional: true
+- tapOn:
+    text: "Transaction PIN"
+    optional: true
+- tapOn:
+    text: "Report a transaction issue"
+    optional: true
+- tapOn:
+    text: "Cancel"
+    optional: true

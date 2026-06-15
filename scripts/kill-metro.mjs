@@ -22,4 +22,4 @@ if (process.platform === 'win32') {
   console.log('[kill-metro] Non-Windows: close Metro terminals manually.');
 }
 
-console.log('[kill-metro] Done. Run: npm run start:phone');
+console.log('[kill-metro] Done. Run: npm run start:dev (dev build) or npm run start:phone (Expo Go)');

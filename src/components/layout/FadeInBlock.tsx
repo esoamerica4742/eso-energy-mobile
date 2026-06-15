@@ -1,37 +1,25 @@
-import { useEffect, useRef, type ReactNode } from 'react';
-import { Animated, Easing, type ViewProps } from 'react-native';
+import { type ReactNode } from 'react';
+import { type StyleProp, type ViewStyle } from 'react-native';
+import { SpringEntrance } from '@/lib/motion/SpringEntrance';
+import { SPRING_PRIMARY } from '@/lib/motion/springMotion';
 
-type Props = ViewProps & {
+type Props = {
   children: ReactNode;
   delay?: number;
+  style?: StyleProp<ViewStyle>;
 };
 
-export function FadeInBlock({ children, delay = 0, style, ...rest }: Props) {
-  const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(16)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(opacity, {
-        toValue: 1,
-        duration: 420,
-        delay,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration: 420,
-        delay,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [delay, opacity, translateY]);
-
+/** Legacy fade-in block — now uses 2026 spring entrance. */
+export function FadeInBlock({ children, delay = 0, style }: Props) {
   return (
-    <Animated.View style={[{ opacity, transform: [{ translateY }] }, style]} {...rest}>
+    <SpringEntrance
+      delay={delay}
+      offsetY={16}
+      scaleFrom={0.94}
+      spring={SPRING_PRIMARY}
+      style={style}
+    >
       {children}
-    </Animated.View>
+    </SpringEntrance>
   );
 }

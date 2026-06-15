@@ -3,12 +3,12 @@ import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import { BlurView } from 'expo-blur';
 import {
-  Home,
+  Gear,
+  House,
   Receipt,
-  Settings,
   Shield,
-  type LucideIcon,
-} from 'lucide-react-native';
+  type Icon as PhosphorIcon,
+} from 'phosphor-react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -18,32 +18,44 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { PS } from '@/esopay/components/power-shield/powerShieldTheme';
-import { usePowerShield } from '@/esopay/hooks/usePowerShield';
+import {
+  ESO_PAY_GOLD,
+  ESO_PAY_GOLD_MUTED,
+  NAV_BAR_BG,
+  NAV_BAR_BORDER,
+  NAV_INACTIVE,
+} from '@/esopay/theme/brandColors';
+import { ds } from '@/esopay/theme/designSystem';
 import { inter } from '@/theme/fonts';
-const TAB_AMBER = PS.amber;
-const TAB_INACTIVE = PS.inactive;
+import { usePowerShield } from '@/esopay/hooks/usePowerShield';
+import { useTabPressBounce } from '@/lib/motion/springMotion';
 
-const TAB_HEIGHT = 64;
-const ICON_SIZE = 24;
+const TAB_HEIGHT = 55;
+const ICON_SIZE = ds.size.navIcon;
+const FLOAT_MARGIN_H = 16;
+const FLOAT_MARGIN_BOTTOM = 10;
 
 const TAB_ORDER = ['index', 'intelligence', 'bills', 'settings'] as const;
 
 type TabName = (typeof TAB_ORDER)[number];
 
-const TAB_META: Record<TabName, { label: string; Icon: LucideIcon; shieldBadge?: boolean }> = {
-  index: { label: 'Home', Icon: Home },
-  intelligence: { label: 'Power Shield', Icon: Shield, shieldBadge: true },
+const TAB_META: Record<TabName, { label: string; Icon: PhosphorIcon; shieldBadge?: boolean }> = {
+  index: { label: 'Home', Icon: House },
+  intelligence: { label: 'Shield', Icon: Shield, shieldBadge: true },
   bills: { label: 'Billing', Icon: Receipt },
-  settings: { label: 'Settings', Icon: Settings },
+  settings: { label: 'Settings', Icon: Gear },
 };
 
 type Props = BottomTabBarProps;
 
-function ShieldProtectionDot() {
+function ShieldProtectionDot({ active }: { active: boolean }) {
   const opacity = useSharedValue(1);
 
   useEffect(() => {
+    if (!active) {
+      opacity.value = 1;
+      return;
+    }
     opacity.value = withRepeat(
       withSequence(
         withTiming(0.35, { duration: 700, easing: Easing.inOut(Easing.ease) }),
@@ -52,7 +64,7 @@ function ShieldProtectionDot() {
       -1,
       true,
     );
-  }, [opacity]);
+  }, [active, opacity]);
 
   const dotStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
@@ -70,62 +82,81 @@ function TabIcon({
   shieldActive,
 }: {
   focused: boolean;
-  Icon: LucideIcon;
+  Icon: PhosphorIcon;
   shieldBadge?: boolean;
   shieldActive?: boolean;
 }) {
   const scale = useSharedValue(focused ? 1.06 : 1);
-  const pulse = useSharedValue(1);
 
   useEffect(() => {
     scale.value = withTiming(focused ? 1.06 : 1, {
-      duration: 200,
+      duration: ds.motion.duration,
       easing: Easing.out(Easing.cubic),
     });
   }, [focused, scale]);
 
-  useEffect(() => {
-    if (!shieldBadge || !shieldActive) {
-      pulse.value = 1;
-      return;
-    }
-    pulse.value = withRepeat(
-      withSequence(
-        withTiming(1.12, { duration: 900, easing: Easing.inOut(Easing.ease) }),
-        withTiming(1, { duration: 900, easing: Easing.inOut(Easing.ease) }),
-      ),
-      -1,
-      true,
-    );
-  }, [shieldActive, shieldBadge, pulse]);
-
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value * pulse.value }],
+    transform: [{ scale: scale.value }],
   }));
 
-  const iconColor = focused ? TAB_AMBER : TAB_INACTIVE;
+  const iconColor = focused ? ESO_PAY_GOLD : NAV_INACTIVE;
+  const iconDuotone = focused ? 'rgba(211, 153, 26, 0.35)' : 'rgba(107, 114, 128, 0.5)';
 
   return (
     <Animated.View style={[styles.iconBox, animatedStyle]}>
-      <Icon
-        size={ICON_SIZE}
-        color={iconColor}
-        strokeWidth={focused ? 2.6 : 2.2}
-        fill={focused && shieldBadge ? 'rgba(240, 165, 0, 0.18)' : 'transparent'}
-      />
-      {shieldBadge && shieldActive ? <ShieldProtectionDot /> : null}
+      <Icon size={ICON_SIZE} color={iconColor} weight={focused ? 'duotone' : 'regular'} duotoneColor={iconDuotone} />
+      {shieldBadge && shieldActive ? <ShieldProtectionDot active={focused} /> : null}
     </Animated.View>
   );
 }
 
 function TabLabel({ focused, label }: { focused: boolean; label: string }) {
   return (
-    <Text
-      style={[styles.label, focused ? styles.labelActive : styles.labelInactive]}
-      numberOfLines={1}
-    >
+    <Text style={[styles.label, focused ? styles.labelActive : styles.labelInactive]} numberOfLines={1}>
       {label}
     </Text>
+  );
+}
+
+function TabButton({
+  onPress,
+  focused,
+  label,
+  shieldBadge,
+  shieldActive,
+  Icon,
+}: {
+  onPress: () => void;
+  focused: boolean;
+  label: string;
+  shieldBadge?: boolean;
+  shieldActive?: boolean;
+  Icon: PhosphorIcon;
+}) {
+  const { style: bounceStyle, bounce } = useTabPressBounce();
+
+  return (
+    <Pressable
+      onPress={() => {
+        bounce();
+        onPress();
+      }}
+      style={styles.tab}
+      accessibilityRole="button"
+      accessibilityState={{ selected: focused }}
+      accessibilityLabel={shieldBadge ? `${label}, protection active` : label}
+    >
+      <Animated.View style={bounceStyle}>
+        <TabIcon
+          focused={focused}
+          Icon={Icon}
+          shieldBadge={shieldBadge}
+          shieldActive={shieldBadge ? shieldActive : undefined}
+        />
+        <TabLabel focused={focused} label={label} />
+        {focused ? <View style={styles.activeIndicator} /> : <View style={styles.indicatorSpacer} />}
+      </Animated.View>
+    </Pressable>
   );
 }
 
@@ -133,15 +164,16 @@ export function EsoPayBottomNav({ state, navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { data: powerShieldData } = usePowerShield();
   const shieldActive = (powerShieldData?.meters?.length ?? 0) > 0;
+
   const orderedRoutes = useMemo(() => {
     const byName = new Map(state.routes.map((route) => [route.name, route]));
     return TAB_ORDER.map((name) => byName.get(name)).filter(Boolean) as typeof state.routes;
-  }, [state.routes]);
+  }, [state]);
 
-  const navHeight = TAB_HEIGHT + insets.bottom;
+  const bottomInset = Math.max(insets.bottom, FLOAT_MARGIN_BOTTOM);
 
   const bar = (
-    <View style={[styles.dock, { paddingBottom: Math.max(insets.bottom, 8) }]}>
+    <View style={[styles.dock, { paddingBottom: 4 }]}>
       {orderedRoutes.map((route) => {
         const meta = TAB_META[route.name as TabName];
         if (!meta) return null;
@@ -151,34 +183,35 @@ export function EsoPayBottomNav({ state, navigation }: Props) {
         const { Icon, label, shieldBadge } = meta;
 
         return (
-          <Pressable
+          <TabButton
             key={route.key}
             onPress={() => navigation.navigate(route.name)}
-            style={styles.tab}
-            accessibilityRole="button"
-            accessibilityState={{ selected: focused }}
-            accessibilityLabel={shieldBadge ? `${label}, protection active` : label}
-          >
-            <TabIcon
-              focused={focused}
-              Icon={Icon}
-              shieldBadge={shieldBadge}
-              shieldActive={shieldBadge ? shieldActive : undefined}
-            />
-            <TabLabel focused={focused} label={label} />
-            {focused ? <View style={styles.activeIndicator} /> : null}
-          </Pressable>
+            focused={focused}
+            label={label}
+            shieldBadge={shieldBadge}
+            shieldActive={shieldBadge ? shieldActive : undefined}
+            Icon={Icon}
+          />
         );
       })}
     </View>
   );
 
   return (
-    <View style={[styles.wrap, { height: navHeight }]}>
+    <View
+      style={[
+        styles.wrap,
+        {
+          paddingBottom: bottomInset,
+          paddingHorizontal: FLOAT_MARGIN_H,
+        },
+      ]}
+      pointerEvents="box-none"
+    >
       {Platform.OS === 'web' ? (
-        <View style={styles.blurFallback}>{bar}</View>
+        <View style={styles.blurShell}>{bar}</View>
       ) : (
-        <BlurView intensity={20} tint="dark" style={styles.blur}>
+        <BlurView intensity={48} tint="dark" style={styles.blurShell}>
           {bar}
         </BlurView>
       )}
@@ -188,80 +221,87 @@ export function EsoPayBottomNav({ state, navigation }: Props) {
 
 const styles = StyleSheet.create({
   wrap: {
-    width: '100%',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 100,
   },
-  blur: {
-    flex: 1,
-    backgroundColor: 'rgba(10, 10, 15, 0.95)',
-  },
-  blurFallback: {
-    flex: 1,
-    backgroundColor: 'rgba(10, 10, 15, 0.95)',
+  blurShell: {
+    borderRadius: ds.radius.nav,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: NAV_BAR_BORDER,
+    backgroundColor: NAV_BAR_BG,
+    minHeight: TAB_HEIGHT,
+    shadowColor: '#000000',
+    shadowOpacity: 0.28,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 10,
   },
   dock: {
-    flex: 1,
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    minHeight: TAB_HEIGHT,
+    alignItems: 'center',
     paddingTop: 8,
-    paddingHorizontal: 4,
+    paddingHorizontal: 6,
   },
   tab: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 2,
     minWidth: 0,
-    paddingVertical: 6,
+    paddingVertical: 3,
   },
   iconBox: {
-    width: ICON_SIZE,
-    height: ICON_SIZE,
+    width: 28,
+    height: 28,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
   },
   shieldDot: {
     position: 'absolute',
-    top: -2,
-    right: -4,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    top: -1,
+    right: -3,
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(16, 185, 129, 0.25)',
+    backgroundColor: ESO_PAY_GOLD_MUTED,
   },
   shieldDotCore: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: '#34D399',
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: ESO_PAY_GOLD,
   },
   label: {
     fontFamily: inter.medium,
-    fontSize: 10,
-    letterSpacing: 0.35,
+    fontSize: ds.type.nav.fontSize,
+    lineHeight: ds.type.nav.lineHeight,
+    letterSpacing: ds.type.nav.letterSpacing,
     textAlign: 'center',
   },
   labelInactive: {
-    color: TAB_INACTIVE,
-    fontFamily: inter.regular,
-    fontSize: 11,
+    color: NAV_INACTIVE,
   },
   labelActive: {
-    color: TAB_AMBER,
-    fontFamily: inter.medium,
-    fontSize: 11,
+    color: ESO_PAY_GOLD,
+    fontFamily: inter.semibold,
     fontWeight: '600',
   },
   activeIndicator: {
-    marginTop: 2,
-    width: 36,
-    height: 2,
+    marginTop: 3,
+    width: 18,
+    height: 3,
     borderRadius: 999,
-    backgroundColor: TAB_AMBER,
+    backgroundColor: ESO_PAY_GOLD,
+  },
+  indicatorSpacer: {
+    marginTop: 3,
+    height: 3,
   },
 });

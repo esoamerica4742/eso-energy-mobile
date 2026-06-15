@@ -22,6 +22,7 @@ import { BalanceDisplay } from '@/esopay/components/BalanceDisplay';
 import { EsoPayHeader } from '@/esopay/components/EsoPayHeader';
 import { EsoPayScreenShell } from '@/esopay/components/EsoPayScreenShell';
 import { EsoPaySection } from '@/esopay/components/EsoPaySection';
+import { EsoPayPrimaryButton } from '@/esopay/components/EsoPayButtons';
 import { GoldCTAButton } from '@/esopay/components/GoldCTAButton';
 import { OffsetBreakdownRow } from '@/esopay/components/OffsetBreakdownRow';
 import { PaymentHistoryRow } from '@/esopay/components/PaymentHistoryRow';
@@ -103,7 +104,7 @@ export function BillDetailScreen({ billId }: Props) {
         <EsoPayHeader title="Bill" canGoBack onBack={goBack} />
         <View style={styles.errorBox}>
           <Text style={styles.errorText}>This bill could not be loaded.</Text>
-          <GoldCTAButton label="Retry" onPress={onRefresh} />
+          <EsoPayPrimaryButton label="Retry" onPress={onRefresh} />
         </View>
       </EsoPayScreenShell>
     );

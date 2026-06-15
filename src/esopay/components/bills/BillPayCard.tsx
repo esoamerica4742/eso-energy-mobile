@@ -1,18 +1,29 @@
 import { memo, type ReactNode } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import { BlurView } from 'expo-blur';
+import {
+  ESO_PAY_BORDER,
+  ESO_PAY_GOLD,
+  ESO_PAY_GOLD_MUTED,
+  ESO_PAY_TEXT_PRIMARY,
+  ESO_PAY_TEXT_SECONDARY,
+  HOME_CARD_SURFACE,
+  PREMIUM_CARD_SHADOW,
+} from '@/esopay/theme/brandColors';
 import Animated, {
+  Easing,
   FadeIn,
   FadeInRight,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 import {
-  BILL_PAY_CARD_HEIGHT,
-  BILL_PAY_CARD_WIDTH,
+  BILL_CATEGORY_CARD_HEIGHT,
+  BILL_CATEGORY_CARD_WIDTH,
   BILL_PAY_GRID_INNER_PADDING,
-  BILL_PAY_GRID_MIN_HEIGHT,
+  HOME_BILL_CATEGORY_CARD_HEIGHT,
+  HOME_BILL_GRID_INNER_PADDING,
 } from '@/esopay/components/bills/billPayCardTheme';
 import type { HubHighlightKind } from '@/esopay/lib/billHubHighlights';
 import { hubHighlightLabel } from '@/esopay/lib/billHubHighlights';
@@ -30,9 +41,9 @@ export type BillPayCardLayout = 'carousel' | 'grid';
 export type BillPayCardProps = {
   title: string;
   subtitle: string;
-  badgeText: string;
-  badgeBg: string;
-  badgeFg: string;
+  badgeText?: string;
+  badgeBg?: string;
+  badgeFg?: string;
   icon: ReactNode;
   visual: BillPayCardVisual;
   width?: number;
@@ -44,7 +55,17 @@ export type BillPayCardProps = {
   animateEntry?: boolean;
   onPress: () => void;
   accessibilityLabel?: string;
+  /** Home / billing hub cards — subtle container border. */
+  hubCards?: boolean;
 };
+
+const HUB_CARD_STYLE = {
+  borderWidth: 0,
+  borderRadius: 24,
+  ...PREMIUM_CARD_SHADOW,
+} as const;
+
+const PRESS_MS = 200;
 
 export type BillPayCardItem = BillPayCardProps & { id: string };
 
@@ -52,21 +73,22 @@ export const BillPayCard = memo(function BillPayCard({
   title,
   subtitle,
   badgeText,
-  badgeBg,
-  badgeFg,
   icon,
   visual,
-  width = BILL_PAY_CARD_WIDTH,
-  height,
-  layout = 'carousel',
+  width = BILL_CATEGORY_CARD_WIDTH,
+  height = BILL_CATEGORY_CARD_HEIGHT,
+  layout = 'grid',
   highlightBadge,
   index = 0,
   animateEntry = true,
   onPress,
   accessibilityLabel,
+  hubCards = false,
 }: BillPayCardProps) {
   const isGrid = layout === 'grid';
-  const cardHeight = height ?? (isGrid ? undefined : BILL_PAY_CARD_HEIGHT);
+  const cardHeight = height ?? BILL_CATEGORY_CARD_HEIGHT;
+  const isHomeDenseHub = hubCards && cardHeight <= HOME_BILL_CATEGORY_CARD_HEIGHT;
+
   const scale = useSharedValue(1);
   const cardAnim = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -76,65 +98,86 @@ export const BillPayCard = memo(function BillPayCard({
     <Pressable
       onPress={onPress}
       onPressIn={() => {
-        scale.value = withSpring(0.97, { damping: 14, stiffness: 320 });
+        scale.value = withTiming(0.98, { duration: PRESS_MS, easing: Easing.out(Easing.ease) });
       }}
       onPressOut={() => {
-        scale.value = withSpring(1, { damping: 12, stiffness: 280 });
+        scale.value = withTiming(1, { duration: PRESS_MS, easing: Easing.out(Easing.ease) });
       }}
-      style={[styles.pressable, isGrid && styles.pressableGrid]}
+      style={[
+        styles.pressable,
+        isGrid && styles.pressableGrid,
+        isHomeDenseHub && styles.pressableHomeHub,
+      ]}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? `${title}, ${subtitle}`}
       accessibilityHint="Opens biller selection"
     >
       {highlightBadge ? (
-        <View style={styles.mostUsedBadge}>
-          <Text style={styles.mostUsedText}>{hubHighlightLabel(highlightBadge)}</Text>
+        <View
+          style={[
+            styles.mostUsedBadge,
+            highlightBadge === 'popular' && styles.popularBadge,
+          ]}
+        >
+          <Text
+            style={[
+              styles.mostUsedText,
+              highlightBadge === 'popular' && styles.popularBadgeText,
+            ]}
+          >
+            {hubHighlightLabel(highlightBadge)}
+          </Text>
         </View>
       ) : null}
 
-      <View style={styles.iconRow}>
+      <View style={[styles.iconRow, highlightBadge && isGrid && styles.iconRowBelowBadge]}>
         {icon}
-        <View style={[styles.providerBadge, { backgroundColor: badgeBg }]}>
-          <Text style={[styles.providerBadgeText, { color: badgeFg }]} numberOfLines={1}>
-            {badgeText}
-          </Text>
-        </View>
+        {badgeText ? (
+          <View style={styles.providerBadge}>
+            <Text style={styles.providerBadgeText} numberOfLines={1}>
+              {badgeText}
+            </Text>
+          </View>
+        ) : null}
       </View>
 
-      <View style={styles.copyBlock}>
-        <Text style={[styles.cardTitle, isGrid && styles.cardTitleGrid]} numberOfLines={2}>
+      <View style={[styles.copyBlock, isHomeDenseHub && styles.copyBlockHomeHub]}>
+        <Text
+          style={[
+            styles.cardTitle,
+            isGrid && styles.cardTitleGrid,
+            isHomeDenseHub && styles.cardTitleHomeHub,
+          ]}
+          numberOfLines={2}
+          ellipsizeMode="tail"
+        >
           {title}
         </Text>
-        <Text style={[styles.cardHint, isGrid && styles.cardHintGrid]} numberOfLines={1}>
+        <Text
+          style={[
+            styles.cardHint,
+            isGrid && styles.cardHintGrid,
+            isHomeDenseHub && styles.cardHintHomeHub,
+          ]}
+          numberOfLines={1}
+        >
           {subtitle}
         </Text>
       </View>
 
-      <View style={styles.noise} pointerEvents="none" />
+      {hubCards ? null : <View style={styles.noise} pointerEvents="none" />}
     </Pressable>
   );
 
-  const glass =
-    Platform.OS === 'ios' ? (
-      <BlurView
-        intensity={28}
-        tint="dark"
-        style={[styles.glass, isGrid && styles.glassGrid, { backgroundColor: visual.tint }]}
-      >
-        {inner}
-      </BlurView>
-    ) : (
+  const cardBody = (
+    <View style={[styles.glass, isGrid && styles.glassGrid, { backgroundColor: HOME_CARD_SURFACE }]}>
       <View
-        style={[
-          styles.glass,
-          styles.glassAndroid,
-          isGrid && styles.glassGrid,
-          { backgroundColor: visual.tint },
-        ]}
-      >
-        {inner}
-      </View>
-    );
+        style={[styles.tintOverlay, { backgroundColor: visual.tint }]}
+        pointerEvents="none"
+      />
+      {inner}
+    </View>
+  );
 
   const entering = animateEntry
     ? isGrid
@@ -147,50 +190,59 @@ export const BillPayCard = memo(function BillPayCard({
       entering={entering}
       style={[
         styles.cardOuter,
-        isGrid && styles.cardOuterGrid,
-        !isGrid && { width, height: cardHeight },
-        { borderColor: visual.borderGlow },
+        isGrid ? styles.cardOuterGrid : styles.cardOuterCarousel,
+        isGrid
+          ? {
+              height: cardHeight,
+              ...(hubCards ? HUB_CARD_STYLE : { borderColor: visual.borderGlow }),
+            }
+          : {
+              width,
+              height: cardHeight,
+              ...(hubCards ? HUB_CARD_STYLE : { borderColor: visual.borderGlow }),
+            },
         cardAnim,
       ]}
     >
-      {glass}
+      {cardBody}
     </Animated.View>
   );
 });
 
+/** Alias — canonical bill category card (Home, Bills hub, See all). */
+export { BillPayCard as BillCategoryCard };
+
 const styles = StyleSheet.create({
   cardOuter: {
     borderRadius: 16,
-    overflow: 'hidden',
     borderWidth: 1,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.35,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.32,
         shadowRadius: 14,
       },
-      android: { elevation: 6 },
+      android: { elevation: 5 },
       default: {},
     }),
   },
   cardOuterGrid: {
-    flex: 1,
+    width: '100%',
     alignSelf: 'stretch',
-    minHeight: BILL_PAY_GRID_MIN_HEIGHT,
+    minHeight: 100,
   },
+  cardOuterCarousel: {},
   glass: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: 24,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
   },
   glassGrid: {
-    minHeight: BILL_PAY_GRID_MIN_HEIGHT,
+    height: '100%',
   },
-  glassAndroid: {
-    backgroundColor: 'rgba(17, 24, 39, 0.92)',
+  tintOverlay: {
+    ...StyleSheet.absoluteFill,
   },
   pressable: {
     flex: 1,
@@ -199,8 +251,11 @@ const styles = StyleSheet.create({
   },
   pressableGrid: {
     flexDirection: 'column',
-    minHeight: BILL_PAY_GRID_MIN_HEIGHT,
     padding: BILL_PAY_GRID_INNER_PADDING,
+    overflow: 'hidden',
+  },
+  pressableHomeHub: {
+    padding: HOME_BILL_GRID_INNER_PADDING,
   },
   mostUsedBadge: {
     position: 'absolute',
@@ -219,50 +274,89 @@ const styles = StyleSheet.create({
     fontSize: 8,
     letterSpacing: 0.5,
     textTransform: 'uppercase',
-    color: luxury.gold,
+    color: luxury.warmWhite,
+  },
+  popularBadge: {
+    backgroundColor: ESO_PAY_GOLD_MUTED,
+    borderColor: 'rgba(232, 160, 32, 0.20)',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  popularBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: ESO_PAY_GOLD,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
   iconRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    flexShrink: 0,
+  },
+  iconRowBelowBadge: {
+    marginTop: 22,
   },
   providerBadge: {
-    minWidth: 40,
-    height: 26,
-    paddingHorizontal: 7,
-    borderRadius: 8,
+    backgroundColor: ESO_PAY_BORDER,
+    borderColor: 'transparent',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   providerBadgeText: {
-    fontFamily: fonts.uiBold,
     fontSize: 10,
-    letterSpacing: 0.2,
+    fontWeight: '600',
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   copyBlock: {
     gap: 4,
+    flexShrink: 1,
+    minHeight: 0,
+  },
+  copyBlockHomeHub: {
+    gap: 2,
   },
   cardTitle: {
     fontFamily: fonts.uiMedium,
     fontSize: 15,
-    color: luxury.textPrimary,
+    fontWeight: '600',
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   cardTitleGrid: {
-    fontSize: 13,
-    lineHeight: 17,
+    fontSize: 14,
+    lineHeight: 18,
+    maxHeight: 36,
+    letterSpacing: 0.1,
+  },
+  cardTitleHomeHub: {
+    fontFamily: fonts.display,
+    fontWeight: '600',
+    letterSpacing: 0.15,
   },
   cardHint: {
     fontFamily: fonts.ui,
     fontSize: 12,
-    color: '#E2E8F0',
+    color: ESO_PAY_TEXT_SECONDARY,
   },
   cardHintGrid: {
+    fontSize: 12,
+    lineHeight: 16,
+    maxHeight: 16,
+    color: 'rgba(245, 240, 232, 0.55)',
+  },
+  cardHintHomeHub: {
     fontSize: 11,
-    lineHeight: 15,
-    color: luxury.textMuted,
+    lineHeight: 14,
+    maxHeight: 14,
+    color: 'rgba(245, 240, 232, 0.48)',
   },
   noise: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(255,255,255,0.03)',
   },
 });

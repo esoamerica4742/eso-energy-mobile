@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 
 import { EsoPayBottomNav } from '@/esopay/components/EsoPayBottomNav';
 
-import { luxury } from '@/esopay/theme/luxury';
+import { ds } from '@/esopay/theme/designSystem';
 
 
 
@@ -18,7 +18,7 @@ export default function EsoPayTabLayout() {
 
         tabBarStyle: { display: 'none' },
 
-        sceneStyle: { backgroundColor: luxury.bg },
+        sceneStyle: { backgroundColor: ds.color.bg },
 
         animation: 'fade',
 
@@ -34,7 +34,7 @@ export default function EsoPayTabLayout() {
         name="intelligence"
         options={{
           title: 'Power Shield',
-          sceneStyle: { backgroundColor: '#0A0A0A' },
+          sceneStyle: { backgroundColor: ds.color.bg },
         }}
       />
 
@@ -42,7 +42,7 @@ export default function EsoPayTabLayout() {
         name="bills"
         options={{
           title: 'Billing',
-          sceneStyle: { backgroundColor: luxury.bg },
+          sceneStyle: { backgroundColor: ds.color.bg },
         }}
       />
 

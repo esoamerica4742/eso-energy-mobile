@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: luxury.goldBorder,
-    backgroundColor: 'rgba(201,168,76,0.06)',
+    backgroundColor: 'rgba(232,160,32,0.06)',
   },
   wrapCompact: {
     padding: spacing.sm,
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     backgroundColor: luxury.surface,
   },
   optionPressed: {
-    backgroundColor: 'rgba(201,168,76,0.14)',
+    backgroundColor: 'rgba(232,160,32,0.14)',
   },
   optionDisabled: {
     opacity: 0.6,

@@ -59,7 +59,7 @@ export const PowerShieldCountdownRing = memo(function PowerShieldCountdownRing({
 
 const styles = StyleSheet.create({
   center: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -11,6 +11,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { PS, arcColorForMeter } from '@/esopay/components/power-shield/powerShieldTheme';
+import { ds } from '@/esopay/theme/designSystem';
 import type { PowerShieldMeter } from '@/esopay/api/types';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -75,7 +76,7 @@ export const PowerShieldShieldGauge = memo(function PowerShieldShieldGauge({
             cx={SIZE / 2}
             cy={SIZE / 2}
             r={DASH_RADIUS}
-            stroke={active ? PS.amber : PS.inactive}
+            stroke={active ? PS.gold : PS.inactive}
             strokeWidth={DASH_STROKE}
             strokeOpacity={active ? 0.55 : 0.25}
             fill="none"
@@ -134,7 +135,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dashLayer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
   },

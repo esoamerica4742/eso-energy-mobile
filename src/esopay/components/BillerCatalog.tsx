@@ -9,8 +9,9 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   ChartBar,
   ChevronDown,
@@ -35,8 +36,8 @@ import { getBillerBrandStyle } from '@/esopay/data/billerBrands';
 import { fonts } from '@/esopay/theme/typography';
 import { spacing } from '@/esopay/theme/spacing';
 
-const GOLD = '#C9A84C';
-const GOLD_DIM = '#8A6E2F';
+const ESO_PAY_GOLD = '#C9A84C';
+const ESO_PAY_GOLD_DIM = '#8A6E2F';
 const SURFACE = '#0D0F17';
 const SURFACE2 = '#12151F';
 const COL_GAP = 12;
@@ -46,7 +47,7 @@ const FOLDER_THEME: Record<
   BillerDisplayGroup,
   { Icon: LucideIcon; accent: string; gradient: [string, string] }
 > = {
-  electricity: { Icon: Zap, accent: GOLD, gradient: [GOLD, GOLD_DIM] },
+  electricity: { Icon: Zap, accent: ESO_PAY_GOLD, gradient: [ESO_PAY_GOLD, ESO_PAY_GOLD_DIM] },
   airtime: { Icon: Phone, accent: '#10B981', gradient: ['#10B981', '#047857'] },
   data: { Icon: ChartBar, accent: '#38BDF8', gradient: ['#38BDF8', '#0369A1'] },
   cable_tv: { Icon: Tv, accent: '#A855F7', gradient: ['#A855F7', '#6B21A8'] },
@@ -167,7 +168,7 @@ const CategoryFolder = memo(function CategoryFolder({
           </Text>
           <ChevronDown
             size={18}
-            color={GOLD}
+            color={ESO_PAY_GOLD}
             strokeWidth={2}
             style={{ transform: [{ rotate: expanded ? '180deg' : '0deg' }] }}
           />
@@ -267,10 +268,10 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   offlineBanner: {
-    backgroundColor: 'rgba(201,168,76,0.1)',
+    backgroundColor: 'rgba(232,160,32,0.1)',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.25)',
+    borderColor: 'rgba(232,160,32,0.25)',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
@@ -278,17 +279,17 @@ const styles = StyleSheet.create({
     fontFamily: fonts.ui,
     fontSize: 12,
     lineHeight: 18,
-    color: '#C9A84C',
+    color: ESO_PAY_GOLD,
   },
   folder: {
     borderRadius: 16,
     backgroundColor: SURFACE,
     borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.12)',
+    borderColor: 'rgba(232,160,32,0.12)',
     overflow: 'hidden',
   },
   folderExpanded: {
-    borderColor: 'rgba(201,168,76,0.35)',
+    borderColor: 'rgba(232,160,32,0.35)',
     backgroundColor: SURFACE2,
   },
   folderHeader: {
@@ -299,7 +300,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   folderHeaderPressed: {
-    backgroundColor: 'rgba(201,168,76,0.06)',
+    backgroundColor: 'rgba(232,160,32,0.06)',
   },
   folderOrb: {
     width: 40,
@@ -343,7 +344,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     gap: COL_GAP,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(201,168,76,0.08)',
+    borderTopColor: 'rgba(232,160,32,0.08)',
   },
   row: {
     flexDirection: 'row',
@@ -354,14 +355,14 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: SURFACE,
     borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.18)',
+    borderColor: 'rgba(232,160,32,0.18)',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 8,
     gap: 6,
   },
   billerTilePressed: {
-    backgroundColor: 'rgba(201,168,76,0.1)',
+    backgroundColor: 'rgba(232,160,32,0.1)',
     transform: [{ scale: 0.97 }],
   },
   billerLogo: {
@@ -405,11 +406,11 @@ const emptyStyles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: GOLD,
+    borderColor: ESO_PAY_GOLD,
   },
   retryText: {
     fontFamily: fonts.uiMedium,
     fontSize: 13,
-    color: GOLD,
+    color: ESO_PAY_GOLD,
   },
 });

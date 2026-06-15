@@ -1,8 +1,6 @@
 import { Text, View } from 'react-native';
 import type { ReactNode } from 'react';
-import { AlertTimelineCard } from '@/screens/onboarding/cards/AlertTimelineCard';
-import { PortfolioCard } from '@/screens/onboarding/cards/PortfolioCard';
-import { SiteOverviewCard } from '@/screens/onboarding/cards/SiteOverviewCard';
+import { PlatformIntroCard } from '@/screens/onboarding/cards/PlatformIntroCard';
 import { ONBOARDING_COLORS as C } from '@/screens/onboarding/theme';
 
 export type OnboardingSlide = {
@@ -18,7 +16,7 @@ function SlideCopy({ title, subtitle }: Pick<OnboardingSlide, 'title' | 'subtitl
   return (
     <>
       <Text
-        className="text-[44px] leading-[52px]"
+        className="text-[40px] leading-[48px]"
         style={{ color: C.text, fontFamily: 'Inter_700Bold' }}
       >
         {title}
@@ -30,30 +28,19 @@ function SlideCopy({ title, subtitle }: Pick<OnboardingSlide, 'title' | 'subtitl
   );
 }
 
-export const ONBOARDING_SLIDES: OnboardingSlide[] = [
-  {
-    id: 'overview',
-    title: 'See Everything. Instantly.',
-    subtitle: 'Live site data across every asset, in one place.',
-    badgeText: 'LIVE',
-    renderCard: () => <SiteOverviewCard />,
-  },
-  {
-    id: 'predict',
-    title: 'Predict Before It Fails.',
-    subtitle: 'AI-powered fault detection across every inverter in your fleet.',
-    badgeText: 'ALERTS',
-    renderCard: () => <AlertTimelineCard />,
-  },
-  {
-    id: 'portfolio',
-    title: 'Your Whole Portfolio. One View.',
-    subtitle: 'Compare performance across all your sites at a glance.',
-    badgeText: 'PORTFOLIO',
-    footerText: 'Trusted by energy operators across Africa.',
-    renderCard: () => <PortfolioCard />,
-  },
-];
+/** Single onboarding screen — fleet monitoring + Eso Pay in one view. */
+export const ONBOARDING_SLIDE: OnboardingSlide = {
+  id: 'platform',
+  title: 'One Platform.\nTwo Command Centers.',
+  subtitle:
+    'Monitor your solar fleet and pay utility bills from a single enterprise app — one PIN when you pay.',
+  badgeText: 'ESO ENERGY',
+  footerText: 'Trusted by energy operators across Africa.',
+  renderCard: () => <PlatformIntroCard />,
+};
+
+/** @deprecated Use ONBOARDING_SLIDE — kept for any legacy imports */
+export const ONBOARDING_SLIDES = [ONBOARDING_SLIDE] as const;
 
 export function OnboardingSlideContent({ slide }: { slide: OnboardingSlide }) {
   return (

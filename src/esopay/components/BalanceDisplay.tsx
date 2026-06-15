@@ -1,8 +1,6 @@
 import { memo } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View, type ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { esopayFonts } from '@/esopay/theme/fonts';
-import { EsoPayTokens as T } from '@/esopay/theme/tokens';
+import { ds } from '@/esopay/theme/designSystem';
 import { formatCurrency } from '@/esopay/utils/currency';
 
 type Props = {
@@ -27,37 +25,30 @@ export const BalanceDisplay = memo(function BalanceDisplay({
 }: Props) {
   const amountColor =
     variant === 'warning'
-      ? T.color.red.alert
+      ? ds.color.error
       : variant === 'emphasis'
-        ? T.color.gold.shimmer
-        : T.color.text.primary;
+        ? ds.color.gold
+        : ds.color.textPrimary;
 
   return (
     <View style={[styles.shell, style]}>
-      <LinearGradient
-        colors={
-          variant === 'emphasis'
-            ? [`${T.color.gold.primary}12`, T.color.bg.inset]
-            : [T.color.bg.inset, T.color.bg.inset]
-        }
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <View
         style={[
           styles.card,
-          variant === 'warning' && { borderColor: `${T.color.red.alert}44` },
-          variant === 'emphasis' && { borderColor: T.color.border.active },
+          variant === 'warning' && styles.cardWarning,
+          variant === 'emphasis' && styles.cardEmphasis,
         ]}
       >
         <Text style={styles.label}>{label}</Text>
         {loading ? (
-          <ActivityIndicator color={T.color.gold.primary} style={styles.loader} />
+          <ActivityIndicator color={ds.color.gold} style={styles.loader} />
         ) : (
           <Text style={[styles.amount, { color: amountColor }]}>
             {formatCurrency(amountKobo, currency)}
           </Text>
         )}
         {caption ? <Text style={styles.caption}>{caption}</Text> : null}
-      </LinearGradient>
+      </View>
     </View>
   );
 });
@@ -67,34 +58,43 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   card: {
-    borderRadius: T.radius.sm,
+    borderRadius: ds.radius.input,
     borderWidth: 1,
-    borderColor: T.color.border.subtle,
-    paddingHorizontal: T.spacing.lg,
-    paddingVertical: T.spacing.md,
+    borderColor: ds.color.border,
+    backgroundColor: ds.color.surface1,
+    paddingHorizontal: ds.space.screen,
+    paddingVertical: ds.space.component,
+  },
+  cardWarning: {
+    borderColor: 'rgba(255, 77, 79, 0.35)',
+    backgroundColor: ds.color.errorMuted,
+  },
+  cardEmphasis: {
+    borderColor: ds.color.goldMuted35,
+    backgroundColor: ds.color.goldMuted04,
   },
   label: {
-    fontFamily: esopayFonts.body,
-    fontSize: T.type.label.size,
-    lineHeight: T.type.label.lineHeight,
-    letterSpacing: T.type.label.letterSpacing,
-    color: T.color.text.secondary,
+    fontFamily: ds.font.label,
+    fontSize: ds.type.caption.fontSize,
+    lineHeight: ds.type.caption.lineHeight,
+    letterSpacing: 0.6,
+    color: ds.color.textSecondary,
     textTransform: 'uppercase',
-    marginBottom: T.spacing.xs,
+    marginBottom: 4,
   },
   loader: {
     alignSelf: 'flex-start',
   },
   amount: {
-    fontFamily: esopayFonts.display,
-    fontSize: T.type.h1.size,
-    lineHeight: T.type.h1.lineHeight,
-    letterSpacing: T.type.h1.letterSpacing,
+    fontFamily: ds.font.amount,
+    fontSize: ds.type.title.fontSize,
+    lineHeight: ds.type.title.lineHeight,
+    letterSpacing: -0.3,
   },
   caption: {
-    marginTop: T.spacing.xs,
-    fontFamily: esopayFonts.bodyLight,
-    fontSize: T.type.caption.size,
-    color: T.color.text.secondary,
+    marginTop: 4,
+    fontFamily: ds.font.body,
+    fontSize: ds.type.caption.fontSize,
+    color: ds.color.textSecondary,
   },
 });

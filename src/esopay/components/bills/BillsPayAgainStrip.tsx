@@ -3,6 +3,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { RotateCcw } from 'lucide-react-native';
 import type { BillHistoryRowModel } from '@/esopay/lib/billHistoryDisplay';
+import { EsoPaySectionLabel } from '@/esopay/components/EsoPaySectionLabel';
+import { TEAL_ACCENT } from '@/esopay/theme/brandColors';
 import { luxury } from '@/esopay/theme/luxury';
 import { fonts } from '@/esopay/theme/typography';
 import { formatCurrency } from '@/esopay/utils/currency';
@@ -17,7 +19,7 @@ export const BillsPayAgainStrip = memo(function BillsPayAgainStrip({ rows, onRep
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.heading}>Pay again</Text>
+      <EsoPaySectionLabel style={styles.headingTracking}>Pay again</EsoPaySectionLabel>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -46,7 +48,7 @@ export const BillsPayAgainStrip = memo(function BillsPayAgainStrip({ rows, onRep
               </Text>
               <Text style={styles.amount}>{formatCurrency(item.amountKobo)}</Text>
             </View>
-            <RotateCcw size={16} color={luxury.goldAccent} strokeWidth={2.2} />
+            <RotateCcw size={16} color={TEAL_ACCENT} strokeWidth={2.2} />
           </Pressable>
         ))}
       </ScrollView>

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useBottomTabBarHeight } from "expo-router/js-tabs";
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
@@ -25,7 +25,7 @@ import { Colors, FontSize, Spacing } from '@/tokens/design';
 import { fonts, spacing as themeSpacing } from '@/theme/tokens';
 import type { DashboardData } from '@/types/dashboard';
 import type { FleetFilter, FleetSite, FleetViewMode } from '@/types/fleet';
-import { usePowerShieldCriticalPanic } from '@/esopay/hooks/usePowerShieldCriticalPanic';
+import { useMonitoringCrisisMode } from '@/hooks/useMonitoringCrisisMode';
 
 type Props = {
   refreshing: boolean;
@@ -48,13 +48,18 @@ function newestFleetSyncAt(points: { updated_at?: string | null }[]): string | n
   }, null);
 }
 
-export function FleetCommandScreen({ refreshing, onRefresh }: Props) {
+export function FleetCommandScreen({
+  refreshing,
+  onRefresh,
+  canAddSite = false,
+  onAddSite,
+}: Props) {
   const router = useRouter();
   const tabBarHeight = useBottomTabBarHeight();
   const sheetRef = useRef<BottomSheet>(null);
   const reducedMotion = useMotionPrefsStore((s) => s.reducedMotionEnabled);
   const [viewMode, setViewMode] = useState<FleetViewMode>('list');
-  const powerShieldCrisis = usePowerShieldCriticalPanic();
+  const fleetCrisis = useMonitoringCrisisMode();
   const [filter, setFilter] = useState<FleetFilter>('all');
   const [query, setQuery] = useState('');
   const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
@@ -164,10 +169,10 @@ export function FleetCommandScreen({ refreshing, onRefresh }: Props) {
         onPress={() => onSitePress(item.id)}
         streamingLive={streamingLive}
         smooth={!reducedMotion}
-        crisisMode={powerShieldCrisis && selectedSiteId === item.id}
+        crisisMode={fleetCrisis && selectedSiteId === item.id}
       />
     ),
-    [onSitePress, powerShieldCrisis, reducedMotion, selectedSiteId, streamingLive],
+    [fleetCrisis, onSitePress, reducedMotion, selectedSiteId, streamingLive],
   );
 
   const ListHeader = useMemo(
@@ -250,7 +255,7 @@ export function FleetCommandScreen({ refreshing, onRefresh }: Props) {
                 compact
                 streamingLive={streamingLive}
                 smooth={!reducedMotion}
-                crisisMode={powerShieldCrisis}
+                crisisMode={fleetCrisis}
               />
             ) : (
               <View style={styles.sheetEmpty}>

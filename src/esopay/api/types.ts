@@ -300,3 +300,39 @@ export type InverterOffset = {
   live_power_kw?: number | null;
   is_live?: boolean;
 };
+
+export type TransactionPinStatus = {
+  configured: boolean;
+  locked: boolean;
+  locked_until: string | null;
+  attempts_remaining: number;
+};
+
+export type VerifyTransactionPinResult = { ok: boolean } & TransactionPinStatus;
+
+export type EsoPayKycStatus = {
+  bvn_configured: boolean;
+  nin_configured: boolean;
+  bvn_last4: string | null;
+  submitted_at: string | null;
+};
+
+export type EsoPayDisputeType = 'payment' | 'wallet' | 'other';
+export type EsoPayDisputeStatus = 'open' | 'investigating' | 'resolved' | 'closed';
+
+export type EsoPayDisputeTicket = {
+  id: string;
+  ticket_ref: string;
+  dispute_type: EsoPayDisputeType;
+  payment_reference: string | null;
+  details: string;
+  status: EsoPayDisputeStatus;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CreateEsoPayDisputeRequest = {
+  dispute_type: EsoPayDisputeType;
+  payment_reference?: string | null;
+  details: string;
+};

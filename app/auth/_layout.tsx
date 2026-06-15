@@ -12,6 +12,7 @@ export default function AuthStackLayout() {
       }}
     >
       <Stack.Screen name="index" />
+      <Stack.Screen name="sign-in" />
       <Stack.Screen name="verify" />
       <Stack.Screen name="register" />
       <Stack.Screen

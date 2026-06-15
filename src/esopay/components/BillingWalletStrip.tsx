@@ -1,11 +1,10 @@
 import { memo } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Plus, Wallet } from 'lucide-react-native';
+import { Plus, Wallet } from 'phosphor-react-native';
 import { useWallet } from '@/esopay/api/hooks/useBilling';
-import { luxury } from '@/esopay/theme/luxury';
+import { ds } from '@/esopay/theme/designSystem';
 import { spacing } from '@/esopay/theme/spacing';
-import { fonts } from '@/esopay/theme/typography';
+import { inter } from '@/theme/fonts';
 import { formatCurrency } from '@/esopay/utils/currency';
 
 type Props = {
@@ -27,20 +26,14 @@ export const BillingWalletStrip = memo(function BillingWalletStrip({
       disabled={!onWalletPress}
       style={({ pressed }) => [styles.wrap, pressed && onWalletPress && styles.pressed]}
     >
-      <LinearGradient
-        colors={['rgba(201,168,76,0.16)', 'rgba(13,15,23,0.95)']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
       <View style={styles.row}>
         <View style={styles.iconWrap}>
-          <Wallet size={18} color={luxury.gold} strokeWidth={2.2} />
+          <Wallet size={20} color={ds.color.teal} weight="duotone" />
         </View>
         <View style={styles.copy}>
           <Text style={styles.eyebrow}>Wallet balance</Text>
           {loading ? (
-            <ActivityIndicator color={luxury.gold} size="small" />
+            <ActivityIndicator color={ds.color.teal} size="small" />
           ) : (
             <Text style={styles.balance}>{formatCurrency(balanceKobo)}</Text>
           )}
@@ -54,7 +47,7 @@ export const BillingWalletStrip = memo(function BillingWalletStrip({
           accessibilityRole="button"
           accessibilityLabel="Fund wallet"
         >
-          <Plus size={14} color="#1A1200" strokeWidth={2.6} />
+          <Plus size={16} color={ds.color.bg} weight="bold" />
           <Text style={styles.fundText}>Fund</Text>
         </Pressable>
       </View>
@@ -64,10 +57,10 @@ export const BillingWalletStrip = memo(function BillingWalletStrip({
 
 const styles = StyleSheet.create({
   wrap: {
-    borderRadius: 16,
+    borderRadius: ds.radius.card,
     borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.24)',
-    overflow: 'hidden',
+    borderColor: ds.color.border,
+    backgroundColor: ds.color.surface1,
     padding: spacing.lg,
   },
   pressed: {
@@ -81,10 +74,10 @@ const styles = StyleSheet.create({
   iconWrap: {
     width: 40,
     height: 40,
-    borderRadius: 12,
+    borderRadius: ds.radius.chip,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(201,168,76,0.12)',
+    backgroundColor: ds.color.tealMuted,
   },
   copy: {
     flex: 1,
@@ -93,15 +86,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   eyebrow: {
-    fontFamily: fonts.ui,
+    fontFamily: inter.regular,
     fontSize: 11,
-    color: luxury.textMuted,
+    color: ds.color.textMuted,
     letterSpacing: 0.4,
   },
   balance: {
-    fontFamily: fonts.uiMedium,
+    fontFamily: inter.semibold,
     fontSize: 20,
-    color: luxury.textPrimary,
+    color: ds.color.textPrimary,
     letterSpacing: 0.2,
   },
   fundBtn: {
@@ -110,15 +103,15 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 999,
-    backgroundColor: luxury.gold,
+    borderRadius: ds.radius.pill,
+    backgroundColor: ds.color.gold,
   },
   fundBtnPressed: {
     opacity: 0.88,
   },
   fundText: {
-    fontFamily: fonts.uiMedium,
+    fontFamily: inter.medium,
     fontSize: 13,
-    color: '#1A1200',
+    color: ds.color.bg,
   },
 });

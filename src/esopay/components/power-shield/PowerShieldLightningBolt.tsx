@@ -1,5 +1,5 @@
 import { memo, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Zap } from 'lucide-react-native';
 import Animated, {
   Easing,

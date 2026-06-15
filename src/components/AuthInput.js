@@ -7,6 +7,8 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import { ESOPAY_SIGN_IN } from '@/esopay/auth/esoPaySignInTheme';
+import { inter } from '@/theme/fonts';
 import { C, F } from '../theme/authTheme';
 
 const AnimatedView = Animated.createAnimatedComponent(View);
@@ -26,10 +28,12 @@ export function AuthInput({
   autoCorrect = false,
   onBlur,
   onFocus,
+  variant = 'default',
 }) {
   const [focused, setFocused] = useState(false);
   const focus = useSharedValue(0);
   const errorAnim = useSharedValue(0);
+  const isEsoPay = variant === 'esopay';
 
   useEffect(() => {
     focus.value = withSpring(focused ? 1 : 0, { damping: 20, stiffness: 300 });
@@ -40,6 +44,13 @@ export function AuthInput({
   }, [error, errorAnim]);
 
   const wrapperStyle = useAnimatedStyle(() => {
+    if (isEsoPay) {
+      const borderColor = error
+        ? C.ERROR
+        : interpolateColor(focus.value, [0, 1], [ESOPAY_SIGN_IN.border, ESOPAY_SIGN_IN.gold]);
+      return { borderColor };
+    }
+
     const borderColor = error
       ? C.ERROR
       : interpolateColor(focus.value, [0, 1], [C.DARK_3, C.GOLD_MID]);
@@ -60,14 +71,24 @@ export function AuthInput({
 
   return (
     <View style={styles.container}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
-      <AnimatedView style={[styles.wrapper, wrapperStyle]}>
+      {label ? (
+        <Text style={[styles.label, isEsoPay && styles.labelEsoPay]}>{label}</Text>
+      ) : null}
+      <AnimatedView
+        style={[
+          styles.wrapper,
+          isEsoPay && styles.wrapperEsoPay,
+          wrapperStyle,
+        ]}
+      >
         <TextInput
-          style={styles.input}
+          style={[styles.input, isEsoPay && styles.inputEsoPay]}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor="rgba(232,232,224,0.2)"
+          placeholderTextColor={
+            isEsoPay ? ESOPAY_SIGN_IN.placeholder : 'rgba(232,232,224,0.2)'
+          }
           keyboardType={keyboardType}
           autoFocus={autoFocus}
           maxLength={maxLength}
@@ -102,6 +123,11 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     marginBottom: 8,
   },
+  labelEsoPay: {
+    fontFamily: inter.medium,
+    color: ESOPAY_SIGN_IN.muted,
+    opacity: 1,
+  },
   wrapper: {
     backgroundColor: C.DARK_2,
     borderRadius: 14,
@@ -111,11 +137,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  wrapperEsoPay: {
+    backgroundColor: ESOPAY_SIGN_IN.surface,
+    borderRadius: 14,
+  },
   input: {
     flex: 1,
     fontFamily: F.sansLight,
     fontSize: 16,
     color: C.WHITE,
+  },
+  inputEsoPay: {
+    fontFamily: inter.regular,
+    fontSize: 16,
+    color: ESOPAY_SIGN_IN.warmWhite,
   },
   error: {
     fontFamily: F.sansLight,

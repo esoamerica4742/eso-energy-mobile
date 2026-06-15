@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { useEnodeDashboardTelemetry } from '@/hooks/useEnodeDashboardTelemetry';
 import { useRealtimeTelemetry } from '@/hooks/useRealtimeTelemetry';
@@ -100,7 +100,7 @@ export function useSiteTelemetryStream({
     if (!lastAt) return null;
     const t = new Date(lastAt).getTime();
     return Number.isNaN(t) ? null : Math.max(0, Date.now() - t);
-  }, [lastAt, lastMessageAt]);
+  }, [lastAt]);
 
   const isStale = ageMs != null && ageMs > TELEMETRY_STALE_MS;
   const isOffline = ageMs == null || ageMs > TELEMETRY_OFFLINE_MS;

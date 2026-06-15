@@ -12,6 +12,8 @@ import { useRouter, type Href } from 'expo-router';
 import { Link2, Shield, Zap, CheckCircle2 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useEnodeLink } from '@/hooks/useEnodeLink';
+import { canLinkDevice } from '@/lib/monitoring/rbac';
+import { selectRole, useAuthStore } from '@/stores/authStore';
 import { SkeletonBlock } from '@/components/atoms/Skeleton';
 import { useEnodeDevices } from '@/hooks/useEnodeDevices';
 import { useEnodeToast } from '@/providers/EnodeToastProvider';
@@ -56,7 +58,7 @@ export default function LinkDeviceScreen() {
       const msg = err instanceof Error ? err.message : 'Connection failed';
       toast.show(msg, 'error');
     }
-  }, [link, toast, refetch, router]);
+  }, [link, mayLink, toast, refetch, router]);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>

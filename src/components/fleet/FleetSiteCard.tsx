@@ -21,7 +21,7 @@ import { usePerceivedScalar } from '@/hooks/usePerceivedScalar';
 import { MetricChip } from '@/components/sites/MetricChip';
 
 import { Colors, FontSize, Radius, Shadow, Spacing } from '@/tokens/design';
-import { fonts, spacing as themeSpacing } from '@/theme/tokens';
+import { fonts } from '@/theme/tokens';
 
 import { statusAccessibilityLabel } from '@/lib/telemetryStatus';
 

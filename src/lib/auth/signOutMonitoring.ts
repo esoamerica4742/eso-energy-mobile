@@ -7,6 +7,7 @@ import { useSiteStore } from '@/stores/siteStore';
  * Sign-out for ESO Inverter Monitoring only — does not touch Eso Pay Bills session.
  */
 export async function signOutMonitoring(): Promise<void> {
+  clearMonitoringPinSession();
   exitDemoModeFully();
 
   if (supabaseConfigured) {

@@ -7,6 +7,9 @@ import { useRecentUtilityPayments } from '@/esopay/api/hooks/useBilling';
 import type { RecentUtilityPayment } from '@/esopay/api/types';
 import { getBillerBrandStyle } from '@/esopay/data/billerBrands';
 import { usePaymentModal } from '@/esopay/context/PaymentModalContext';
+import { EsoPaySectionLabel } from '@/esopay/components/EsoPaySectionLabel';
+import { Skeleton } from '@/esopay/components/Skeleton';
+import { HOME_CARD_BORDER, HOME_CARD_SURFACE, TEAL_ACCENT } from '@/esopay/theme/brandColors';
 import { luxury } from '@/esopay/theme/luxury';
 import { spacing } from '@/esopay/theme/spacing';
 import { fonts } from '@/esopay/theme/typography';
@@ -49,7 +52,7 @@ function PayAgainChip({
         </Text>
       </View>
       <View style={styles.repeatBadge}>
-        <RotateCcw size={12} color={luxury.gold} strokeWidth={2.4} />
+        <RotateCcw size={12} color={TEAL_ACCENT} strokeWidth={2.4} />
       </View>
       <Text style={styles.date}>{dateLabel}</Text>
     </Pressable>
@@ -84,7 +87,7 @@ export const PayAgainSection = memo(function PayAgainSection({
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.label}>{title}</Text>
+      <EsoPaySectionLabel>{title}</EsoPaySectionLabel>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}

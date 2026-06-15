@@ -1,0 +1,63 @@
+appId: host.exp.exponent
+env:
+  ESOPAY_TEST_EMAIL: ${ESOPAY_TEST_EMAIL}
+---
+# Authenticated PIN recovery — requires a signed-in Eso Pay test account.
+# Usage:
+#   ESOPAY_TEST_EMAIL=you@example.com maestro test .maestro/esopay-pin-recovery.yaml
+- launchApp
+- tapOn:
+    text: "Eso Pay"
+    optional: true
+- tapOn:
+    text: "Settings"
+    optional: true
+- tapOn:
+    text: "Transaction PIN"
+    optional: true
+- assertVisible:
+    text: "Transaction PIN"
+    optional: true
+- tapOn:
+    text: "Forgot PIN?"
+    optional: true
+- assertVisible:
+    text: "Verify"
+    optional: true
+- tapOn:
+    text: "Send Code"
+    optional: true
+# Enter OTP manually when running on device — Maestro cannot read email inbox.
+- assertVisible:
+    text: "New transaction PIN"
+    optional: true
+- tapOn:
+    text: "1"
+    optional: true
+- tapOn:
+    text: "3"
+    optional: true
+- tapOn:
+    text: "5"
+    optional: true
+- tapOn:
+    text: "7"
+    optional: true
+- assertVisible:
+    text: "Confirm transaction PIN"
+    optional: true
+- tapOn:
+    text: "1"
+    optional: true
+- tapOn:
+    text: "3"
+    optional: true
+- tapOn:
+    text: "5"
+    optional: true
+- tapOn:
+    text: "7"
+    optional: true
+- assertVisible:
+    text: "Eso Pay"
+    optional: true

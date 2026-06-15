@@ -5,7 +5,8 @@ import { usePathname } from 'expo-router';
 import { TenantBootstrap } from '@/components/auth/TenantBootstrap';
 import { AlertsBootstrap } from '@/components/auth/AlertsBootstrap';
 import { DataPrefetchBootstrap } from '@/components/cache/DataPrefetchBootstrap';
-import { selectIsLoggedIn, useAuthStore } from '@/stores/authStore';
+import { useAuthStore, selectIsLoggedIn } from '@/stores/authStore';
+
 
 function isBillingPath(pathname: string | null) {
   return Boolean(pathname?.includes('/billing'));

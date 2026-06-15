@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { TelemetryPoint } from '@/stores/telemetryStore';
 import {
   applyMicroVariation,
@@ -10,7 +10,7 @@ import {
 } from '@/lib/perceivedRealtime';
 import { PERCEIVED_METRICS_TICK_MS } from '@/lib/telemetryLivePerception';
 
-const INTERP_TICK_MS = 500;
+const INTERP_TICK_MS = 1_000;
 
 function anchorKey(point: TelemetryPoint | null | undefined): string {
   if (!point) return 'none';
@@ -108,7 +108,7 @@ export function useInterpolatedTelemetry(
       clearInterval(interpId);
       clearInterval(microId);
     };
-  }, [smooth, streaming, anchorKey(anchor)]);
+  }, [smooth, streaming, anchorKeyValue]);
 
   return display;
 }

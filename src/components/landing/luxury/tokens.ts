@@ -1,4 +1,6 @@
 /** Luxury dark tech — spec design tokens */
+import { GOLD } from '@/theme/colors';
+
 export const C = {
   bg: '#070B14',
   bg2: '#0D1526',
@@ -9,7 +11,7 @@ export const C = {
   teal: '#00E5C4',
   tealDim: 'rgba(0,229,196,0.10)',
   tealGlow: 'rgba(0,229,196,0.18)',
-  amber: '#D4AF37',
+  amber: GOLD,
   amberDim: 'rgba(245,166,35,0.10)',
   amberGlow: 'rgba(245,166,35,0.18)',
   danger: '#FF4D6A',

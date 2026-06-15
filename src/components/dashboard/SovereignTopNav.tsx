@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { ShieldCheck } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, fontSize, fonts, radius, spacing } from '@/theme/tokens';
+import { colors, fontSize, fonts, spacing } from '@/theme/tokens';
 
 type Props = {
   reducedMotion?: boolean;

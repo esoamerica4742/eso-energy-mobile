@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-export type AuthModule = 'inverter' | 'bills';
+export type AuthModule = 'inverter' | 'bills' | 'esopay';
 
 export type CountryOption = { flag: string; name: string };
 

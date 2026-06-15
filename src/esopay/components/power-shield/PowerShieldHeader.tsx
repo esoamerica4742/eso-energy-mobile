@@ -1,13 +1,19 @@
 import { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Zap } from 'lucide-react-native';
+import { Lightning } from 'phosphor-react-native';
 import { PS, psFont } from '@/esopay/components/power-shield/powerShieldTheme';
+import { ds } from '@/esopay/theme/designSystem';
 
 export const PowerShieldHeader = memo(function PowerShieldHeader() {
   return (
     <View style={styles.wrap}>
       <View style={styles.titleRow}>
-        <Zap size={26} color={PS.amber} strokeWidth={2.4} fill="rgba(245, 166, 35, 0.15)" />
+        <Lightning
+          size={ds.size.iconFeature}
+          color={PS.gold}
+          weight="duotone"
+          duotoneColor={PS.gold}
+        />
         <Text style={styles.title}>Power Shield</Text>
       </View>
       <Text style={styles.subtitle}>
@@ -19,7 +25,7 @@ export const PowerShieldHeader = memo(function PowerShieldHeader() {
 
 const styles = StyleSheet.create({
   wrap: {
-    gap: 8,
+    gap: ds.space.inline,
   },
   titleRow: {
     flexDirection: 'row',
@@ -28,14 +34,18 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: psFont.display,
-    fontSize: 28,
+    fontSize: ds.type.headline.fontSize,
+    lineHeight: ds.type.headline.lineHeight,
     color: PS.text,
-    letterSpacing: -0.4,
+    letterSpacing: -0.3,
   },
   subtitle: {
     fontFamily: psFont.body,
     fontSize: 14,
     lineHeight: 20,
-    color: PS.textMuted,
+    color: PS.textSecondary,
+    marginTop: ds.space.inline,
+    flexShrink: 1,
+    width: '100%',
   },
 });

@@ -32,7 +32,10 @@ export function useInverterIntelligence(enabled: boolean) {
   const telemetryQuery = useEnodeTelemetry(enodeEnabled ? primaryId : null, 24);
   const fleetQuery = useFleetPower(enabled && !isDemoMode);
 
-  const fleet = fleetQuery.data ?? { solarKw: 0, loadKw: 0 };
+  const fleet = useMemo(
+    () => fleetQuery.data ?? { solarKw: 0, loadKw: 0 },
+    [fleetQuery.data],
+  );
 
   const loadKw = useMemo(() => {
     if (!enabled) return LANDING_INVERTER_BASELINE.loadKw;

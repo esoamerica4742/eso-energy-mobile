@@ -1,22 +1,22 @@
-/** Eso Pay Bills — aligned to ESO Energy main app. */
+/** @deprecated Prefer `ds` from designSystem — kept for gradual migration. */
+import { ds } from '@/esopay/theme/designSystem';
+
 export const luxury = {
-  bg: '#0A0F1E',
-  surface: '#111827',
-  surface2: '#0F172A',
-  /** Accent (gold) — `gold` alias for legacy component props. */
-  gold: '#D4A017',
-  /** Vibrant CTA label on dark gold pills (nav-active / high-contrast accent). */
-  goldAccent: '#FACC15',
-  goldDim: 'rgba(212, 160, 23, 0.14)',
-  goldBorder: 'rgba(255,255,255,0.08)',
-  goldGlow: 'rgba(212, 160, 23, 0.18)',
-  textPrimary: '#FFFFFF',
-  /** Soft section headers + outline pill labels on dark surfaces. */
-  warmWhite: '#F4F4F6',
-  textMuted: '#94A3B8',
-  textDim: '#64748B',
-  /** Keep green only for status (LIVE/ACTIVE/success). */
-  green: '#10B981',
-  walletGradient: ['#0A0F1E', '#111827'] as const,
-  glass: 'rgba(212, 160, 23, 0.05)',
+  bg: ds.color.bg,
+  surface: ds.color.surface1,
+  surface2: ds.color.surface2,
+  gold: ds.color.gold,
+  goldAccent: ds.color.gold,
+  goldDim: ds.color.goldMuted12,
+  goldBorder: ds.color.border,
+  goldGlow: ds.color.goldMuted12,
+  textPrimary: ds.color.textPrimary,
+  warmWhite: ds.color.textPrimary,
+  textMuted: ds.color.textMuted,
+  textSecondary: ds.color.textSecondary,
+  textDim: ds.color.textDisabled,
+  green: ds.color.gold,
+  walletGradient: [ds.color.surface1, ds.color.surface1] as const,
+  glass: ds.color.goldMuted04,
 } as const;
+

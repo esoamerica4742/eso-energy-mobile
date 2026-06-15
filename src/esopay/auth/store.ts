@@ -26,6 +26,8 @@ type State = {
   lockSignedIn: () => void;
   unlockSignedIn: () => void;
   setLoginPinUnlocked: (unlocked: boolean) => void;
+  /** @deprecated Alias for setLoginPinUnlocked */
+  setPinSessionUnlocked: (unlocked: boolean) => void;
 };
 
 export const useEsoPayAuthStore = create<State>((set) => ({
@@ -43,9 +45,10 @@ export const useEsoPayAuthStore = create<State>((set) => ({
 
   setLoading: (loading) => set({ loading }),
   setHydrated: (hydrated) => set({ hydrated }),
-  lockSignedIn: () => set({ signedIn: true }),
+  lockSignedIn: () => set({ signedIn: true, loginPinUnlocked: false }),
   unlockSignedIn: () => set({ signedIn: false, loginPinUnlocked: false }),
   setLoginPinUnlocked: (unlocked) => set({ loginPinUnlocked: unlocked }),
+  setPinSessionUnlocked: (unlocked) => set({ loginPinUnlocked: unlocked }),
 
   /** @deprecated Use unlockSignedIn + clearEsoPaySession — kept for internal sync only */
   reset: () => {
@@ -67,3 +70,5 @@ export const selectEsoPayHasAccess = (s: State) => s.signedIn;
 export const selectEsoPayIsLoggedIn = (s: State) => s.signedIn;
 
 export const selectEsoPayAuthReady = (s: State) => s.hydrated && !s.loading;
+
+export const selectPinSessionUnlocked = (s: State) => s.loginPinUnlocked;

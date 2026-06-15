@@ -8,6 +8,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
+import { usePathname } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
@@ -19,6 +20,7 @@ import { AuthGate } from '@/components/auth/AuthGate';
 import { MonitoringBootstraps } from '@/components/auth/MonitoringBootstraps';
 import { DemoModeProvider } from '@/providers/DemoModeProvider';
 import { AuthFlowProvider } from '../src/hooks/useAuth';
+import { GOLD } from '@/theme/colors';
 import { colors } from '@/theme/tokens';
 import { migrateLegacySensitiveStorage } from '@/lib/secureVault';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
@@ -84,7 +86,7 @@ function RootLayoutInner() {
   if (!fontsReady) {
     return (
       <View style={{ flex: 1, backgroundColor: BOOT_BG, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator color="#D4AF37" />
+        <ActivityIndicator color={GOLD} />
       </View>
     );
   }

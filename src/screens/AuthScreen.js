@@ -1,20 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { AuthFlowLayout } from '@/components/auth/AuthFlowLayout';
 import { AuthLegalFooter } from '@/components/auth/AuthLegalFooter';
-import { AUTH_HORIZONTAL_PAD } from '@/components/auth/authLayout';
-import { HEADER_TOP_EXTRA } from '@/lib/layout/safeArea';
 import { AuthButton } from '../components/AuthButton';
 import { AuthInput } from '../components/AuthInput';
 import { AuthTopBar } from '../components/AuthTopBar';
-import { KeyboardWrapper } from '../components/KeyboardWrapper';
 import { MotionView } from '@/lib/motion';
 import { useAuth } from '../hooks/useAuth';
 import { sendEmailOtp, sendEsoPayEmailOtp } from '../lib/authOtp';
 import { setLastProduct } from '@/lib/navigation/lastProduct';
+import { EsoPaySignInHero } from '@/esopay/auth/components/EsoPaySignInHero';
+import { EsoPayTrustStrip } from '@/esopay/auth/components/EsoPayTrustStrip';
+import { ESOPAY_SIGN_IN } from '@/esopay/auth/esoPaySignInTheme';
+import { inter } from '@/theme/fonts';
 import { C, EMAIL_RE, F, modulePillConfig } from '../theme/authTheme';
 
 function paramString(value) {
@@ -36,6 +38,8 @@ export default function AuthScreen() {
   const isValidEmail = EMAIL_RE.test(email.trim());
   const isEsoPay = module === 'esopay';
   const pill = modulePillConfig(module);
+  const authVariant = isEsoPay ? 'esopay' : 'default';
+  const screenBg = isEsoPay ? ESOPAY_SIGN_IN.bg : C.DARK_1;
 
   const wasValid = useRef(false);
   useEffect(() => {
@@ -44,7 +48,6 @@ export default function AuthScreen() {
     }
     wasValid.current = isValidEmail;
   }, [isValidEmail]);
-
 
   const handleSendCode = async () => {
     setTouched(true);
@@ -70,82 +73,115 @@ export default function AuthScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <KeyboardWrapper>
-        <View style={[styles.pad, { paddingTop: HEADER_TOP_EXTRA }]}>
-          <AuthTopBar step={1} progressPercent={33} />
+    <SafeAreaView style={[styles.safe, { backgroundColor: screenBg }]} edges={['top', 'left', 'right']}>
+      <AuthFlowLayout
+        backgroundColor={screenBg}
+        footer={
+          <>
+            <AuthButton
+              variant={authVariant}
+              goldCta={isEsoPay}
+              label="Send Code →"
+              onPress={handleSendCode}
+              loading={isLoading}
+              disabled={!isValidEmail}
+            />
+            <AuthLegalFooter
+              bottomInset={insets.bottom}
+              variant={authVariant}
+              embedded
+            />
+          </>
+        }
 
-          <MotionView variant="fadeInDown" delay={100} style={{ marginTop: 48 }}>
+      >
+        <AuthTopBar step={1} progressPercent={33} variant={authVariant} />
+
+        <MotionView variant="fadeInDown" delay={100} style={{ marginTop: isEsoPay ? 40 : 48 }}>
+          {isEsoPay ? (
+            <EsoPaySignInHero />
+          ) : (
             <View style={styles.brand}>
               <View style={styles.icon}>
                 <Text style={styles.iconLetter}>E</Text>
               </View>
               <Text style={styles.brandText}>ESO ENERGY</Text>
             </View>
-            <Text style={styles.headline}>
-              {isEsoPay ? 'Sign in with\nyour email.' : 'Enter your\nwork email.'}
+          )}
+          <Text style={[styles.headline, isEsoPay && styles.headlineEsoPay]}>
+            {isEsoPay ? 'Sign in with\nyour email.' : 'Enter your\nwork email.'}
+          </Text>
+        </MotionView>
+
+        <MotionView variant="fadeInDown" delay={200}>
+          <Text style={[styles.sub, isEsoPay && styles.subEsoPay]}>
+            {isEsoPay
+              ? "We'll email you a 6-digit code.\nNew here? We'll create your account."
+              : "We'll send a verification code.\nNo password needed."}
+          </Text>
+        </MotionView>
+
+        {!isEsoPay ? (
+          <MotionView
+            variant="fadeIn"
+            delay={300}
+            style={[styles.pill, { borderColor: pill.borderColor, backgroundColor: pill.bg }]}
+          >
+            <Text style={[styles.pillText, { color: pill.textColor, fontFamily: F.cormorant }]}>
+              {pill.label}
             </Text>
           </MotionView>
+        ) : null}
 
-          <MotionView variant="fadeInDown" delay={200}>
-            <Text style={styles.sub}>
-              {isEsoPay
-                ? "We'll email you a 6-digit code.\nNew here? We'll create your account."
-                : "We'll send a verification code.\nNo password needed."}
-            </Text>
-          </MotionView>
-
-          <MotionView variant="fadeIn" delay={300} style={[styles.pill, { borderColor: pill.borderColor, backgroundColor: pill.bg }]}>
-            <Text style={[styles.pillText, { color: pill.textColor, fontFamily: F.cormorant }]}>{pill.label}</Text>
-          </MotionView>
-
-          <View style={{ marginTop: 40 }}>
-            <AuthInput
-              label={isEsoPay ? 'Email' : 'Work Email'}
-              value={email}
-              onChangeText={(v) => {
-                setEmail(v);
-                if (error) setError('');
-              }}
-              placeholder={isEsoPay ? 'you@email.com' : 'you@company.com'}
-              keyboardType="email-address"
-              autoFocus
-              autoCapitalize="none"
-              error={touched && !isValidEmail && email.length > 0 ? error || 'Enter a valid work email' : error}
-              onBlur={() => {
-                setTouched(true);
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                if (!isValidEmail && email.length > 0) setError('Enter a valid work email');
-              }}
-            />
-          </View>
-
-          <View style={styles.trustRow}>
-            <Feather name="lock" size={11} color="rgba(232,232,224,0.3)" />
-            <Text style={styles.trustSmall}>Your data is encrypted end-to-end.</Text>
-          </View>
-
-          <View style={styles.trustRow2}>
-            <Feather name="shield" size={11} color={C.GOLD_MID} />
-            <Text style={styles.trustGold}>256-bit encrypted · SOC 2 compliant</Text>
-          </View>
-
-          <View style={{ marginTop: 32 }}>
-            <AuthButton label="Send Code →" onPress={handleSendCode} loading={isLoading} disabled={!isValidEmail} />
-          </View>
-
-          <View style={styles.footerSpacer} />
-          <AuthLegalFooter bottomInset={insets.bottom} />
+        <View style={{ marginTop: isEsoPay ? 32 : 40 }}>
+          <AuthInput
+            variant={authVariant}
+            label={isEsoPay ? 'Email' : 'Work Email'}
+            value={email}
+            onChangeText={(v) => {
+              setEmail(v);
+              if (error) setError('');
+            }}
+            placeholder={isEsoPay ? 'you@email.com' : 'you@company.com'}
+            keyboardType="email-address"
+            autoFocus
+            autoCapitalize="none"
+            error={
+              touched && !isValidEmail && email.length > 0
+                ? error || (isEsoPay ? 'Enter a valid email address' : 'Enter a valid work email')
+                : error
+            }
+            onBlur={() => {
+              setTouched(true);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              if (!isValidEmail && email.length > 0) {
+                setError(isEsoPay ? 'Enter a valid email address' : 'Enter a valid work email');
+              }
+            }}
+          />
         </View>
-      </KeyboardWrapper>
+
+        {isEsoPay ? (
+          <EsoPayTrustStrip />
+        ) : (
+          <>
+            <View style={styles.trustRow}>
+              <Feather name="lock" size={11} color="rgba(232,232,224,0.3)" />
+              <Text style={styles.trustSmall}>Your data is encrypted end-to-end.</Text>
+            </View>
+            <View style={styles.trustRow2}>
+              <Feather name="shield" size={11} color={C.GOLD_MID} />
+              <Text style={styles.trustGold}>256-bit encrypted · SOC 2 compliant</Text>
+            </View>
+          </>
+        )}
+      </AuthFlowLayout>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: C.DARK_1 },
-  pad: { flex: 1, paddingHorizontal: AUTH_HORIZONTAL_PAD },
-  footerSpacer: { flexGrow: 1, minHeight: 16 },
+  safe: { flex: 1 },
   brand: { flexDirection: 'row', alignItems: 'center', marginBottom: 40 },
   icon: {
     width: 32,
@@ -158,6 +194,13 @@ const styles = StyleSheet.create({
   iconLetter: { fontFamily: F.cormorant, fontSize: 14, color: C.DARK_1 },
   brandText: { marginLeft: 10, fontFamily: F.sansMed, fontSize: 13, color: C.WHITE },
   headline: { fontFamily: F.cormorant, fontSize: 44, lineHeight: 48, color: C.WHITE },
+  headlineEsoPay: {
+    fontFamily: inter.semibold,
+    fontSize: 34,
+    lineHeight: 40,
+    letterSpacing: -0.4,
+    color: ESOPAY_SIGN_IN.warmWhite,
+  },
   sub: {
     marginTop: 12,
     fontFamily: F.sansLight,
@@ -165,6 +208,11 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     color: C.OFF_WHITE,
     opacity: 0.5,
+  },
+  subEsoPay: {
+    fontFamily: inter.regular,
+    color: ESOPAY_SIGN_IN.muted,
+    opacity: 1,
   },
   pill: {
     alignSelf: 'flex-start',
@@ -176,6 +224,7 @@ const styles = StyleSheet.create({
   },
   pillText: { fontSize: 15 },
   trustRow: { flexDirection: 'row', alignItems: 'center', marginTop: 12 },
+  trustRow2: { flexDirection: 'row', alignItems: 'center', marginTop: 10 },
   trustSmall: {
     marginLeft: 6,
     fontFamily: F.sansLight,
@@ -183,7 +232,6 @@ const styles = StyleSheet.create({
     color: C.OFF_WHITE,
     opacity: 0.3,
   },
-  trustRow2: { flexDirection: 'row', alignItems: 'center', marginTop: 10 },
   trustGold: {
     marginLeft: 6,
     fontFamily: F.sansLight,

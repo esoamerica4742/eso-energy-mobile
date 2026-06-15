@@ -8,9 +8,11 @@
     "scheme": "esoenergy",
     "userInterfaceStyle": "dark",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.esoenergy.mobile"
     },
     "android": {
+      "package": "com.esoenergy.mobile",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#0b0f19"
@@ -23,15 +25,16 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "expo-dev-client",
       "expo-router",
       "expo-asset",
       "expo-font",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#060809",
+          "backgroundColor": "#080A0F",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200
+          "imageWidth": 220
         }
       ],
       "expo-secure-store",
