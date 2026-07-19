@@ -38,12 +38,11 @@ export function resolveHubKeyFromPayment(payment: RecentUtilityPayment): string 
 }
 
 /**
- * Up to two hub cards get a badge: driven by real payment frequency when history exists,
- * otherwise static popular defaults (electricity + airtime).
+ * Up to two hub cards get a Recent badge when payment history exists.
+ * No static Popular badges — keeps card copy unobstructed.
  */
 export function buildHubHighlightMap(
   payments: RecentUtilityPayment[],
-  options?: { fallbackPopularKeys?: string[] },
 ): Map<string, HubHighlightKind> {
   const counts = new Map<string, number>();
   for (const payment of payments) {
@@ -59,12 +58,8 @@ export function buildHubHighlightMap(
     for (const [key] of ranked.slice(0, 2)) {
       result.set(key, 'recent');
     }
-    return result;
   }
 
-  for (const key of options?.fallbackPopularKeys ?? ['elec', 'air']) {
-    result.set(key, 'popular');
-  }
   return result;
 }
 

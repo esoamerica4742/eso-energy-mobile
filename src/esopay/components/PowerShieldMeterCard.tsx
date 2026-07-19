@@ -20,7 +20,14 @@ import { PS } from '@/esopay/components/power-shield/powerShieldTheme';
 import { smartDailySpendOptionsKobo } from '@/esopay/lib/powerShieldSchedules';
 import { PowerShieldDailySpendSetup } from '@/esopay/components/PowerShieldDailySpendSetup';
 import { usePaymentModal } from '@/esopay/context/PaymentModalContext';
-import { luxury } from '@/esopay/theme/luxury';
+import {
+  ESO_PAY_BG,
+  ESO_PAY_SURFACE,
+  ESO_PAY_TEXT_PRIMARY,
+  ESO_PAY_TEXT_SECONDARY,
+  HOME_CARD_BORDER,
+} from '@/esopay/theme/brandColors';
+import { ds } from '@/esopay/theme/designSystem';
 import { spacing } from '@/esopay/theme/spacing';
 import { fonts } from '@/esopay/theme/typography';
 import { formatCurrency } from '@/esopay/utils/currency';
@@ -107,14 +114,14 @@ export const PowerShieldMeterCard = memo(function PowerShieldMeterCard({ meter }
       {meter.needs_daily_spend_setup ? <PowerShieldDailySpendSetup meter={meter} compact /> : null}
 
       <GoldCTAButton
-        label="Recharge before blackout"
+        label='Recharge before blackout'
         onPress={recharge}
         isDisabled={!meter.provider}
       />
 
       {showAlertFeedback ? (
         <PowerShieldFeedbackPrompt
-          context="alert_check"
+          context='alert_check'
           meter={meter}
           compact
           onSubmitted={() => setAlertFeedbackDone(true)}
@@ -122,7 +129,7 @@ export const PowerShieldMeterCard = memo(function PowerShieldMeterCard({ meter }
       ) : null}
 
       <Pressable onPress={() => setShowTuning((v) => !v)} style={styles.tuneBtn}>
-        <Bell size={14} color={luxury.gold} />
+        <Bell size={14} color={ESO_PAY_TEXT_SECONDARY} />
         <Text style={styles.tuneText}>{showTuning ? 'Hide alert settings' : 'Alert settings'}</Text>
       </Pressable>
 
@@ -132,13 +139,17 @@ export const PowerShieldMeterCard = memo(function PowerShieldMeterCard({ meter }
           <View style={styles.chipRow}>
             {smartDailySpendOptionsKobo(meter).map((amountKobo) => {
               const active =
-                (meter.user_daily_spend_kobo ?? meter.learned_daily_spend_kobo ?? meter.daily_spend_kobo) ===
-                amountKobo;
+                (meter.user_daily_spend_kobo ??
+                  meter.learned_daily_spend_kobo ??
+                  meter.daily_spend_kobo) === amountKobo;
               return (
                 <Pressable
                   key={amountKobo}
                   onPress={() =>
-                    updateMeter.mutate({ meterId: meter.id, patch: { daily_spend_kobo: amountKobo } })
+                    updateMeter.mutate({
+                      meterId: meter.id,
+                      patch: { daily_spend_kobo: amountKobo },
+                    })
                   }
                   style={[styles.chip, active && styles.chipActive]}
                 >
@@ -154,7 +165,10 @@ export const PowerShieldMeterCard = memo(function PowerShieldMeterCard({ meter }
             <Switch
               value={meter.auto_top_up_enabled ?? false}
               onValueChange={(auto_top_up_enabled) =>
-                updateMeter.mutate({ meterId: meter.id, patch: { auto_top_up_enabled } })
+                updateMeter.mutate({
+                  meterId: meter.id,
+                  patch: { auto_top_up_enabled },
+                })
               }
             />
           </View>
@@ -163,7 +177,10 @@ export const PowerShieldMeterCard = memo(function PowerShieldMeterCard({ meter }
             <Switch
               value={meter.notify_warn_10 ?? true}
               onValueChange={(notify_warn_10) =>
-                updateMeter.mutate({ meterId: meter.id, patch: { notify_warn_10 } })
+                updateMeter.mutate({
+                  meterId: meter.id,
+                  patch: { notify_warn_10 },
+                })
               }
             />
           </View>
@@ -172,7 +189,10 @@ export const PowerShieldMeterCard = memo(function PowerShieldMeterCard({ meter }
             <Switch
               value={meter.notify_critical_5 ?? true}
               onValueChange={(notify_critical_5) =>
-                updateMeter.mutate({ meterId: meter.id, patch: { notify_critical_5 } })
+                updateMeter.mutate({
+                  meterId: meter.id,
+                  patch: { notify_critical_5 },
+                })
               }
             />
           </View>
@@ -186,7 +206,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 18,
     borderWidth: 1,
-    backgroundColor: luxury.surface,
+    backgroundColor: ESO_PAY_SURFACE,
     padding: spacing.lg,
     gap: spacing.md,
   },
@@ -212,12 +232,12 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: fonts.uiMedium,
     fontSize: 16,
-    color: luxury.textPrimary,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   provider: {
     fontFamily: fonts.ui,
     fontSize: 12,
-    color: luxury.textMuted,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
   status: {
     fontFamily: fonts.uiMedium,
@@ -228,19 +248,19 @@ const styles = StyleSheet.create({
     fontFamily: fonts.ui,
     fontSize: 13,
     lineHeight: 19,
-    color: luxury.textSecondary,
+    color: ESO_PAY_TEXT_SECONDARY,
     marginTop: 4,
   },
   hint: {
     fontFamily: fonts.ui,
     fontSize: 12,
     lineHeight: 18,
-    color: luxury.textMuted,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
   meta: {
     fontFamily: fonts.ui,
     fontSize: 11,
-    color: luxury.textMuted,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
   tuneBtn: {
     flexDirection: 'row',
@@ -251,20 +271,20 @@ const styles = StyleSheet.create({
   tuneText: {
     fontFamily: fonts.uiMedium,
     fontSize: 13,
-    color: luxury.gold,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
   tuning: {
     gap: spacing.sm,
     paddingTop: spacing.sm,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: luxury.goldBorder,
+    borderTopColor: HOME_CARD_BORDER,
   },
   tuningLabel: {
     fontFamily: fonts.uiMedium,
     fontSize: 11,
     letterSpacing: 1,
     textTransform: 'uppercase',
-    color: luxury.gold,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
   chipRow: {
     flexDirection: 'row',
@@ -276,19 +296,19 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: luxury.goldBorder,
+    borderColor: HOME_CARD_BORDER,
   },
   chipActive: {
-    backgroundColor: 'rgba(232,160,32,0.1)',
-    borderColor: luxury.gold,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   chipText: {
     fontFamily: fonts.ui,
     fontSize: 12,
-    color: luxury.textMuted,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
   chipTextActive: {
-    color: luxury.gold,
+    color: ESO_PAY_TEXT_SECONDARY,
     fontFamily: fonts.uiMedium,
   },
   toggleRow: {
@@ -299,6 +319,6 @@ const styles = StyleSheet.create({
   toggleLabel: {
     fontFamily: fonts.ui,
     fontSize: 13,
-    color: luxury.textPrimary,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
 });

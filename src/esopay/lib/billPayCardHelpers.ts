@@ -1,6 +1,5 @@
 import type { QuickPayCategoryKey } from '@/esopay/data/quickPayCatalog';
-import type { UtilityCategorySlug } from '@/esopay/data/nigeriaBillers';
-
+import type { NigeriaBillerMeta, UtilityCategorySlug } from '@/esopay/data/nigeriaBillers';
 /** Max 2–3 words — always fits one line on BillPayCard / service tiles. */
 export const BILL_PAY_CARD_HELPERS: Record<UtilityCategorySlug, string> = {
   electricity: 'Choose DISCO',
@@ -49,11 +48,15 @@ export function getQuickActionHelper(key: string): string {
   return QUICK_ACTION_HELPERS[key] ?? 'Choose provider';
 }
 
-/** Short region/network label for provider grid cards (no truncation). */
+/** Short region label for provider grid cards — show coverage when it fits. */
 export function getBillerGridSubtitle(stateLabel: string, category: UtilityCategorySlug): string {
   const trimmed = stateLabel.trim();
   if (!trimmed) return BILL_PAY_CARD_HELPERS[category];
-  const primary = trimmed.split('·')[0]?.trim() ?? trimmed;
-  if (primary.length <= 20) return primary;
-  return BILL_PAY_CARD_HELPERS[category];
+  return trimmed;
+}
+
+/** Provider grid title — drop trailing acronym in parentheses so the name fits cleanly. */
+export function getProviderCardTitle(meta: NigeriaBillerMeta): string {
+  const stripped = meta.name.replace(/\s*\([^)]+\)\s*$/, '').trim();
+  return stripped || meta.name;
 }

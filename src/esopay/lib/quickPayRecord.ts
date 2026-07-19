@@ -25,6 +25,7 @@ export async function recordQuickPayFromProvider(
   companyId: string,
   provider: UtilityProvider,
   amountKobo: number,
+  accountNumber?: string,
 ): Promise<void> {
   const categoryKey = inferCategoryKey(provider);
   if (!categoryKey || !companyId) return;
@@ -33,6 +34,8 @@ export async function recordQuickPayFromProvider(
     categoryKey,
     brandId: inferBrandId(provider),
     providerName: provider.name,
+    providerId: provider.id.startsWith('static-') ? undefined : provider.id,
+    accountNumber: accountNumber?.trim() || undefined,
     amountKobo,
   });
 }

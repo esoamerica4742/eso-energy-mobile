@@ -12,7 +12,7 @@ type Props = {
   onManagePress?: () => void;
 };
 
-/** Home command center — greeting + wallet hero (fixed top block). */
+/** Home — Revolut-style greeting + open balance hero. */
 export const EsoPayHomeDashboard = memo(function EsoPayHomeDashboard({
   greeting,
   balanceKobo,
@@ -25,6 +25,7 @@ export const EsoPayHomeDashboard = memo(function EsoPayHomeDashboard({
       <EsoPayHomeHero greeting={greeting} />
       <View style={styles.walletAnchor}>
         <MonnifyWalletCard
+          variant="hero"
           balanceKobo={balanceKobo}
           loading={loading}
           stableDisplay
@@ -41,6 +42,6 @@ const styles = StyleSheet.create({
     gap: 0,
   },
   walletAnchor: {
-    marginTop: grid.sm,
+    marginTop: grid.sm + 4,
   },
 });

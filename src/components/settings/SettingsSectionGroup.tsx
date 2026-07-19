@@ -9,12 +9,12 @@ type Props = {
   glowColor?: 'gold' | 'mint' | 'none';
 };
 
-export function SettingsSectionGroup({ children, glowColor = 'gold' }: Props) {
+export function SettingsSectionGroup({ children, glowColor = 'none' }: Props) {
   const items = Children.toArray(children).filter(isValidElement);
   const count = items.length;
 
   return (
-    <CardShell glowColor={glowColor} borderVariant="gold" style={styles.shell}>
+    <CardShell glowColor={glowColor} borderVariant="muted" style={styles.shell}>
       {items.map((child, index) => {
         if (!isValidElement(child)) return child;
         const isLast = index === count - 1;

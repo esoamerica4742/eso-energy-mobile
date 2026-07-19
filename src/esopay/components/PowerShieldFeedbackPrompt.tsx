@@ -8,7 +8,17 @@ import type {
   PowerShieldMeter,
 } from '@/esopay/api/types';
 import { useSubmitPowerShieldFeedback } from '@/esopay/hooks/usePowerShield';
-import { luxury } from '@/esopay/theme/luxury';
+import {
+  ESO_PAY_BG,
+  ESO_PAY_GOLD,
+  ESO_PAY_GOLD_MUTED,
+  ESO_PAY_GOLD_MUTED_06,
+  ESO_PAY_SURFACE,
+  ESO_PAY_TEXT_PRIMARY,
+  ESO_PAY_TEXT_SECONDARY,
+  HOME_CARD_BORDER,
+} from '@/esopay/theme/brandColors';
+import { ds } from '@/esopay/theme/designSystem';
 import { spacing } from '@/esopay/theme/spacing';
 import { fonts } from '@/esopay/theme/typography';
 
@@ -81,7 +91,7 @@ export const PowerShieldFeedbackPrompt = memo(function PowerShieldFeedbackPrompt
   if (submitted) {
     return (
       <View style={[styles.wrap, compact && styles.wrapCompact]}>
-        <CheckCircle2 size={16} color={luxury.gold} strokeWidth={2.2} />
+        <CheckCircle2 size={16} color={ESO_PAY_GOLD} strokeWidth={2.2} />
         <Text style={styles.thanks}>Thanks — this improves Power Shield for everyone.</Text>
       </View>
     );
@@ -108,7 +118,7 @@ export const PowerShieldFeedbackPrompt = memo(function PowerShieldFeedbackPrompt
         ))}
       </View>
       {submitFeedback.isPending ? (
-        <ActivityIndicator color={luxury.gold} size="small" style={styles.loader} />
+        <ActivityIndicator color={ESO_PAY_GOLD} size='small' style={styles.loader} />
       ) : null}
       {submitFeedback.isError ? (
         <Text style={styles.errorText}>Could not save feedback. Try again.</Text>
@@ -123,8 +133,8 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: luxury.goldBorder,
-    backgroundColor: 'rgba(232,160,32,0.06)',
+    borderColor: HOME_CARD_BORDER,
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   wrapCompact: {
     padding: spacing.sm,
@@ -132,12 +142,12 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: fonts.uiMedium,
     fontSize: 14,
-    color: luxury.textPrimary,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   subtitle: {
     fontFamily: fonts.ui,
     fontSize: 11,
-    color: luxury.textMuted,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
   optionRow: {
     flexDirection: 'row',
@@ -149,11 +159,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: luxury.goldBorder,
-    backgroundColor: luxury.surface,
+    borderColor: HOME_CARD_BORDER,
+    backgroundColor: ESO_PAY_SURFACE,
   },
   optionPressed: {
-    backgroundColor: 'rgba(232,160,32,0.14)',
+    backgroundColor: 'rgba(255,255,255,0.14)',
   },
   optionDisabled: {
     opacity: 0.6,
@@ -161,7 +171,7 @@ const styles = StyleSheet.create({
   optionText: {
     fontFamily: fonts.uiMedium,
     fontSize: 12,
-    color: luxury.textPrimary,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   loader: {
     alignSelf: 'flex-start',
@@ -176,6 +186,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.ui,
     fontSize: 12,
     lineHeight: 18,
-    color: luxury.textMuted,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
 });

@@ -6,6 +6,10 @@ import type { EsoPayBill } from '@/esopay/api/types';
 import { LiveStatusDot } from '@/esopay/components/LiveStatusDot';
 import { StatusBadge } from '@/esopay/components/StatusBadge';
 import { esopayFonts } from '@/esopay/theme/fonts';
+import {
+  BILL_CARD_BORDER,
+  ESO_PAY_SURFACE_ELEVATED,
+} from '@/esopay/theme/brandColors';
 import { EsoPayTokens as T } from '@/esopay/theme/tokens';
 import {
   billOffsetPercent,
@@ -75,8 +79,6 @@ export const BillCard = memo(function BillCard({
             </Text>
           </View>
         </View>
-
-        <View style={styles.goldLine} />
       </Pressable>
     </Animated.View>
   );
@@ -84,18 +86,16 @@ export const BillCard = memo(function BillCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: T.color.bg.surface,
-    borderRadius: T.radius.sm,
-    borderWidth: 1,
-    borderColor: T.color.border.subtle,
+    borderRadius: 20,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: BILL_CARD_BORDER,
+    backgroundColor: ESO_PAY_SURFACE_ELEVATED,
     paddingHorizontal: T.layout.cardPaddingHorizontal,
     paddingVertical: T.layout.cardPaddingVertical,
     marginBottom: T.spacing.md,
-    ...T.shadow.card,
   },
   cardPressed: {
-    backgroundColor: T.color.bg.elevated,
-    borderColor: T.color.border.active,
+    opacity: 0.92,
   },
   topRow: {
     flexDirection: 'row',
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     fontSize: T.type.h1.size,
     lineHeight: T.type.h1.lineHeight,
     letterSpacing: T.type.h1.letterSpacing,
-    color: T.color.gold.shimmer,
+    color: T.color.text.primary,
   },
   metaRow: {
     flexDirection: 'row',
@@ -161,13 +161,5 @@ const styles = StyleSheet.create({
     fontSize: T.type.mono.size,
     lineHeight: T.type.mono.lineHeight,
     color: T.color.text.secondary,
-  },
-  goldLine: {
-    position: 'absolute',
-    left: T.layout.cardPaddingHorizontal,
-    right: T.layout.cardPaddingHorizontal,
-    bottom: 0,
-    height: 1,
-    backgroundColor: `${T.color.gold.primary}22`,
   },
 });

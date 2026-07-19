@@ -5,13 +5,22 @@ import { CheckCircle2 } from 'lucide-react-native';
 import { EsoPayPrimaryButton } from '@/esopay/components/EsoPayButtons';
 import { GoldCTAButton } from '@/esopay/components/GoldCTAButton';
 import {
+  AIRTIME_MANUAL_MAX_KOBO,
+  AIRTIME_MANUAL_MIN_KOBO,
+  getFixedPlanAmountKobo,
   getUtilityAmountOptions,
   type PaymentBundle,
 } from '@/esopay/data/bundles';
 import { UTILITY_AMOUNT_PRESETS_KOBO } from '@/esopay/data/nigeriaBillers';
 import type { UtilityCategorySlug } from '@/esopay/data/nigeriaBillers';
 import type { UtilityProvider } from '@/esopay/api/types';
-import { luxury } from '@/esopay/theme/luxury';
+import {
+  ESO_PAY_BG,
+  ESO_PAY_TEXT_PRIMARY,
+  ESO_PAY_TEXT_SECONDARY,
+  HOME_CARD_BORDER,
+} from '@/esopay/theme/brandColors';
+import { ds } from '@/esopay/theme/designSystem';
 import { spacing } from '@/esopay/theme/spacing';
 import { fonts } from '@/esopay/theme/typography';
 import { formatCurrency, parseNairaInputToKobo } from '@/esopay/utils/currency';
@@ -25,6 +34,8 @@ type Props = {
   selectedBundleId: string | null;
   selectedPresetKobo: number | null;
   paddingBottom: number;
+  payLabel?: string;
+  payDisabled?: boolean;
   onAmountInputChange: (value: string) => void;
   onSelectBundle: (bundle: PaymentBundle) => void;
   onSelectPreset: (kobo: number) => void;
@@ -79,6 +90,8 @@ export const UtilityAmountPicker = memo(function UtilityAmountPicker({
   selectedBundleId,
   selectedPresetKobo,
   paddingBottom,
+  payLabel,
+  payDisabled = false,
   onAmountInputChange,
   onSelectBundle,
   onSelectPreset,
@@ -87,12 +100,27 @@ export const UtilityAmountPicker = memo(function UtilityAmountPicker({
 }: Props) {
   const options = getUtilityAmountOptions(slug, provider);
   const amountKobo = selectedPresetKobo ?? parseNairaInputToKobo(amountInput);
-  const useRowLayout = options.mode === 'bundles' && slug !== 'airtime' && slug !== 'electricity' && slug !== 'betting';
+  const fixedPlan = getFixedPlanAmountKobo(provider);
+  const lockAmount = fixedPlan != null && !provider.id.startsWith('static-');
+  const useRowLayout =
+    options.mode === 'bundles' && slug !== 'airtime' && slug !== 'electricity' && slug !== 'betting';
+  const airtimeAmountError =
+    slug === 'airtime' && amountKobo > 0
+      ? amountKobo < AIRTIME_MANUAL_MIN_KOBO
+        ? 'Minimum airtime is ₦50'
+        : amountKobo > AIRTIME_MANUAL_MAX_KOBO
+          ? 'Maximum airtime is ₦1,000,000'
+          : null
+      : null;
 
   const selectBundle = (bundle: PaymentBundle) => {
     void Haptics.selectionAsync();
     onSelectBundle(bundle);
   };
+
+  const ctaLabel =
+    payLabel ??
+    (amountKobo > 0 ? `Pay ${formatCurrency(amountKobo)}` : 'Enter amount');
 
   return (
     <ScrollView
@@ -103,7 +131,7 @@ export const UtilityAmountPicker = memo(function UtilityAmountPicker({
     >
       {customerName ? (
         <View style={styles.verifiedBox}>
-          <CheckCircle2 size={18} color={luxury.green} strokeWidth={2.2} />
+          <CheckCircle2 size={18} color={ESO_PAY_TEXT_PRIMARY} strokeWidth={2.2} />
           <View style={styles.verifiedCopy}>
             <Text style={styles.verifiedName}>{customerName}</Text>
             <Text style={styles.verifiedMeta}>{accountNumber}</Text>
@@ -119,7 +147,7 @@ export const UtilityAmountPicker = memo(function UtilityAmountPicker({
             <BundleCard
               key={bundle.id}
               bundle={bundle}
-              active={selectedBundleId === bundle.id}
+              active={selectedBundleId === bundle.id || lockAmount}
               variant="row"
               onPress={() => selectBundle(bundle)}
             />
@@ -164,23 +192,32 @@ export const UtilityAmountPicker = memo(function UtilityAmountPicker({
         </>
       ) : null}
 
-      <Text style={styles.fieldLabel}>Or enter amount (₦)</Text>
-      <TextInput
-        value={amountInput}
-        onChangeText={(text) => {
-          onClearSelection();
-          onAmountInputChange(text);
-        }}
-        placeholder="0.00"
-        placeholderTextColor={luxury.textDim}
-        keyboardType="decimal-pad"
-        style={styles.input}
-      />
+      {!lockAmount ? (
+        <>
+          <Text style={styles.fieldLabel}>
+            {slug === 'airtime' ? 'Or enter amount (₦50 – ₦1,000,000)' : 'Or enter amount (₦)'}
+          </Text>
+          <TextInput
+            value={amountInput}
+            onChangeText={(text) => {
+              onClearSelection();
+              onAmountInputChange(text);
+            }}
+            placeholder={slug === 'airtime' ? '50 – 1,000,000' : '0.00'}
+            placeholderTextColor={ds.color.textDisabled}
+            keyboardType="decimal-pad"
+            style={styles.input}
+          />
+          {airtimeAmountError ? (
+            <Text style={styles.fieldError}>{airtimeAmountError}</Text>
+          ) : null}
+        </>
+      ) : null}
 
       <GoldCTAButton
-        label={amountKobo > 0 ? `Pay ${formatCurrency(amountKobo)}` : 'Enter amount'}
+        label={ctaLabel}
         onPress={onPay}
-        isDisabled={amountKobo <= 0}
+        isDisabled={payDisabled || amountKobo <= 0 || Boolean(airtimeAmountError)}
       />
     </ScrollView>
   );
@@ -207,53 +244,53 @@ const styles = StyleSheet.create({
   verifiedName: {
     fontFamily: fonts.uiMedium,
     fontSize: 15,
-    color: luxury.textPrimary,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   verifiedMeta: {
     fontFamily: fonts.ui,
     fontSize: 12,
-    color: luxury.textMuted,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
   fieldLabel: {
     fontFamily: fonts.uiMedium,
     fontSize: 12,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
-    color: luxury.gold,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
   bundleList: { gap: spacing.sm },
   bundleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    backgroundColor: luxury.surface,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderRadius: 14,
-    borderWidth: 1,
-    borderColor: luxury.goldBorder,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: HOME_CARD_BORDER,
     padding: spacing.md,
   },
   bundleRowActive: {
-    borderColor: luxury.gold,
-    backgroundColor: luxury.goldDim,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   bundleCopy: { flex: 1, gap: 2 },
   bundleLabel: {
     fontFamily: fonts.uiMedium,
     fontSize: 15,
-    color: luxury.textPrimary,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   bundleSub: {
     fontFamily: fonts.ui,
     fontSize: 12,
-    color: luxury.textMuted,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
   bundlePrice: {
     fontFamily: fonts.uiBold,
     fontSize: 14,
-    color: luxury.gold,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   bundlePriceActive: {
-    color: luxury.textPrimary,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   presetGrid: {
     flexDirection: 'row',
@@ -264,31 +301,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 999,
-    borderWidth: 1,
-    borderColor: luxury.goldBorder,
-    backgroundColor: luxury.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: HOME_CARD_BORDER,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
   },
   presetChipActive: {
-    backgroundColor: luxury.gold,
-    borderColor: luxury.gold,
+    backgroundColor: ESO_PAY_TEXT_PRIMARY,
+    borderColor: ESO_PAY_TEXT_PRIMARY,
   },
   presetText: {
     fontFamily: fonts.uiMedium,
     fontSize: 13,
-    color: luxury.textPrimary,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   presetTextActive: {
-    color: '#1A1200',
+    color: ESO_PAY_BG,
   },
   input: {
     fontFamily: fonts.ui,
     fontSize: 18,
-    color: luxury.textPrimary,
-    backgroundColor: luxury.surface,
+    color: ESO_PAY_TEXT_PRIMARY,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: luxury.goldBorder,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: HOME_CARD_BORDER,
     paddingHorizontal: spacing.md,
     paddingVertical: 14,
+  },
+  fieldError: {
+    fontFamily: fonts.ui,
+    fontSize: 13,
+    color: '#FF6B6B',
   },
 });

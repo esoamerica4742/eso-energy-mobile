@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
@@ -50,7 +49,7 @@ export function AuthTopBar({ step, total = 3, progressPercent, variant = 'defaul
           <Feather
             name="arrow-left"
             size={20}
-            color={isEsoPay ? ESOPAY_SIGN_IN.gold : C.GOLD_MID}
+            color="#FFFFFF"
           />
         </Pressable>
         <Text style={[styles.step, isEsoPay && styles.stepEsoPay]}>
@@ -59,16 +58,7 @@ export function AuthTopBar({ step, total = 3, progressPercent, variant = 'defaul
       </View>
       <View style={[styles.track, isEsoPay && styles.trackEsoPay]}>
         <Animated.View style={[styles.fillWrap, fillStyle]}>
-          {isEsoPay ? (
-            <View style={styles.fillEsoPay} />
-          ) : (
-            <LinearGradient
-              colors={[C.GOLD_DARK, C.GOLD_MID]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.fill}
-            />
-          )}
+          <View style={isEsoPay ? styles.fillEsoPay : styles.fillQuiet} />
         </Animated.View>
       </View>
     </View>
@@ -92,7 +82,7 @@ const styles = StyleSheet.create({
   step: {
     fontFamily: F.mono,
     fontSize: 10,
-    color: C.GOLD_MID,
+    color: 'rgba(255,255,255,0.55)',
   },
   stepEsoPay: {
     fontFamily: inter.medium,
@@ -102,7 +92,7 @@ const styles = StyleSheet.create({
   track: {
     marginTop: 12,
     height: 2,
-    backgroundColor: C.DARK_3,
+    backgroundColor: 'rgba(255,255,255,0.12)',
     borderRadius: 1,
     overflow: 'hidden',
   },
@@ -112,10 +102,14 @@ const styles = StyleSheet.create({
     backgroundColor: ESOPAY_SIGN_IN.border,
   },
   fillWrap: { height: '100%' },
-  fill: { flex: 1, height: '100%' },
+  fillQuiet: {
+    flex: 1,
+    height: '100%',
+    backgroundColor: '#FFFFFF',
+  },
   fillEsoPay: {
     flex: 1,
     height: '100%',
-    backgroundColor: ESOPAY_SIGN_IN.gold,
+    backgroundColor: '#FFFFFF',
   },
 });

@@ -11,10 +11,10 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { ESO_PAY_GOLD } from '@/esopay/theme/brandColors';
+import { ESO_PAY_TEXT_PRIMARY } from '@/esopay/theme/brandColors';
 
-const INACTIVE_SHIELD_COLOR = 'rgba(232,160,32,0.4)';
-const RING_GOLD = '#C9A84C';
+const INACTIVE_SHIELD_COLOR = 'rgba(245, 240, 232, 0.35)';
+const RING_GOLD = 'rgba(245, 240, 232, 0.45)';
 const SONAR_DURATION = 2800;
 const SONAR_HALF = SONAR_DURATION / 2;
 const STAGGER_MS = 600;
@@ -109,7 +109,7 @@ export const PowerShieldOrb = memo(function PowerShieldOrb({ active }: Props) {
     transform: [{ scale: scale.value }],
   }));
 
-  const iconColor = active ? ESO_PAY_GOLD : INACTIVE_SHIELD_COLOR;
+  const iconColor = active ? ESO_PAY_TEXT_PRIMARY : INACTIVE_SHIELD_COLOR;
 
   return (
     <View style={styles.wrap}>
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     height: OUTER,
     borderRadius: OUTER / 2,
     borderWidth: 1,
-    borderColor: 'rgba(232,160,32,0.05)',
+    borderColor: 'rgba(255,255,255,0.05)',
     backgroundColor: 'transparent',
   },
   middleActive: {
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     height: MIDDLE,
     borderRadius: MIDDLE / 2,
     borderWidth: 1,
-    borderColor: 'rgba(232,160,32,0.09)',
+    borderColor: 'rgba(255,255,255,0.09)',
     backgroundColor: 'transparent',
   },
   inner: {
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   },
   innerActive: {
     borderWidth: 1,
-    borderColor: 'rgba(232,160,32,0.14)',
+    borderColor: 'rgba(255,255,255,0.14)',
   },
 });
 

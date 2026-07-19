@@ -105,27 +105,16 @@ export const PowerShieldAlertTimeline = memo(function PowerShieldAlertTimeline({
               </View>
 
               <Text
-
                 style={[
-
                   styles.nodeLabel,
-
                   active && nodeLit
-
                     ? criticalNode && isCritical
-
                       ? styles.nodeLabelCritical
-
                       : styles.nodeLabelLit
-
                     : null,
-
+                  { textAlign: 'center' },
                 ]}
-
                 numberOfLines={2}
-
-                textAlign="center"
-
               >
 
                 {node.label}
@@ -236,7 +225,7 @@ const styles = StyleSheet.create({
 
   bellWrapLit: {
 
-    borderColor: 'rgba(232, 160, 32, 0.35)',
+    borderColor: 'rgba(255, 255, 255, 0.22)',
 
     backgroundColor: PS.amberDim,
 

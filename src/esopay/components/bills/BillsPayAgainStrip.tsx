@@ -4,22 +4,40 @@ import * as Haptics from 'expo-haptics';
 import { RotateCcw } from 'lucide-react-native';
 import type { BillHistoryRowModel } from '@/esopay/lib/billHistoryDisplay';
 import { EsoPaySectionLabel } from '@/esopay/components/EsoPaySectionLabel';
-import { TEAL_ACCENT } from '@/esopay/theme/brandColors';
-import { luxury } from '@/esopay/theme/luxury';
+import {
+  ESO_PAY_SURFACE,
+  ESO_PAY_TEXT_PRIMARY,
+  ESO_PAY_TEXT_SECONDARY,
+  HOME_CARD_BORDER,
+} from '@/esopay/theme/brandColors';
 import { fonts } from '@/esopay/theme/typography';
 import { formatCurrency } from '@/esopay/utils/currency';
 
 type Props = {
   rows: BillHistoryRowModel[];
   onRepeat: (row: BillHistoryRowModel) => void;
+  /** When empty, still show section with habit copy. */
+  showEmptyHint?: boolean;
 };
 
-export const BillsPayAgainStrip = memo(function BillsPayAgainStrip({ rows, onRepeat }: Props) {
-  if (rows.length === 0) return null;
+export const BillsPayAgainStrip = memo(function BillsPayAgainStrip({
+  rows,
+  onRepeat,
+  showEmptyHint = true,
+}: Props) {
+  if (rows.length === 0) {
+    if (!showEmptyHint) return null;
+    return (
+      <View style={styles.wrap}>
+        <EsoPaySectionLabel>Pay again</EsoPaySectionLabel>
+        <Text style={styles.emptyHint}>Pay a bill to see it here</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.wrap}>
-      <EsoPaySectionLabel style={styles.headingTracking}>Pay again</EsoPaySectionLabel>
+      <EsoPaySectionLabel>Pay again</EsoPaySectionLabel>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -48,7 +66,7 @@ export const BillsPayAgainStrip = memo(function BillsPayAgainStrip({ rows, onRep
               </Text>
               <Text style={styles.amount}>{formatCurrency(item.amountKobo)}</Text>
             </View>
-            <RotateCcw size={16} color={TEAL_ACCENT} strokeWidth={2.2} />
+            <RotateCcw size={16} color={ESO_PAY_TEXT_SECONDARY} strokeWidth={2.2} />
           </Pressable>
         ))}
       </ScrollView>
@@ -60,12 +78,11 @@ const styles = StyleSheet.create({
   wrap: {
     gap: 10,
   },
-  heading: {
-    fontFamily: fonts.uiMedium,
-    fontSize: 10,
-    letterSpacing: 2.2,
-    textTransform: 'uppercase',
-    color: luxury.warmWhite,
+  emptyHint: {
+    fontFamily: fonts.ui,
+    fontSize: 13,
+    lineHeight: 18,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
   row: {
     gap: 10,
@@ -81,13 +98,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: luxury.goldBorder,
-    backgroundColor: luxury.surface,
+    borderColor: HOME_CARD_BORDER,
+    backgroundColor: ESO_PAY_SURFACE,
   },
   chipPressed: {
-    opacity: 0.92,
-    backgroundColor: luxury.goldDim,
-    borderColor: 'rgba(212, 160, 23, 0.35)',
+    opacity: 0.88,
   },
   logo: {
     minWidth: 36,
@@ -110,11 +125,11 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: fonts.uiMedium,
     fontSize: 13,
-    color: luxury.textPrimary,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   amount: {
     fontFamily: fonts.ui,
     fontSize: 12,
-    color: luxury.goldAccent,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
 });

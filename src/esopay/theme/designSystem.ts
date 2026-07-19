@@ -1,42 +1,46 @@
 /**
- * Eso Pay global design system — ultra-premium luxury fintech.
- * Inter only · deep navy · solar gold accent · no gradients.
+ * Eso Pay global design system — quiet Revolut dialect.
+ * Inter only · pure black · white chrome.
  */
-import { GOLD } from '@/theme/colors';
+import { ECO_MOTION } from '@/theme/ecosystem';
 import { inter } from '@/theme/fonts';
 
-export const ESO_PAY_CANVAS_BG = '#020B1A' as const;
+export const ESO_PAY_CANVAS_BG = '#000000' as const;
+/** White chrome — never import theme GOLD here (Hermes crash if unbound). */
+const CHROME = '#FFFFFF' as const;
 
 export const ds = {
   color: {
     bg: ESO_PAY_CANVAS_BG,
-    surface1: '#0D1018',
-    surface2: '#111827',
-    surface3: '#161B28',
-    border: '#1C2030',
-    borderSubtle: '#2A3040',
-    borderActive: '#D3991A',
-    gold: '#D3991A',
-    goldDim: '#8A6F32',
-    teal: '#D3991A',
-    error: '#FF5C5C',
+    surface1: '#1C1C1E',
+    surface2: '#2C2C2E',
+    surface3: '#3A3A3C',
+    border: '#2C2C2E',
+    borderSubtle: '#3A3A3C',
+    borderActive: 'rgba(255,255,255,0.35)',
+    /** Primary CTA fill — white chrome (legacy name kept). */
+    gold: CHROME,
+    goldDim: 'rgba(255,255,255,0.35)',
+    /** Legacy alias — white chrome. */
+    teal: CHROME,
+    error: '#FF6B6B',
     warning: '#F59E0B',
-    textPrimary: '#F5F0E8',
-    textSecondary: '#9CA3AF',
-    textMuted: '#4A5568',
-    textDisabled: '#4A5568',
-    textPlaceholder: '#4A5568',
-    display: '#F5F0E8',
-    navBg: 'rgba(2, 11, 26, 0.88)',
-    overlay: 'rgba(0,0,0,0.65)',
+    textPrimary: '#FFFFFF',
+    textSecondary: 'rgba(255,255,255,0.55)',
+    textMuted: 'rgba(255,255,255,0.45)',
+    textDisabled: 'rgba(255,255,255,0.28)',
+    textPlaceholder: 'rgba(255,255,255,0.28)',
+    display: '#FFFFFF',
+    navBg: 'rgba(0, 0, 0, 0.88)',
+    overlay: 'rgba(0,0,0,0.72)',
     shadow: 'rgba(0,0,0,0.5)',
-    tealMuted: 'rgba(211, 153, 26, 0.1)',
-    goldMuted12: 'rgba(211, 153, 26, 0.12)',
-    goldMuted20: 'rgba(211, 153, 26, 0.2)',
-    goldMuted35: 'rgba(211, 153, 26, 0.35)',
-    goldMuted08: 'rgba(211, 153, 26, 0.08)',
-    goldMuted04: 'rgba(211, 153, 26, 0.04)',
-    errorMuted: 'rgba(255,92,92,0.1)',
+    tealMuted: 'rgba(255, 255, 255, 0.08)',
+    goldMuted12: 'rgba(255, 255, 255, 0.12)',
+    goldMuted20: 'rgba(255, 255, 255, 0.16)',
+    goldMuted35: 'rgba(255, 255, 255, 0.28)',
+    goldMuted08: 'rgba(255, 255, 255, 0.08)',
+    goldMuted04: 'rgba(255, 255, 255, 0.04)',
+    errorMuted: 'rgba(255,107,107,0.12)',
     warningMuted: 'rgba(245,158,11,0.1)',
   },
   font: {
@@ -56,11 +60,12 @@ export const ds = {
     headline: { fontSize: 28, lineHeight: 34 },
     title: { fontSize: 18, lineHeight: 24 },
     subtitle: { fontSize: 16, lineHeight: 22 },
-    body: { fontSize: 15, lineHeight: 22 },
+    body: { fontSize: 17, lineHeight: 25 },
     label: { fontSize: 13, lineHeight: 18 },
     caption: { fontSize: 12, lineHeight: 16 },
     section: { fontSize: 13, lineHeight: 18, letterSpacing: 2 },
-    amount: { fontSize: 42, lineHeight: 48, letterSpacing: -1.2 },
+    /** Hero / pass balance — the number is the product. */
+    amount: { fontSize: 44, lineHeight: 50, letterSpacing: -1.6 },
     button: { fontSize: 16, lineHeight: 22, letterSpacing: 0.3 },
     nav: { fontSize: 10, lineHeight: 13, letterSpacing: 0.4 },
     chip: { fontSize: 11, lineHeight: 14 },
@@ -68,7 +73,7 @@ export const ds = {
   radius: {
     chip: 10,
     input: 14,
-    card: 18,
+    card: 22,
     wallet: 28,
     modal: 24,
     pill: 999,
@@ -78,7 +83,7 @@ export const ds = {
   space: {
     screen: 20,
     section: 28,
-    component: 14,
+    component: 16,
     inline: 8,
   },
   size: {
@@ -92,7 +97,7 @@ export const ds = {
     sectionAccent: 3,
   },
   motion: {
-    duration: 250,
-    spring: { stiffness: 300, damping: 20 },
+    duration: ECO_MOTION.duration,
+    spring: ECO_MOTION.spring,
   },
 } as const;

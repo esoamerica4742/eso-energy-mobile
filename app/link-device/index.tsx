@@ -58,7 +58,7 @@ export default function LinkDeviceScreen() {
       const msg = err instanceof Error ? err.message : 'Connection failed';
       toast.show(msg, 'error');
     }
-  }, [link, mayLink, toast, refetch, router]);
+  }, [link, toast, refetch, router]);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>

@@ -4,8 +4,10 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   type ReactNode,
 } from 'react';
+import { InteractionManager } from 'react-native';
 import { bindEsoPayApiCredentials } from '@/esopay/api/client';
 import {
   ensureEsoPayApiSession,
@@ -18,6 +20,7 @@ import { resolveEsoPayUserRole } from '@/esopay/context/roles';
 import type { EsoPayHostContextValue } from '@/esopay/context/types';
 import { DEMO_COMPANY_ID, getDemoDevices } from '@/lib/demoFleet';
 import { useDemoModeActive } from '@/providers/DemoModeProvider';
+import { useAuthStore } from '@/stores/authStore';
 
 const EsoPayHostContext = createContext<EsoPayHostContextValue | null>(null);
 
@@ -76,12 +79,18 @@ export function EsoPayHostBridge({ children }: { children: ReactNode }) {
   const esoPaySession = useEsoPayAuthStore((s) => s.session);
   const esoPaySignedIn = useEsoPayAuthStore((s) => s.signedIn);
   const { userId: persistedUserId } = useEsoPayUserId();
+  // Prevent multiple back-to-back clears from concurrent 401s.
+  const sessionExpiredHandled = useRef(false);
 
   useEffect(() => {
-    if (esoPaySignedIn && !esoPaySession?.access_token) {
+    // Heal Pay store when entering from Monitoring (unified account).
+    if (!isDemoMode && (!esoPaySignedIn || !esoPaySession?.access_token)) {
       void recoverEsoPaySession();
     }
-  }, [esoPaySignedIn, esoPaySession?.access_token]);
+    if (esoPaySignedIn && esoPaySession?.access_token) {
+      sessionExpiredHandled.current = false;
+    }
+  }, [esoPaySignedIn, esoPaySession?.access_token, isDemoMode]);
 
   const refreshAuthToken = useCallback(async () => refreshEsoPayAccessToken(), []);
 
@@ -89,8 +98,32 @@ export function EsoPayHostBridge({ children }: { children: ReactNode }) {
     return ensureEsoPayApiSession();
   }, []);
 
-  /** Wallet API errors must not sign the user out — use signOutEsoPay() explicitly. */
-  const onSessionExpired = useCallback(() => {}, []);
+  /**
+   * Called from Axios after a failed 401 refresh.
+   * Recover from the unified / Monitoring session — never wipe Pay on switch races.
+   */
+  const onSessionExpired = useCallback(() => {
+    if (isDemoMode) return;
+    if (sessionExpiredHandled.current) return;
+    sessionExpiredHandled.current = true;
+    InteractionManager.runAfterInteractions(() => {
+      void (async () => {
+        try {
+          const recovered = await recoverEsoPaySession();
+          if (recovered?.access_token) return;
+
+          const monitoringSession = useAuthStore.getState().session;
+          if (monitoringSession?.access_token) {
+            const store = useEsoPayAuthStore.getState();
+            store.lockSignedIn();
+            store.setSession(monitoringSession);
+          }
+        } finally {
+          sessionExpiredHandled.current = false;
+        }
+      })();
+    });
+  }, [isDemoMode]);
 
   const authToken = esoPaySession?.access_token ?? '';
   const userId = esoPaySession?.user?.id ?? persistedUserId ?? '';

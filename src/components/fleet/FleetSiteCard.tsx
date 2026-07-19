@@ -295,9 +295,7 @@ const styles = StyleSheet.create({
 
   cardStale: {
 
-    borderColor: 'rgba(201,168,76,0.45)',
-
-    ...Shadow.goldGlow,
+    borderColor: 'rgba(255,255,255,0.18)',
 
   },
 

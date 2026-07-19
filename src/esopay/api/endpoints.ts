@@ -9,6 +9,7 @@ export const ESO_PAY_ROUTES = {
   wallet: {
     root: '/wallet',
     transactions: '/wallet/transactions',
+    cashback: '/wallet/cashback',
     reservedAccount: '/wallet/reserved-account',
     fundingIntents: '/wallet/funding-intents',
   },

@@ -1,5 +1,5 @@
 /** Unified master account — Eso Energy Tech Limited. */
-export const MASTER_PIN_LENGTH = 4;
+export const MASTER_PIN_LENGTH = 6;
 
 export const MASTER_PIN_STORAGE_PREFIX = 'master_user_pin_';
 

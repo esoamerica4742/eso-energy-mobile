@@ -11,8 +11,20 @@ export const ESOPAY_BILLS_HREF = '/billing/bills' as Href;
 export const ESOPAY_WALLET_HREF = '/billing/wallet' as Href;
 export const ESOPAY_INTELLIGENCE_HREF = '/billing/intelligence' as Href;
 export const ESOPAY_HISTORY_HREF = '/billing/history' as Href;
+/** @deprecated Use esopayUtilityHistoryHref('electricity') */
+export const ESOPAY_ELECTRICITY_HISTORY_HREF = '/billing/utility-history/electricity' as Href;
 export const ESOPAY_INVOICES_HREF = '/billing/invoices' as Href;
 export const ESOPAY_SETTINGS_HREF = '/billing/settings' as Href;
+
+/** Category-only payment history (Opay-style from Airtime / Data / Electricity). */
+export function esopayUtilityHistoryHref(
+  slug: Extract<UtilityCategorySlug, 'electricity' | 'airtime' | 'data'>,
+): Href {
+  return {
+    pathname: '/billing/utility-history/[category]',
+    params: { category: slug },
+  } as Href;
+}
 
 /** Main app fleet / inverter monitor (outside Eso Pay tabs). */
 export const ESOPAY_FLEET_MONITOR_HREF = '/monitor' as Href;
@@ -52,10 +64,16 @@ export function esopayBuyUtilitiesHref(): Href {
 }
 
 /** OPay-style utility purchase flow for a category. */
-export function esopayUtilityCategoryHref(slug: UtilityCategorySlug): Href {
+export function esopayUtilityCategoryHref(
+  slug: UtilityCategorySlug,
+  opts?: { billerCode?: string },
+): Href {
   return {
     pathname: '/billing/utility/[category]',
-    params: { category: slug },
+    params: {
+      category: slug,
+      ...(opts?.billerCode ? { biller: opts.billerCode } : {}),
+    },
   } as Href;
 }
 

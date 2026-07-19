@@ -1,6 +1,6 @@
 import { deleteEsoPayAccount } from '@/esopay/lib/deleteEsoPayAccount';
 import { EsoPayApiError, esoPayApi } from '@/esopay/api/client';
-import { signOutEsoPay } from '@/esopay/auth/signOutEsoPay';
+import { signOutUnified } from '@/master/signOutUnified';
 import { clearTransactionPin } from '@/esopay/storage/transactionPin';
 import { clearAllBeneficiaries } from '@/esopay/storage/beneficiaries';
 import { clearNotificationPreferences } from '@/esopay/storage/notificationPreferences';
@@ -17,8 +17,8 @@ jest.mock('@/esopay/api/client', () => {
   };
 });
 
-jest.mock('@/esopay/auth/signOutEsoPay', () => ({
-  signOutEsoPay: jest.fn(),
+jest.mock('@/master/signOutUnified', () => ({
+  signOutUnified: jest.fn(),
 }));
 
 jest.mock('@/esopay/storage/transactionPin', () => ({
@@ -47,7 +47,7 @@ describe('deleteEsoPayAccount', () => {
     expect(clearTransactionPin).toHaveBeenCalledWith('user-1');
     expect(clearAllBeneficiaries).toHaveBeenCalledWith('co-1');
     expect(clearNotificationPreferences).toHaveBeenCalledWith('user-1');
-    expect(signOutEsoPay).toHaveBeenCalled();
+    expect(signOutUnified).toHaveBeenCalled();
   });
 
   it('reports server success', async () => {

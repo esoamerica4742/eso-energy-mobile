@@ -1,23 +1,12 @@
 import { memo, type ReactNode } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import {
-  ESO_PAY_BORDER,
-  ESO_PAY_GOLD,
-  ESO_PAY_GOLD_MUTED,
+  BILL_CARD_BORDER,
+  ESO_PAY_SURFACE_ELEVATED,
   ESO_PAY_TEXT_PRIMARY,
   ESO_PAY_TEXT_SECONDARY,
-  HOME_CARD_SURFACE,
-  PREMIUM_CARD_SHADOW,
 } from '@/esopay/theme/brandColors';
-import Animated, {
-  Easing,
-  FadeIn,
-  FadeInRight,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInRight } from 'react-native-reanimated';
 import {
   BILL_CATEGORY_CARD_HEIGHT,
   BILL_CATEGORY_CARD_WIDTH,
@@ -27,8 +16,8 @@ import {
 } from '@/esopay/components/bills/billPayCardTheme';
 import type { HubHighlightKind } from '@/esopay/lib/billHubHighlights';
 import { hubHighlightLabel } from '@/esopay/lib/billHubHighlights';
-import { luxury } from '@/esopay/theme/luxury';
 import { fonts } from '@/esopay/theme/typography';
+import { useCardPressAnimation } from '@/lib/motion/springMotion';
 
 export type BillPayCardVisual = {
   tint: string;
@@ -59,14 +48,6 @@ export type BillPayCardProps = {
   hubCards?: boolean;
 };
 
-const HUB_CARD_STYLE = {
-  borderWidth: 0,
-  borderRadius: 24,
-  ...PREMIUM_CARD_SHADOW,
-} as const;
-
-const PRESS_MS = 200;
-
 export type BillPayCardItem = BillPayCardProps & { id: string };
 
 export const BillPayCard = memo(function BillPayCard({
@@ -88,51 +69,37 @@ export const BillPayCard = memo(function BillPayCard({
   const isGrid = layout === 'grid';
   const cardHeight = height ?? BILL_CATEGORY_CARD_HEIGHT;
   const isHomeDenseHub = hubCards && cardHeight <= HOME_BILL_CATEGORY_CARD_HEIGHT;
+  const isProviderHub = hubCards && !isHomeDenseHub;
+  const showProviderBadge = Boolean(badgeText);
 
-  const scale = useSharedValue(1);
-  const cardAnim = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
+  const { style: cardAnim, onPressIn, onPressOut } = useCardPressAnimation();
+
+  const borderColor = BILL_CARD_BORDER;
 
   const inner = (
     <Pressable
       onPress={onPress}
-      onPressIn={() => {
-        scale.value = withTiming(0.98, { duration: PRESS_MS, easing: Easing.out(Easing.ease) });
-      }}
-      onPressOut={() => {
-        scale.value = withTiming(1, { duration: PRESS_MS, easing: Easing.out(Easing.ease) });
-      }}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
       style={[
         styles.pressable,
         isGrid && styles.pressableGrid,
         isHomeDenseHub && styles.pressableHomeHub,
+        isProviderHub && styles.pressableProviderHub,
       ]}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? `${title}, ${subtitle}`}
       accessibilityHint="Opens biller selection"
     >
-      {highlightBadge ? (
-        <View
-          style={[
-            styles.mostUsedBadge,
-            highlightBadge === 'popular' && styles.popularBadge,
-          ]}
-        >
-          <Text
-            style={[
-              styles.mostUsedText,
-              highlightBadge === 'popular' && styles.popularBadgeText,
-            ]}
-          >
-            {hubHighlightLabel(highlightBadge)}
-          </Text>
+      {highlightBadge === 'recent' ? (
+        <View style={styles.mostUsedBadge}>
+          <Text style={styles.mostUsedText}>{hubHighlightLabel(highlightBadge)}</Text>
         </View>
       ) : null}
 
-      <View style={[styles.iconRow, highlightBadge && isGrid && styles.iconRowBelowBadge]}>
+      <View style={[styles.iconRow, highlightBadge === 'recent' && isGrid && styles.iconRowBelowBadge]}>
         {icon}
-        {badgeText ? (
+        {showProviderBadge ? (
           <View style={styles.providerBadge}>
             <Text style={styles.providerBadgeText} numberOfLines={1}>
               {badgeText}
@@ -141,14 +108,22 @@ export const BillPayCard = memo(function BillPayCard({
         ) : null}
       </View>
 
-      <View style={[styles.copyBlock, isHomeDenseHub && styles.copyBlockHomeHub]}>
+      <View
+        style={[
+          styles.copyBlock,
+          hubCards && styles.copyBlockHub,
+          isHomeDenseHub && styles.copyBlockHomeHub,
+          isProviderHub && styles.copyBlockProviderHub,
+        ]}
+      >
         <Text
           style={[
             styles.cardTitle,
             isGrid && styles.cardTitleGrid,
             isHomeDenseHub && styles.cardTitleHomeHub,
+            isProviderHub && styles.cardTitleProviderHub,
           ]}
-          numberOfLines={2}
+          numberOfLines={isProviderHub ? 2 : isHomeDenseHub ? 2 : 3}
           ellipsizeMode="tail"
         >
           {title}
@@ -158,53 +133,53 @@ export const BillPayCard = memo(function BillPayCard({
             styles.cardHint,
             isGrid && styles.cardHintGrid,
             isHomeDenseHub && styles.cardHintHomeHub,
+            isProviderHub && styles.cardHintProviderHub,
           ]}
-          numberOfLines={1}
+          numberOfLines={isProviderHub ? 3 : isHomeDenseHub ? 1 : 2}
+          ellipsizeMode="tail"
         >
           {subtitle}
         </Text>
       </View>
 
-      {hubCards ? null : <View style={styles.noise} pointerEvents="none" />}
     </Pressable>
   );
 
   const cardBody = (
-    <View style={[styles.glass, isGrid && styles.glassGrid, { backgroundColor: HOME_CARD_SURFACE }]}>
-      <View
-        style={[styles.tintOverlay, { backgroundColor: visual.tint }]}
-        pointerEvents="none"
-      />
+    <View style={[hubCards ? styles.hubFill : styles.glass, isGrid && styles.glassGrid]}>
+      {hubCards ? null : (
+        <View
+          style={[styles.tintOverlay, { backgroundColor: visual.tint }]}
+          pointerEvents="none"
+        />
+      )}
       {inner}
     </View>
   );
 
   const entering = animateEntry
     ? isGrid
-      ? FadeIn.delay(index * 35).duration(320)
-      : FadeInRight.delay(index * 70).duration(480).springify().damping(16)
+      ? FadeIn.delay(index * 35).duration(220)
+      : FadeInRight.delay(index * 40).duration(280)
     : undefined;
+
+  const sizeStyle = isGrid
+    ? { height: cardHeight }
+    : { width, height: cardHeight };
 
   return (
     <Animated.View
       entering={entering}
       style={[
-        styles.cardOuter,
+        hubCards ? styles.hubAmbient : styles.cardAmbient,
         isGrid ? styles.cardOuterGrid : styles.cardOuterCarousel,
-        isGrid
-          ? {
-              height: cardHeight,
-              ...(hubCards ? HUB_CARD_STYLE : { borderColor: visual.borderGlow }),
-            }
-          : {
-              width,
-              height: cardHeight,
-              ...(hubCards ? HUB_CARD_STYLE : { borderColor: visual.borderGlow }),
-            },
+        sizeStyle,
         cardAnim,
       ]}
     >
-      {cardBody}
+      <View style={[hubCards ? styles.hubLift : styles.cardLift, { borderColor }]}>
+        {hubCards ? cardBody : cardBody}
+      </View>
     </Animated.View>
   );
 });
@@ -213,19 +188,31 @@ export const BillPayCard = memo(function BillPayCard({
 export { BillPayCard as BillCategoryCard };
 
 const styles = StyleSheet.create({
-  cardOuter: {
-    borderRadius: 16,
+  /** Far ambient float — outer wrapper only. */
+  cardAmbient: {
+    borderRadius: 24,
+  },
+  hubAmbient: {
+    borderRadius: 18,
+  },
+  /** Near crisp contact shadow + border. */
+  cardLift: {
+    flex: 1,
+    borderRadius: 24,
     borderWidth: 1,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.32,
-        shadowRadius: 14,
-      },
-      android: { elevation: 5 },
-      default: {},
-    }),
+    overflow: 'hidden',
+    backgroundColor: ESO_PAY_SURFACE_ELEVATED,
+  },
+  hubLift: {
+    flex: 1,
+    borderRadius: 18,
+    borderWidth: StyleSheet.hairlineWidth,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  hubFill: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
   },
   cardOuterGrid: {
     width: '100%',
@@ -235,60 +222,53 @@ const styles = StyleSheet.create({
   cardOuterCarousel: {},
   glass: {
     flex: 1,
-    borderRadius: 24,
+    borderRadius: 20,
     overflow: 'hidden',
+    backgroundColor: ESO_PAY_SURFACE_ELEVATED,
   },
   glassGrid: {
     height: '100%',
   },
   tintOverlay: {
-    ...StyleSheet.absoluteFill,
+    ...StyleSheet.absoluteFillObject,
   },
   pressable: {
     flex: 1,
     padding: 16,
     justifyContent: 'space-between',
+    zIndex: 3,
   },
   pressableGrid: {
     flexDirection: 'column',
     padding: BILL_PAY_GRID_INNER_PADDING,
-    overflow: 'hidden',
   },
   pressableHomeHub: {
     padding: HOME_BILL_GRID_INNER_PADDING,
+  },
+  pressableProviderHub: {
+    padding: 14,
+    justifyContent: 'flex-start',
+    gap: 8,
   },
   mostUsedBadge: {
     position: 'absolute',
     top: 8,
     left: 8,
-    zIndex: 2,
+    zIndex: 4,
     paddingHorizontal: 7,
     paddingVertical: 3,
     borderRadius: 999,
-    backgroundColor: 'rgba(212, 160, 23, 0.16)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   mostUsedText: {
     fontFamily: fonts.uiMedium,
     fontSize: 8,
-    letterSpacing: 0.5,
+    letterSpacing: 0.6,
     textTransform: 'uppercase',
-    color: luxury.warmWhite,
-  },
-  popularBadge: {
-    backgroundColor: ESO_PAY_GOLD_MUTED,
-    borderColor: 'rgba(232, 160, 32, 0.20)',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  popularBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: ESO_PAY_GOLD,
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
+    color: 'rgba(255,255,255,0.7)',
+    includeFontPadding: false,
   },
   iconRow: {
     flexDirection: 'row',
@@ -300,8 +280,9 @@ const styles = StyleSheet.create({
     marginTop: 22,
   },
   providerBadge: {
-    backgroundColor: ESO_PAY_BORDER,
-    borderColor: 'transparent',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.16)',
+    borderWidth: 1,
     borderRadius: 6,
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -309,54 +290,80 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   providerBadgeText: {
+    fontFamily: fonts.uiMedium,
     fontSize: 10,
     fontWeight: '600',
-    color: ESO_PAY_TEXT_PRIMARY,
+    letterSpacing: 0.2,
+    color: 'rgba(255,255,255,0.7)',
+    includeFontPadding: false,
   },
   copyBlock: {
     gap: 4,
     flexShrink: 1,
     minHeight: 0,
   },
+  copyBlockHub: {
+    flexShrink: 0,
+    width: '100%',
+  },
   copyBlockHomeHub: {
-    gap: 2,
+    gap: 3,
+  },
+  copyBlockProviderHub: {
+    flex: 1,
+    flexShrink: 1,
+    minHeight: 0,
+    width: '100%',
+    gap: 4,
   },
   cardTitle: {
     fontFamily: fonts.uiMedium,
     fontSize: 15,
     fontWeight: '600',
     color: ESO_PAY_TEXT_PRIMARY,
+    includeFontPadding: false,
   },
   cardTitleGrid: {
     fontSize: 14,
-    lineHeight: 18,
-    maxHeight: 36,
-    letterSpacing: 0.1,
+    lineHeight: 19,
+    letterSpacing: 0.14,
   },
   cardTitleHomeHub: {
     fontFamily: fonts.display,
+    fontSize: 14,
+    lineHeight: 19,
     fontWeight: '600',
-    letterSpacing: 0.15,
+    letterSpacing: 0.18,
+  },
+  cardTitleProviderHub: {
+    fontSize: 14,
+    lineHeight: 19,
+    letterSpacing: 0.1,
+    width: '100%',
   },
   cardHint: {
     fontFamily: fonts.ui,
     fontSize: 12,
     color: ESO_PAY_TEXT_SECONDARY,
+    includeFontPadding: false,
   },
   cardHintGrid: {
     fontSize: 12,
     lineHeight: 16,
-    maxHeight: 16,
-    color: 'rgba(245, 240, 232, 0.55)',
+    letterSpacing: 0.08,
+    color: 'rgba(255, 255, 255, 0.55)',
   },
   cardHintHomeHub: {
     fontSize: 11,
     lineHeight: 14,
-    maxHeight: 14,
-    color: 'rgba(245, 240, 232, 0.48)',
+    letterSpacing: 0.06,
+    color: 'rgba(255, 255, 255, 0.5)',
   },
-  noise: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(255,255,255,0.03)',
+  cardHintProviderHub: {
+    fontSize: 11,
+    lineHeight: 15,
+    letterSpacing: 0.06,
+    color: 'rgba(255, 255, 255, 0.55)',
+    width: '100%',
   },
 });

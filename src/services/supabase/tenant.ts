@@ -90,3 +90,35 @@ export async function fetchSites(companyId: string): Promise<DbSite[]> {
   }
   return (data ?? []) as DbSite[];
 }
+
+export type CreateSiteInput = {
+  name: string;
+  location?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+};
+
+/** Create a site under the active company (RLS enforces tenant write). */
+export async function createSite(
+  companyId: string,
+  input: CreateSiteInput,
+): Promise<DbSite> {
+  const payload = {
+    company_id: companyId,
+    name: input.name.trim(),
+    location: input.location?.trim() || null,
+    latitude: input.latitude ?? null,
+    longitude: input.longitude ?? null,
+  };
+
+  const { data, error } = await supabase
+    .from('sites')
+    .insert(payload)
+    .select('id, company_id, name, location, latitude, longitude, created_at')
+    .single();
+
+  if (error || !data) {
+    throw new Error(error?.message || 'Could not create site');
+  }
+  return data as DbSite;
+}

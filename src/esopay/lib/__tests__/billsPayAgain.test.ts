@@ -42,17 +42,22 @@ describe('billsPayAgain', () => {
     expect(paymentRepeatKey(rows[0])).toBe('p1:111');
   });
 
-  it('hides strip when it only mirrors top history', () => {
+  it('keeps strip even when it mirrors top history (habit-first)', () => {
     const history = [row('1', 'p1', '111'), row('2', 'p2', '222')];
     const strip = pickPayAgainRows(history, 2);
-    expect(shouldShowPayAgainStrip(strip, history, 2)).toBe(false);
-    expect(filterPayAgainStrip(strip, history, 2)).toEqual([]);
+    expect(shouldShowPayAgainStrip(strip, history, 2)).toBe(true);
+    expect(filterPayAgainStrip(strip, history, 2)).toEqual(strip);
   });
 
-  it('keeps strip when an older payment is not in top history', () => {
-    const history = [row('1', 'p1', '111'), row('2', 'p2', '222'), row('3', 'p3', '333')];
-    const strip = pickPayAgainRows([row('4', 'p3', '333'), row('5', 'p1', '111')], 2);
-    expect(shouldShowPayAgainStrip(strip, history, 2)).toBe(true);
-    expect(filterPayAgainStrip(strip, history, 2).length).toBeGreaterThan(0);
+  it('returns up to five unique pay-again targets', () => {
+    const history = [
+      row('1', 'p1', '111'),
+      row('2', 'p2', '222'),
+      row('3', 'p3', '333'),
+      row('4', 'p4', '444'),
+      row('5', 'p5', '555'),
+      row('6', 'p6', '666'),
+    ];
+    expect(pickPayAgainRows(history)).toHaveLength(5);
   });
 });

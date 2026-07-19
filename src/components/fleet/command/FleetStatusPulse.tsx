@@ -18,7 +18,7 @@ type Props = {
 };
 
 const STATUS_COLORS = {
-  live: Colors.battery,
+  live: '#FFFFFF',
   degraded: Colors.warning,
   offline: Colors.alert,
 } as const;

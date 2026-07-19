@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "eso-energy-mobile",
+    "name": "Eso Energy",
     "slug": "eso-energy-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -15,7 +15,7 @@
       "package": "com.esoenergy.mobile",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#0b0f19"
+        "backgroundColor": "#000000"
       },
       "softwareKeyboardLayoutMode": "resize"
     },
@@ -32,9 +32,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#080A0F",
+          "backgroundColor": "#000000",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 220
+          "imageWidth": 200
         }
       ],
       "expo-secure-store",

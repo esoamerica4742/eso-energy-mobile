@@ -1,19 +1,18 @@
 import { Dimensions } from 'react-native';
-import { GOLD } from '@/theme/colors';
 
 export const ONBOARDING_COLORS = {
-  navy1: '#0B1628',
-  navy2: '#0D2137',
-  navy3: '#071220',
-  tealDeep: '#0A1F2E',
+  navy1: '#0B152B',
+  navy2: '#081222',
+  navy3: '#000000',
+  tealDeep: '#050A14',
   glass: 'rgba(255,255,255,0.04)',
-  border: 'rgba(255,255,255,0.08)',
-  gold: GOLD,
-  green: '#00C48C',
-  blue: '#3B9EFF',
-  red: '#FF4D6A',
+  border: 'rgba(255,255,255,0.1)',
+  gold: '#FFFFFF',
+  green: 'rgba(255,255,255,0.72)',
+  blue: '#4DA3FF',
+  red: '#FF6B6B',
   text: '#FFFFFF',
-  muted: '#8A99B3',
+  muted: 'rgba(255,255,255,0.55)',
 } as const;
 
 export const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');

@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useEsoPayBack } from '@/esopay/navigation/useEsoPayBack';
 import {
   useBillDetail,
   useCanPayBillFromWallet,
@@ -29,6 +30,7 @@ import { PaymentHistoryRow } from '@/esopay/components/PaymentHistoryRow';
 import { StatusBadge } from '@/esopay/components/StatusBadge';
 import { esopayFonts } from '@/esopay/theme/fonts';
 import { EsoPayTokens as T } from '@/esopay/theme/tokens';
+import { ESO_PAY_TEXT_PRIMARY } from '@/esopay/theme/brandColors';
 import { formatBillPeriod } from '@/esopay/utils/billUi';
 import { formatCurrency } from '@/esopay/utils/currency';
 
@@ -80,7 +82,7 @@ export function BillDetailScreen({ billId }: Props) {
     void walletQuery.refetch();
   }, [billQuery, offsetsQuery, paymentsQuery, walletQuery]);
 
-  const goBack = useCallback(() => router.back(), [router]);
+  const goBack = useEsoPayBack();
 
   const onPrimaryAction = useCallback(() => {
     if (!canInitiate || !canPay) return;
@@ -161,7 +163,6 @@ export function BillDetailScreen({ billId }: Props) {
               amountKobo={walletQuery.data?.balance_kobo ?? 0}
               currency={bill.currency}
               loading={walletQuery.isLoading}
-              variant="emphasis"
               style={styles.walletCol}
             />
             <BalanceDisplay
@@ -302,7 +303,7 @@ const styles = StyleSheet.create({
   summaryEmphasis: {
     fontFamily: esopayFonts.display,
     fontSize: T.type.h2.size,
-    color: T.color.gold.shimmer,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   divider: {
     height: 1,

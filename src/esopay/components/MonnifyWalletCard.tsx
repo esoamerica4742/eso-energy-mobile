@@ -1,41 +1,20 @@
-import { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import Animated, {
-  Easing,
-  FadeIn,
-  FadeOut,
-  useAnimatedStyle,
-  useReducedMotion,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
-import { Eye, EyeSlash, Plus } from 'phosphor-react-native';
+import Animated from 'react-native-reanimated';
+import { Eye, EyeSlash, Plus, CaretRight } from 'phosphor-react-native';
 import { Skeleton } from '@/esopay/components/Skeleton';
 import {
   ESO_PAY_BG,
-  ESO_PAY_GOLD,
-  ESO_PAY_GOLD_AMBIENT,
+  ESO_PAY_SURFACE_ELEVATED,
   ESO_PAY_TEXT_PRIMARY,
-  ESO_PAY_GOLD_SHADOW,
   ESO_PAY_TEXT_SECONDARY,
-  GOLD_CTA,
-  HOME_WALLET_SURFACE,
-  WALLET_CARD_SHADOW,
 } from '@/esopay/theme/brandColors';
 import { grid } from '@/esopay/theme/homeGrid';
 import { ds } from '@/esopay/theme/designSystem';
 import { useButtonPressAnimation } from '@/lib/motion/springMotion';
 import { inter } from '@/theme/fonts';
 import { formatCurrencyAmount } from '@/esopay/utils/currency';
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-const BALANCE_FONT_SIZE = ds.type.amount.fontSize;
-const CURRENCY_FONT_SIZE = BALANCE_FONT_SIZE * 0.55;
-const SPRING = { stiffness: 300, damping: 22 };
-const MOTION_MS = 250;
 
 export const HOME_WALLET_DISPLAY_KOBO = 5_700_000;
 
@@ -45,15 +24,29 @@ export function resolveHomeWalletKobo(balanceKobo: number): number {
 
 export const MONNIFY_WALLET_CARD_DEBUG = false;
 
+type Variant = 'hero' | 'pass';
+
 type Props = {
   balanceKobo: number;
   loading?: boolean;
   stableDisplay?: boolean;
+  /** `hero` = Revolut open balance. `pass` = Apple Wallet card. */
+  variant?: Variant;
   onFundPress?: () => void;
   onManagePress?: () => void;
 };
 
-function AddFundsButton({ onPress }: { onPress?: () => void }) {
+function SoftCta({
+  label,
+  onPress,
+  primary,
+  icon,
+}: {
+  label: string;
+  onPress?: () => void;
+  primary?: boolean;
+  icon?: 'plus' | 'chevron';
+}) {
   const { style: btnStyle, onPressIn, onPressOut } = useButtonPressAnimation();
   const disabled = !onPress;
 
@@ -73,61 +66,76 @@ function AddFundsButton({ onPress }: { onPress?: () => void }) {
         onPressOut();
       }}
       disabled={disabled}
-      style={[styles.addFundsOuter, disabled && styles.addFundsDisabled]}
+      style={[styles.softCtaHit, disabled && styles.ctaDisabled]}
       accessibilityRole="button"
-      accessibilityLabel="Add funds"
+      accessibilityLabel={label}
     >
-      <Animated.View style={[styles.addFundsInner, btnStyle]}>
-        <Plus size={17} color={ESO_PAY_BG} weight="bold" />
-        <Text style={styles.addFundsText}>Add Funds</Text>
+      <Animated.View
+        style={[styles.softCta, primary ? styles.softCtaPrimary : styles.softCtaSecondary, btnStyle]}
+      >
+        {icon === 'plus' ? (
+          <Plus size={16} color={primary ? ESO_PAY_BG : ESO_PAY_TEXT_PRIMARY} weight="bold" />
+        ) : null}
+        <Text style={[styles.softCtaText, primary ? styles.softCtaTextPrimary : null]}>{label}</Text>
+        {icon === 'chevron' ? (
+          <CaretRight size={14} color={ESO_PAY_TEXT_SECONDARY} weight="bold" />
+        ) : null}
       </Animated.View>
     </Pressable>
   );
 }
 
-function ActiveBadge() {
-  return (
-    <View style={styles.activeBadge} accessibilityLabel="Wallet active">
-      <View style={styles.activeDot} />
-      <Text style={styles.activeText}>Active</Text>
-    </View>
-  );
-}
-
-function BalanceDisplay({
+function BalanceBlock({
   hidden,
   showSkeleton,
   amountLabel,
+  size,
+  onToggleHidden,
 }: {
   hidden: boolean;
   showSkeleton: boolean;
   amountLabel: string;
+  size: 'hero' | 'pass';
+  onToggleHidden: () => void;
 }) {
-  if (showSkeleton) {
-    return <Skeleton height={40} width="70%" borderRadius={8} />;
-  }
-
-  if (hidden) {
-    return (
-      <Animated.View entering={FadeIn.duration(MOTION_MS)} exiting={FadeOut.duration(MOTION_MS)} style={styles.balanceVisible}>
-        <Text style={styles.currencySymbol}>₦</Text>
-        <Text style={styles.balanceHidden}>••••••</Text>
-      </Animated.View>
-    );
-  }
+  const amountStyle = size === 'hero' ? styles.amountHero : styles.amountPass;
+  const symbolStyle = size === 'hero' ? styles.symbolHero : styles.symbolPass;
+  const hiddenStyle = size === 'hero' ? styles.hiddenHero : styles.hiddenPass;
 
   return (
-    <Animated.View entering={FadeIn.duration(MOTION_MS)} exiting={FadeOut.duration(MOTION_MS)} style={styles.balanceVisible}>
-      <Text style={styles.currencySymbol}>₦</Text>
-      <Text
-        style={styles.balanceAmount}
-        numberOfLines={1}
-        adjustsFontSizeToFit
-        minimumFontScale={0.55}
+    <View style={styles.balanceRow}>
+      {showSkeleton ? (
+        <Skeleton height={size === 'hero' ? 56 : 44} width="72%" borderRadius={8} />
+      ) : (
+        <View style={styles.balanceVisible}>
+          <Text style={symbolStyle}>₦</Text>
+          <Text
+            style={hidden ? hiddenStyle : amountStyle}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.5}
+          >
+            {hidden ? '••••••' : amountLabel}
+          </Text>
+        </View>
+      )}
+      <Pressable
+        onPress={() => {
+          void Haptics.selectionAsync();
+          onToggleHidden();
+        }}
+        hitSlop={12}
+        style={styles.eyeBtn}
+        accessibilityRole="button"
+        accessibilityLabel={hidden ? 'Show balance' : 'Hide balance'}
       >
-        {amountLabel}
-      </Text>
-    </Animated.View>
+        {hidden ? (
+          <EyeSlash size={18} color={ESO_PAY_TEXT_SECONDARY} weight="regular" />
+        ) : (
+          <Eye size={18} color={ESO_PAY_TEXT_SECONDARY} weight="regular" />
+        )}
+      </Pressable>
+    </View>
   );
 }
 
@@ -135,13 +143,12 @@ export const MonnifyWalletCard = memo(function MonnifyWalletCard({
   balanceKobo,
   loading = false,
   stableDisplay = false,
+  variant = 'pass',
   onFundPress,
   onManagePress,
 }: Props) {
-  const reduceMotion = useReducedMotion() ?? false;
   const [hidden, setHidden] = useState(false);
-  const cardLift = useSharedValue(reduceMotion ? 1 : 0.98);
-  const cardOpacity = useSharedValue(reduceMotion ? 1 : 0);
+  const isHero = variant === 'hero';
 
   const displayKobo = stableDisplay ? balanceKobo : resolveHomeWalletKobo(balanceKobo);
   const amountLabel = useMemo(
@@ -149,21 +156,6 @@ export const MonnifyWalletCard = memo(function MonnifyWalletCard({
     [displayKobo],
   );
   const showSkeleton = loading && balanceKobo <= 0;
-
-  useEffect(() => {
-    if (reduceMotion) {
-      cardLift.value = 1;
-      cardOpacity.value = 1;
-      return;
-    }
-    cardOpacity.value = withTiming(1, { duration: MOTION_MS });
-    cardLift.value = withSpring(1, SPRING);
-  }, [cardLift, cardOpacity, reduceMotion]);
-
-  const cardAnimStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: cardLift.value }],
-    opacity: cardOpacity.value,
-  }));
 
   if (MONNIFY_WALLET_CARD_DEBUG) {
     return (
@@ -173,159 +165,119 @@ export const MonnifyWalletCard = memo(function MonnifyWalletCard({
     );
   }
 
-  return (
-    <Animated.View style={[styles.outer, cardAnimStyle]}>
-      <View style={styles.ambientGlow} pointerEvents="none" />
-      <View style={styles.card}>
-        <Pressable
-          onPress={onManagePress}
-          disabled={!onManagePress}
-          style={styles.topRow}
-          accessibilityRole={onManagePress ? 'button' : undefined}
-          accessibilityLabel={onManagePress ? 'Open wallet details' : undefined}
-        >
-          <Text style={styles.walletLabel}>Eso Pay Wallet</Text>
-          <ActiveBadge />
-        </Pressable>
-
-        <View style={styles.balanceBlock}>
-          <Text style={styles.balanceCaption}>Available balance</Text>
-          <View style={styles.balanceRow}>
-            <BalanceDisplay hidden={hidden} showSkeleton={showSkeleton} amountLabel={amountLabel} />
-            <Pressable
-              onPress={() => {
-                void Haptics.selectionAsync();
-                setHidden((v) => !v);
-              }}
-              hitSlop={10}
-              style={styles.eyeBtn}
-              accessibilityRole="button"
-              accessibilityLabel={hidden ? 'Show balance' : 'Hide balance'}
-            >
-              {hidden ? (
-                <EyeSlash size={14} color={ESO_PAY_GOLD} weight="regular" />
-              ) : (
-                <Eye size={14} color={ESO_PAY_GOLD} weight="regular" />
-              )}
-            </Pressable>
-          </View>
+  if (isHero) {
+    return (
+      <View style={styles.heroRoot}>
+        <Text style={styles.heroCaption}>Main · NGN</Text>
+        <BalanceBlock
+          hidden={hidden}
+          showSkeleton={showSkeleton}
+          amountLabel={amountLabel}
+          size="hero"
+          onToggleHidden={() => setHidden((v) => !v)}
+        />
+        <View style={styles.heroActions}>
+          <SoftCta label="Add money" onPress={onFundPress} primary icon="plus" />
+          <SoftCta label="Details" onPress={onManagePress} icon="chevron" />
         </View>
-
-        <AddFundsButton onPress={onFundPress} />
       </View>
-    </Animated.View>
+    );
+  }
+
+  return (
+    <View style={styles.passOuter}>
+      <View style={styles.passCard}>
+        <View style={styles.passTop}>
+          <Text style={styles.passBrand}>Eso Pay</Text>
+          <Text style={styles.passCaptionInline}>NGN</Text>
+        </View>
+        <View style={styles.passBalance}>
+          <Text style={styles.passCaption}>Available balance</Text>
+          <BalanceBlock
+            hidden={hidden}
+            showSkeleton={showSkeleton}
+            amountLabel={amountLabel}
+            size="pass"
+            onToggleHidden={() => setHidden((v) => !v)}
+          />
+        </View>
+        {onFundPress ? (
+          <View style={styles.passActions}>
+            <SoftCta label="Add money" onPress={onFundPress} primary icon="plus" />
+            {onManagePress ? <SoftCta label="Details" onPress={onManagePress} /> : null}
+          </View>
+        ) : null}
+      </View>
+    </View>
   );
 });
 
-const CARD_RADIUS = 24;
-/** Uniform vertical rhythm between wallet title, balance block, and CTA. */
-const CARD_SECTION_GAP = 10;
-
 const styles = StyleSheet.create({
-  outer: {
+  heroRoot: {
     width: '100%',
-    alignSelf: 'stretch',
-    position: 'relative',
+    gap: 18,
+    paddingTop: 4,
+    paddingBottom: 4,
   },
-  ambientGlow: {
-    position: 'absolute',
-    top: grid.sm,
-    left: grid.md,
-    right: grid.md,
-    bottom: 0,
-    borderRadius: CARD_RADIUS + 4,
-    backgroundColor: ESO_PAY_GOLD_AMBIENT,
-  },
-  card: {
-    width: '100%',
-    borderRadius: CARD_RADIUS,
-    borderWidth: 1,
-    borderColor: 'rgba(211, 153, 26, 0.14)',
-    backgroundColor: HOME_WALLET_SURFACE,
-    paddingHorizontal: grid.md,
-    paddingVertical: 8,
-    gap: CARD_SECTION_GAP,
-    ...WALLET_CARD_SHADOW,
-  },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: grid.xs,
-  },
-  walletLabel: {
+  heroCaption: {
     fontFamily: inter.medium,
-    fontSize: 11,
-    letterSpacing: 1.8,
-    fontWeight: '500',
-    textTransform: 'uppercase',
+    fontSize: 13,
+    lineHeight: 18,
     color: ESO_PAY_TEXT_SECONDARY,
-  },
-  activeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: 999,
-    backgroundColor: 'rgba(211, 153, 26, 0.07)',
-  },
-  activeDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: ESO_PAY_GOLD,
-  },
-  activeText: {
-    fontFamily: inter.medium,
-    fontSize: 10,
-    letterSpacing: 0.6,
-    fontWeight: '500',
-    color: ESO_PAY_GOLD,
-  },
-  balanceBlock: {
-    gap: 4,
-    paddingVertical: 0,
-  },
-  balanceCaption: {
-    fontFamily: inter.medium,
-    fontSize: 11,
-    letterSpacing: 0.2,
-    fontWeight: '500',
-    color: 'rgba(245, 240, 232, 0.62)',
+    letterSpacing: 0.1,
   },
   balanceRow: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     justifyContent: 'space-between',
     gap: grid.sm,
-    minHeight: 32,
+    minHeight: 52,
   },
   balanceVisible: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 4,
+    alignItems: 'flex-start',
+    gap: 6,
     flex: 1,
     minWidth: 0,
   },
-  currencySymbol: {
-    fontFamily: inter.bold,
-    fontSize: 22,
-    lineHeight: 28,
-    marginBottom: 2,
-    fontWeight: '700',
-    color: ESO_PAY_GOLD,
+  symbolHero: {
+    fontFamily: inter.medium,
+    fontSize: 28,
+    lineHeight: 40,
+    marginTop: 10,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
-  balanceAmount: {
+  amountHero: {
     fontFamily: inter.bold,
-    fontSize: 40,
-    lineHeight: 44,
-    letterSpacing: -1.2,
+    fontSize: 52,
+    lineHeight: 58,
+    letterSpacing: -2,
     fontWeight: '700',
     color: ESO_PAY_TEXT_PRIMARY,
     flexShrink: 1,
   },
-  balanceHidden: {
+  hiddenHero: {
+    fontFamily: inter.bold,
+    fontSize: 40,
+    lineHeight: 52,
+    letterSpacing: 6,
+    color: ESO_PAY_TEXT_SECONDARY,
+  },
+  symbolPass: {
+    fontFamily: inter.medium,
+    fontSize: 20,
+    lineHeight: 28,
+    marginTop: 8,
+    color: ESO_PAY_TEXT_SECONDARY,
+  },
+  amountPass: {
+    fontFamily: inter.bold,
+    ...ds.type.amount,
+    fontWeight: '700',
+    color: ESO_PAY_TEXT_PRIMARY,
+    flexShrink: 1,
+  },
+  hiddenPass: {
     fontFamily: inter.bold,
     fontSize: 28,
     lineHeight: 36,
@@ -333,50 +285,101 @@ const styles = StyleSheet.create({
     color: ESO_PAY_TEXT_SECONDARY,
   },
   eyeBtn: {
-    width: 32,
-    height: 32,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
-    borderWidth: 1,
-    borderColor: 'rgba(211, 153, 26, 0.06)',
-    marginBottom: 6,
+    borderRadius: 20,
   },
-  addFundsOuter: {
-    width: '100%',
+  heroActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 2,
   },
-  addFundsInner: {
-    width: '100%',
+  softCtaHit: {
+    flexGrow: 0,
+  },
+  softCta: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    borderRadius: 16,
-    backgroundColor: GOLD_CTA,
-    minHeight: 36,
-    paddingVertical: 8,
-    paddingHorizontal: grid.md,
+    borderRadius: 999,
+    paddingVertical: 11,
+    paddingHorizontal: 18,
+    minHeight: 42,
   },
-  addFundsText: {
-    fontFamily: inter.bold,
-    fontSize: 15,
-    fontWeight: '700',
-    letterSpacing: 0.25,
+  softCtaPrimary: {
+    backgroundColor: ESO_PAY_TEXT_PRIMARY,
+  },
+  softCtaSecondary: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  softCtaText: {
+    fontFamily: inter.semibold,
+    fontSize: 14,
+    fontWeight: '600',
+    color: ESO_PAY_TEXT_PRIMARY,
+  },
+  softCtaTextPrimary: {
     color: ESO_PAY_BG,
   },
-  addFundsDisabled: {
-    opacity: 0.45,
+  ctaDisabled: {
+    opacity: 0.4,
+  },
+  passOuter: {
+    width: '100%',
+    alignSelf: 'stretch',
+  },
+  passCard: {
+    width: '100%',
+    borderRadius: 20,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: ESO_PAY_SURFACE_ELEVATED,
+    paddingHorizontal: 22,
+    paddingTop: 20,
+    paddingBottom: 18,
+    gap: 22,
+    overflow: 'hidden',
+    minHeight: 168,
+  },
+  passTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  passBrand: {
+    fontFamily: inter.semibold,
+    fontSize: 15,
+    letterSpacing: 0.2,
+    color: ESO_PAY_TEXT_PRIMARY,
+  },
+  passCaptionInline: {
+    fontFamily: inter.medium,
+    fontSize: 12,
+    color: ESO_PAY_TEXT_SECONDARY,
+    letterSpacing: 0.4,
+  },
+  passBalance: {
+    gap: 8,
+  },
+  passCaption: {
+    fontFamily: inter.medium,
+    fontSize: 12,
+    color: ESO_PAY_TEXT_SECONDARY,
+  },
+  passActions: {
+    flexDirection: 'row',
+    gap: 10,
   },
   debugBox: {
     width: '100%',
     minHeight: 168,
     backgroundColor: 'red',
-    borderWidth: 5,
-    borderColor: 'yellow',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: grid.md,
   },
   debugText: {
     fontFamily: inter.bold,

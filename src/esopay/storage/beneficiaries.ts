@@ -73,3 +73,12 @@ export async function removeBeneficiary(
   await saveBeneficiaries(companyId, next);
   return next;
 }
+
+export async function clearAllBeneficiaries(companyId: string): Promise<void> {
+  if (!companyId) return;
+  try {
+    await AsyncStorage.removeItem(storageKey(companyId));
+  } catch {
+    // Best-effort clear.
+  }
+}

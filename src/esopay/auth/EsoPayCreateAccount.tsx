@@ -38,6 +38,7 @@ import { esoPaySupabase } from '@/esopay/lib/supabasePay';
 import { completeEsoPayEmailSignIn } from '@/esopay/auth/syncEsoPaySession';
 import { AUTH_INPUT_BORDER } from '@/esopay/auth/esoPaySignInTheme';
 import { ds } from '@/esopay/theme/designSystem';
+import { ESO_PAY_TEXT_SECONDARY } from '@/esopay/theme/brandColors';
 import { GOLD } from '@/theme/colors';
 
 type Country = {
@@ -380,7 +381,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   stepText: {
-    color: 'rgba(255,255,255,0.5)',
+    color: ESO_PAY_TEXT_SECONDARY,
     fontSize: 13,
   },
   progressBar: {
@@ -423,12 +424,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   subtext: {
-    color: 'rgba(255,255,255,0.5)',
+    color: ESO_PAY_TEXT_SECONDARY,
     fontSize: 13,
     marginBottom: 16,
   },
   fieldLabel: {
-    color: 'rgba(255,255,255,0.5)',
+    color: ESO_PAY_TEXT_SECONDARY,
     fontSize: 12,
     marginBottom: 6,
   },

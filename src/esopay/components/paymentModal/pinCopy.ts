@@ -12,7 +12,7 @@ export function getPaymentPinSubtitle(
   providerName: string,
 ): string {
   if (mode === 'create') {
-    return 'Secure wallet debits with your 4-digit PIN.';
+    return 'Secure wallet debits with your 6-digit PIN.';
   }
   if (mode === 'confirm') {
     return 'Re-enter your PIN to confirm.';

@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Pressable, StyleSheet, Text, type ViewStyle } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { SECONDARY_LINK_COLOR } from '@/esopay/theme/brandColors';
+import { ESO_PAY_TEXT_PRIMARY, ESO_PAY_TEXT_SECONDARY } from '@/esopay/theme/brandColors';
 import { fonts } from '@/esopay/theme/typography';
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
   style?: ViewStyle;
 };
 
-/** Gold secondary nav action — "See all", "View all", "open history", etc. */
+/** Quiet text link — "See all", "View all", etc. */
 export const EsoPayOutlinePillButton = memo(function EsoPayOutlinePillButton({
   label,
   onPress,
@@ -24,33 +24,32 @@ export const EsoPayOutlinePillButton = memo(function EsoPayOutlinePillButton({
         void Haptics.selectionAsync();
         onPress();
       }}
-      style={({ pressed }) => [styles.pill, pressed && styles.pillPressed, style]}
+      style={({ pressed }) => [styles.hit, pressed && styles.pressed, style]}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
     >
-      <Text style={styles.label}>{label}</Text>
+      {({ pressed }) => (
+        <Text style={[styles.label, pressed && styles.labelPressed]}>{label}</Text>
+      )}
     </Pressable>
   );
 });
 
 const styles = StyleSheet.create({
-  pill: {
-    paddingVertical: 6,
-    paddingHorizontal: 14,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(212, 160, 23, 0.55)',
-    backgroundColor: 'rgba(212, 160, 23, 0.08)',
+  hit: {
+    paddingVertical: 4,
+    paddingHorizontal: 2,
   },
-  pillPressed: {
-    opacity: 0.88,
-    backgroundColor: 'rgba(212, 160, 23, 0.14)',
-    transform: [{ scale: 0.97 }],
+  pressed: {
+    opacity: 0.9,
   },
   label: {
     fontFamily: fonts.uiMedium,
-    fontSize: 12,
-    letterSpacing: 0.35,
-    color: SECONDARY_LINK_COLOR,
+    fontSize: 13,
+    letterSpacing: 0.2,
+    color: ESO_PAY_TEXT_SECONDARY,
+  },
+  labelPressed: {
+    color: ESO_PAY_TEXT_PRIMARY,
   },
 });

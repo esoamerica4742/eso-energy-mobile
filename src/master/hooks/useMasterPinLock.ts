@@ -10,7 +10,7 @@ export function useMasterPinLock() {
     const onChange = (next: AppStateStatus) => {
       if (next !== 'background' && next !== 'inactive') return;
       const hasSession =
-        Boolean(useAuthStore.getState().session) &&
+        Boolean(useAuthStore.getState().session) ||
         useEsoPayAuthStore.getState().signedIn;
       if (!hasSession) return;
       useMasterSessionStore.getState().setPinUnlocked(false);

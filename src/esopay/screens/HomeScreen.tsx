@@ -1,18 +1,15 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { EsoPayHomeHero } from '@/esopay/components/EsoPayHomeHero';
-import { EsoPayPinSetupCard } from '@/esopay/components/EsoPayPinSetupCard';
-import { EsoPayTransactionPinModal } from '@/esopay/components/EsoPayTransactionPinModal';
+import { EsoPayHomeDashboard } from '@/esopay/components/EsoPayHomeDashboard';
 import { EsoPayInlineError } from '@/esopay/components/EsoPayInlineError';
-import { MonnifyWalletCard } from '@/esopay/components/MonnifyWalletCard';
-import { useTransactionPin } from '@/esopay/hooks/useTransactionPin';
-import { useEnodeToast } from '@/providers/EnodeToastProvider';
 import { useHomeWalletBalance } from '@/esopay/hooks/useHomeWalletBalance';
+import { EsoPayHomePayAgain } from '@/esopay/components/EsoPayHomePayAgain';
+import { EsoPayHomePredictivePay } from '@/esopay/components/EsoPayHomePredictivePay';
 import { EsoPayRecentBillers } from '@/esopay/components/EsoPayRecentBillers';
 import { HomeRecentTransactions } from '@/esopay/components/HomeRecentTransactions';
-import { PayAgainSection } from '@/esopay/components/PayAgainSection';
+import { EsoPayCashbackGlance } from '@/esopay/components/EsoPayCashbackGlance';
 import { EsoPayScreenShell } from '@/esopay/components/EsoPayScreenShell';
 import { useEsoPayAuthStore } from '@/esopay/auth/store';
 import { useEsoPayScrollPadding } from '@/esopay/hooks/useEsoPayScrollPadding';
@@ -35,19 +32,10 @@ function formatFirstName(raw: string): string {
 }
 
 export function HomeScreen() {
-  const scrollPad = useEsoPayScrollPadding({ topExtra: 0 });
+  const scrollPad = useEsoPayScrollPadding({ topExtra: 16, bottomExtra: 16 });
   const router = useRouter();
-  const toast = useEnodeToast();
   const { balanceKobo, walletQuery } = useHomeWalletBalance();
   const user = useEsoPayAuthStore((s) => s.user);
-  const {
-    pinConfigured,
-    isChecking: pinChecking,
-    configurePin,
-    verifyPin,
-    userIdReady,
-  } = useTransactionPin();
-  const [pinOpen, setPinOpen] = useState(false);
 
   const firstName = useMemo(() => {
     const meta = user?.user_metadata as { full_name?: string; name?: string } | undefined;
@@ -85,33 +73,33 @@ export function HomeScreen() {
     <EsoPayScreenShell>
       <View style={styles.container}>
         <View style={[styles.heroBlock, headerPad]}>
-          <EsoPayHomeHero greeting={greeting} />
+            <EsoPayHomeDashboard
+              greeting={greeting}
+              balanceKobo={balanceKobo}
+              loading={walletQuery.isLoading && walletQuery.data == null}
+              onFundPress={() => navigate(esopayFundWalletHref())}
+              onManagePress={() => navigate(ESOPAY_WALLET_HREF)}
+            />
 
-          <View style={styles.walletAnchor}>
-            {walletQuery.isError && walletQuery.data == null ? (
-              <EsoPayInlineError
-                title="Wallet unavailable"
-                message="We could not load your balance. Check your connection and try again."
-                onRetry={() => void walletQuery.refetch()}
-              />
-            ) : (
-              <MonnifyWalletCard
-                balanceKobo={balanceKobo}
-                loading={walletQuery.isLoading && walletQuery.data == null}
-                stableDisplay
-                onFundPress={() => navigate(esopayFundWalletHref())}
-                onManagePress={() => navigate(ESOPAY_WALLET_HREF)}
-              />
-            )}
-            {walletQuery.isError && walletQuery.data != null ? (
-              <EsoPayInlineError
-                title="Balance may be outdated"
-                message="We could not refresh your wallet. The amount shown may not be current."
-                onRetry={() => void walletQuery.refetch()}
-                retryLabel="Refresh balance"
-              />
-            ) : null}
-          </View>
+            <View style={styles.walletMeta}>
+              <EsoPayCashbackGlance />
+              {walletQuery.isError && walletQuery.data == null ? (
+                <EsoPayInlineError
+                  title="Wallet unavailable"
+                  message="We could not load your balance. Check your connection and try again."
+                  onRetry={() => void walletQuery.refetch()}
+                />
+              ) : null}
+
+              {walletQuery.isError && walletQuery.data != null ? (
+                <EsoPayInlineError
+                  title="Balance may be outdated"
+                  message="We could not refresh your wallet. The amount shown may not be current."
+                  onRetry={() => void walletQuery.refetch()}
+                  retryLabel="Refresh balance"
+                />
+              ) : null}
+            </View>
         </View>
 
         <ScrollView
@@ -120,36 +108,15 @@ export function HomeScreen() {
           showsVerticalScrollIndicator={false}
           alwaysBounceVertical={false}
         >
-          <EsoPayPinSetupCard
-            pinConfigured={pinConfigured}
-            loading={pinChecking}
-            onPress={() => {
-              if (!userIdReady) {
-                toast.show('Still loading your account — try again in a moment', 'info');
-                return;
-              }
-              setPinOpen(true);
-            }}
-          />
+          <EsoPayHomePredictivePay />
 
           <EsoPayRecentBillers onSeeAll={() => navigate(ESOPAY_BILLS_HREF)} />
 
-          <HomeRecentTransactions onViewAll={() => navigate(ESOPAY_HISTORY_HREF)} />
+          <EsoPayHomePayAgain />
 
-          <PayAgainSection />
+          <HomeRecentTransactions onViewAll={() => navigate(ESOPAY_HISTORY_HREF)} />
         </ScrollView>
       </View>
-
-      <EsoPayTransactionPinModal
-        open={pinOpen}
-        onOpenChange={setPinOpen}
-        pinConfigured={pinConfigured}
-        verifyCurrentPin={async (pin) => (await verifyPin(pin)).ok}
-        onSave={async (pin, currentPin) => {
-          await configurePin(pin, currentPin);
-          toast.show('Transaction PIN saved — use it when you pay bills', 'success');
-        }}
-      />
     </EsoPayScreenShell>
   );
 }
@@ -163,17 +130,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: grid.sm,
     marginBottom: 0,
   },
-  walletAnchor: {
-    marginTop: 18,
-    marginBottom: 30,
+  walletMeta: {
+    marginTop: grid.xs,
+    marginBottom: grid.md,
+    gap: grid.xs,
   },
   scroll: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: grid.sm,
-    gap: grid.sm,
-    paddingTop: grid.xs,
+    gap: grid.md,
+    paddingTop: grid.md,
   },
   debug: {
     flex: 1,

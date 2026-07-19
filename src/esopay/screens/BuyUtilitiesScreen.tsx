@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 
 import { useRouter } from 'expo-router';
+import { useEsoPayBack } from '@/esopay/navigation/useEsoPayBack';
 
 import { ChevronRight, Zap } from 'lucide-react-native';
 
@@ -95,6 +96,7 @@ function ProviderRow({
 export function BuyUtilitiesScreen() {
 
   const router = useRouter();
+  const goBack = useEsoPayBack();
 
   const { openPayment } = usePaymentModal();
 
@@ -140,7 +142,7 @@ export function BuyUtilitiesScreen() {
 
       <EsoPayScreenShell>
 
-        <EsoPayHeader title="Buy Utilities" canGoBack onBack={() => router.back()} />
+        <EsoPayHeader title="Buy Utilities" canGoBack onBack={goBack} />
 
         <View style={styles.loader}>
 
@@ -160,7 +162,7 @@ export function BuyUtilitiesScreen() {
 
     <EsoPayScreenShell>
 
-      <EsoPayHeader title="Buy Utilities" canGoBack onBack={() => router.back()} />
+      <EsoPayHeader title="Buy Utilities" canGoBack onBack={goBack} />
 
       <FlatList
 

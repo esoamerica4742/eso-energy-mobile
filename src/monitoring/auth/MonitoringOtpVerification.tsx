@@ -20,10 +20,10 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { establishMonitoringSession, isMonitoringProfileComplete } from '@/lib/authProfile';
+import { isMonitoringProfileComplete } from '@/lib/authProfile';
 import { sendEmailOtp, verifyEmailOtp } from '@/lib/authOtp';
 import { paramString } from '@/lib/authRouteParams';
-import { signOutEsoPay } from '@/esopay/auth/signOutEsoPay';
+import { establishUnifiedSession } from '@/master/unifiedSession';
 import { setLastProduct } from '@/lib/navigation/lastProduct';
 import { setOnboardingComplete } from '@/lib/onboardingStorage';
 import { MONITORING_HOME_ROUTE } from '@/lib/navigation/productRoutes';
@@ -32,9 +32,9 @@ import { inter } from '@/theme/fonts';
 const EMPTY_OTP = ['', '', '', '', '', ''];
 
 const OTP_THEME = {
-  bg: '#0A0F1E',
-  card: '#1A2035',
-  gold: '#F5A623',
+  bg: '#000000',
+  card: '#1C1C1E',
+  teal: '#FFFFFF',
   muted: 'rgba(255,255,255,0.4)',
   helper: 'rgba(255,255,255,0.35)',
   subtext: 'rgba(255,255,255,0.55)',
@@ -147,10 +147,9 @@ export default function MonitoringOtpVerification() {
     await new Promise((r) => setTimeout(r, 400));
 
     await setLastProduct('monitoring');
-    await signOutEsoPay();
 
     try {
-      await establishMonitoringSession(result.session);
+      await establishUnifiedSession(result.session);
     } catch (syncErr) {
       setErrorMsg(
         syncErr instanceof Error ? syncErr.message : 'Could not start your monitoring session.',
@@ -221,7 +220,7 @@ export default function MonitoringOtpVerification() {
               accessibilityRole="button"
               accessibilityLabel="Go back"
             >
-              <ArrowLeft color={OTP_THEME.gold} size={22} />
+              <ArrowLeft color={OTP_THEME.teal} size={22} />
             </TouchableOpacity>
             <Text style={styles.stepText}>2 of 3</Text>
           </View>
@@ -237,7 +236,7 @@ export default function MonitoringOtpVerification() {
           </Text>
 
           <View style={styles.emailPill}>
-            <Mail color={OTP_THEME.gold} stroke={OTP_THEME.gold} size={16} />
+            <Mail color={OTP_THEME.teal} stroke={OTP_THEME.teal} size={16} />
             <Text style={styles.emailText}>{email}</Text>
           </View>
 
@@ -304,7 +303,7 @@ export default function MonitoringOtpVerification() {
           <TouchableOpacity
             style={[
               styles.verifyButton,
-              { backgroundColor: isComplete ? OTP_THEME.gold : OTP_THEME.disabledBg },
+              { backgroundColor: isComplete ? OTP_THEME.teal : OTP_THEME.disabledBg },
             ]}
             onPress={() => void handleVerify()}
             disabled={!isComplete || isLoading}
@@ -362,7 +361,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   stepText: {
-    color: OTP_THEME.gold,
+    color: OTP_THEME.teal,
     fontSize: 13,
     fontFamily: inter.medium,
   },
@@ -375,7 +374,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 3,
     borderRadius: 2,
-    backgroundColor: OTP_THEME.gold,
+    backgroundColor: OTP_THEME.teal,
   },
   progressUnfilled: {
     flex: 1,
@@ -407,7 +406,7 @@ const styles = StyleSheet.create({
     fontFamily: inter.medium,
   },
   wrongEmailLink: {
-    color: OTP_THEME.gold,
+    color: OTP_THEME.teal,
     fontSize: 14,
     fontFamily: inter.semibold,
     textDecorationLine: 'underline',
@@ -449,7 +448,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   otpBoxActive: {
-    borderColor: OTP_THEME.gold,
+    borderColor: OTP_THEME.teal,
   },
   otpBoxFilled: {
     borderColor: 'rgba(255,255,255,0.2)',
@@ -508,7 +507,7 @@ const styles = StyleSheet.create({
     fontFamily: inter.regular,
   },
   resendLink: {
-    color: OTP_THEME.gold,
+    color: OTP_THEME.teal,
     fontSize: 14,
     fontFamily: inter.semibold,
     textDecorationLine: 'underline',

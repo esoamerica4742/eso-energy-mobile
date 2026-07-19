@@ -1,6 +1,6 @@
 import { toEsoPayApiError } from '@/esopay/api/client';
 import { esoPayApi } from '@/esopay/api/client';
-import { signOutEsoPay } from '@/esopay/auth/signOutEsoPay';
+import { signOutUnified } from '@/master/signOutUnified';
 import { clearTransactionPin } from '@/esopay/storage/transactionPin';
 import { clearAllBeneficiaries } from '@/esopay/storage/beneficiaries';
 import { clearNotificationPreferences } from '@/esopay/storage/notificationPreferences';
@@ -29,7 +29,7 @@ export async function deleteEsoPayAccount(userId: string, companyId: string): Pr
   if (userId) await clearTransactionPin(userId);
   if (companyId) await clearAllBeneficiaries(companyId);
   await clearNotificationPreferences(userId);
-  await signOutEsoPay();
+  await signOutUnified();
 
   return { ok: true, serverDeleted };
 }

@@ -79,7 +79,7 @@ export function OperatorPinModal({ open, onOpenChange, pinConfigured, onSave }: 
 
   const subtitle =
     mode === 'create'
-      ? '4-digit PIN for sensitive actions in monitoring.'
+      ? '6-digit PIN for sensitive actions in monitoring.'
       : 'Enter the same PIN again to confirm.';
 
   return (

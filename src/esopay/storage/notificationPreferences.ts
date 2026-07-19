@@ -39,3 +39,12 @@ export async function setNotificationPreferences(
   if (!userId) return;
   await AsyncStorage.setItem(storageKey(userId), JSON.stringify(prefs));
 }
+
+export async function clearNotificationPreferences(userId: string): Promise<void> {
+  if (!userId) return;
+  try {
+    await AsyncStorage.removeItem(storageKey(userId));
+  } catch {
+    // Best-effort clear.
+  }
+}

@@ -23,25 +23,14 @@ export const BalanceDisplay = memo(function BalanceDisplay({
   loading = false,
   style,
 }: Props) {
-  const amountColor =
-    variant === 'warning'
-      ? ds.color.error
-      : variant === 'emphasis'
-        ? ds.color.gold
-        : ds.color.textPrimary;
+  const amountColor = variant === 'warning' ? ds.color.error : ds.color.textPrimary;
 
   return (
     <View style={[styles.shell, style]}>
-      <View
-        style={[
-          styles.card,
-          variant === 'warning' && styles.cardWarning,
-          variant === 'emphasis' && styles.cardEmphasis,
-        ]}
-      >
+      <View style={[styles.card, variant === 'warning' && styles.cardWarning]}>
         <Text style={styles.label}>{label}</Text>
         {loading ? (
-          <ActivityIndicator color={ds.color.gold} style={styles.loader} />
+          <ActivityIndicator color={ds.color.textSecondary} style={styles.loader} />
         ) : (
           <Text style={[styles.amount, { color: amountColor }]}>
             {formatCurrency(amountKobo, currency)}
@@ -58,10 +47,10 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   card: {
-    borderRadius: ds.radius.input,
-    borderWidth: 1,
-    borderColor: ds.color.border,
-    backgroundColor: ds.color.surface1,
+    borderRadius: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     paddingHorizontal: ds.space.screen,
     paddingVertical: ds.space.component,
   },
@@ -69,17 +58,12 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 77, 79, 0.35)',
     backgroundColor: ds.color.errorMuted,
   },
-  cardEmphasis: {
-    borderColor: ds.color.goldMuted35,
-    backgroundColor: ds.color.goldMuted04,
-  },
   label: {
     fontFamily: ds.font.label,
     fontSize: ds.type.caption.fontSize,
     lineHeight: ds.type.caption.lineHeight,
-    letterSpacing: 0.6,
+    letterSpacing: 0.2,
     color: ds.color.textSecondary,
-    textTransform: 'uppercase',
     marginBottom: 4,
   },
   loader: {

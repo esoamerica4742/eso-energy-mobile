@@ -23,10 +23,10 @@ export function getPaymentErrorMessage(error: unknown): string {
     return 'Wallet balance is too low. Add funds to your wallet, then try again.';
   }
   if (apiError.code === 'TRANSACTION_PIN_NOT_CONFIGURED') {
-    return 'Set your transaction PIN before paying. Open Settings or Home to set it up.';
+    return 'Enter the same PIN you use to unlock Eso Energy, then try again.';
   }
   if (apiError.code === 'TRANSACTION_PIN_INVALID') {
-    return 'Incorrect transaction PIN. Try again.';
+    return 'Incorrect PIN. Use the same PIN you unlock the app with.';
   }
   if (apiError.code === 'TRANSACTION_PIN_LOCKED') {
     return 'Too many incorrect PIN attempts. Try again later.';
@@ -39,6 +39,12 @@ export function getPaymentErrorMessage(error: unknown): string {
   }
   if (apiError.code === 'CURRENT_PIN_INVALID') {
     return 'Current transaction PIN is incorrect.';
+  }
+  if (
+    apiError.code === 'UNKNOWN_PROVIDER' ||
+    /unknown provider/i.test(apiError.message)
+  ) {
+    return 'This biller is no longer available. Pull to refresh providers, then try again.';
   }
   return apiError.message;
 }

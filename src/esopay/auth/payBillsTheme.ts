@@ -1,24 +1,23 @@
-import { GOLD } from '@/theme/colors';
 import { inter } from '@/theme/fonts';
 
-/** ESO Pay Bills auth — design tokens (private banking / monochrome) */
+/** ESO Pay Bills auth — quiet black / white dialect */
 export const PayBills = {
-  bgPrimary: '#080808',
-  bgSurface: '#111111',
-  bgInput: '#161616',
-  borderDefault: '#1E1E1E',
-  borderInput: '#2A2A2A',
-  borderFocus: '#C9A84C',
-  gold: '#C9A84C',
-  gold1: '#F0D080',
-  gold2: '#C9A84C',
+  bgPrimary: '#000000',
+  bgSurface: '#1C1C1E',
+  bgInput: '#1C1C1E',
+  borderDefault: '#2C2C2E',
+  borderInput: '#3A3A3C',
+  borderFocus: 'rgba(255,255,255,0.55)',
+  gold: '#FFFFFF',
+  gold1: '#FFFFFF',
+  gold2: '#FFFFFF',
   textPrimary: '#FFFFFF',
-  textSecondary: '#666666',
-  textMuted: '#333333',
-  textHelper: '#444444',
-  textBack: GOLD,
-  btnText: '#FFFFFF',
-  error: '#E53E3E',
+  textSecondary: 'rgba(255,255,255,0.55)',
+  textMuted: 'rgba(255,255,255,0.34)',
+  textHelper: 'rgba(255,255,255,0.45)',
+  textBack: '#FFFFFF',
+  btnText: '#000000',
+  error: '#FF6B6B',
   success: '#22C55E',
   maxWidth: 390,
 } as const;

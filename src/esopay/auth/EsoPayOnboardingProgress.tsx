@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { GOLD } from '@/theme/colors';
+import { ESO_PAY_TEXT_SECONDARY } from '@/esopay/theme/brandColors';
 
 export const ESO_PAY_ONBOARDING_TOTAL_STEPS = 4;
 
@@ -34,7 +35,7 @@ export function EsoPayOnboardingProgressBar({ step, marginBottom = 32 }: BarProp
 
 const styles = StyleSheet.create({
   stepText: {
-    color: 'rgba(255,255,255,0.5)',
+    color: ESO_PAY_TEXT_SECONDARY,
     fontSize: 13,
   },
   progressBar: {

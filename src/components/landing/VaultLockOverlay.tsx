@@ -1,52 +1,84 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Lock } from 'lucide-react-native';
-import { MotiView } from 'moti';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import { METALLIC_GOLD } from '@/tokens/design';
 
 type Props = {
   unlocked: boolean;
 };
 
-import { METALLIC_GOLD } from '@/tokens/design';
-
 const GOLD = METALLIC_GOLD;
 
 export function VaultLockOverlay({ unlocked }: Props) {
-  const [mounted, setMounted] = useState(true);
+  const opacity = useSharedValue(unlocked ? 0 : 1);
 
   useEffect(() => {
-    if (!unlocked) return;
-    const timer = setTimeout(() => setMounted(false), 450);
-    return () => clearTimeout(timer);
-  }, [unlocked]);
+    opacity.value = withTiming(unlocked ? 0 : 1, { duration: 400 });
+  }, [unlocked, opacity]);
 
-  if (!mounted) return null;
+  const animStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
 
   return (
-    <MotiView
-      from={{ opacity: 1 }}
-      animate={{ opacity: unlocked ? 0 : 1 }}
-      transition={{ type: 'spring', duration: 400 }}
+    <Animated.View
       pointerEvents={unlocked ? 'none' : 'auto'}
-      style={StyleSheet.absoluteFill}
-      className="overflow-hidden rounded-xl"
+      style={[StyleSheet.absoluteFill, animStyle, styles.root]}
     >
       <BlurView intensity={72} tint="dark" style={StyleSheet.absoluteFill} />
-      <View className="absolute inset-0 bg-black/40" />
+      <View style={styles.dim} />
 
-      <View className="flex-1 items-center justify-center px-8">
-        <View
-          className="mb-5 h-[72px] w-[72px] items-center justify-center rounded-full border"
-          style={{ borderColor: `${GOLD}99` }}
-        >
+      <View style={styles.content}>
+        <View style={styles.lockRing}>
           <Lock size={28} color={GOLD} strokeWidth={1.75} />
         </View>
-        <Text className="text-center font-mono text-[10px] uppercase leading-5 tracking-widest text-zinc-400">
+        <Text style={styles.copy}>
           ENTERPRISE ACCESS ONLY — Tap &apos;Request Access&apos; to initiate architecture
           deployment.
         </Text>
       </View>
-    </MotiView>
+    </Animated.View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    overflow: 'hidden',
+    borderRadius: 12,
+  },
+  dim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+  },
+  lockRing: {
+    marginBottom: 20,
+    height: 72,
+    width: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 36,
+    borderWidth: 1,
+    borderColor: `${GOLD}99`,
+  },
+  copy: {
+    textAlign: 'center',
+    fontFamily: 'Inter_400Regular',
+    fontSize: 10,
+    textTransform: 'uppercase',
+    lineHeight: 20,
+    letterSpacing: 2,
+    color: '#A1A1AA',
+  },
+});

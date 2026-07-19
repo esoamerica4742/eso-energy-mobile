@@ -1,7 +1,6 @@
 import { Redirect } from 'expo-router';
-import { ESOPAY_LOGIN_ROUTE } from '@/lib/navigation/productRoutes';
+import { MASTER_SIGN_IN_ROUTE } from '@/lib/navigation/productRoutes';
 
-/** Legacy phone OTP route — email OTP via /login?module=esopay is the only Eso Pay auth. */
-export default function PayAuthDeprecatedRedirect() {
-  return <Redirect href={ESOPAY_LOGIN_ROUTE} />;
+export default function PayAuthRoute() {
+  return <Redirect href={MASTER_SIGN_IN_ROUTE} />;
 }

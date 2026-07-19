@@ -29,7 +29,12 @@ function borderVariantForStatus(status?: ConnectionStatus) {
 
 function statusMeta(status: ConnectionStatus) {
   if (status === 'live') {
-    return { label: 'LIVE', accent: Colors.mint, bg: Colors.mintGlow, border: Colors.mintBorder };
+    return {
+      label: 'LIVE',
+      accent: '#FFFFFF',
+      bg: 'rgba(255,255,255,0.08)',
+      border: 'rgba(255,255,255,0.22)',
+    };
   }
   if (status === 'stale') {
     return { label: 'STALE', accent: Colors.warning, bg: Colors.warningWhisper, border: Colors.warningBorder };
@@ -55,7 +60,7 @@ function flowAccent(role: 'solar' | 'inverter' | 'grid', status: TopologyNodeDat
   if (status !== 'active') return Colors.textMuted;
   if (role === 'grid') return Colors.grid;
   if (role === 'solar') return Colors.gold;
-  return Colors.mint;
+  return '#FFFFFF';
 }
 
 function flowCellValue(node: TopologyNodeData | undefined): string {

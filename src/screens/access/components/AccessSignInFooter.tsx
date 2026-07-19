@@ -44,9 +44,9 @@ export function AccessSignInFooter({
             onPress={onSignInLast}
             accessibilityRole="button"
             accessibilityLabel={singleLabel}
-            style={({ pressed }) => [styles.btn, pressed && styles.btnPressed]}
+            style={({ pressed }) => [styles.btn, styles.btnPrimary, pressed && styles.btnPrimaryPressed]}
           >
-            <Text style={styles.btnText}>{singleLabel}</Text>
+            <Text style={styles.btnPrimaryText}>{singleLabel}</Text>
           </Pressable>
         ) : (
           <View style={styles.dualRow}>
@@ -54,9 +54,9 @@ export function AccessSignInFooter({
               onPress={onSignInEsoPay}
               accessibilityRole="button"
               accessibilityLabel="Sign in to Eso Pay"
-              style={({ pressed }) => [styles.btn, styles.btnPrimary, pressed && styles.btnPressed]}
+              style={({ pressed }) => [styles.btn, styles.btnPrimary, pressed && styles.btnPrimaryPressed]}
             >
-              <Text style={styles.btnText}>Sign in to Eso Pay</Text>
+              <Text style={styles.btnPrimaryText}>Sign in to Eso Pay</Text>
             </Pressable>
             <Pressable
               onPress={onSignInMonitoring}
@@ -92,20 +92,21 @@ const styles = StyleSheet.create({
   btn: {
     paddingVertical: 14,
     paddingHorizontal: 28,
-    borderRadius: 12,
+    borderRadius: 28,
     borderWidth: 1,
     borderColor: ACCESS_THEME.border,
-    backgroundColor: 'rgba(201,168,76,0.06)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     minWidth: 240,
     alignItems: 'center',
   },
   btnPrimary: {
     width: '100%',
     maxWidth: 320,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#FFFFFF',
   },
-  btnPressed: {
-    backgroundColor: 'rgba(201,168,76,0.12)',
-    opacity: 0.9,
+  btnPrimaryPressed: {
+    opacity: 0.88,
   },
   btnGhost: {
     paddingVertical: 10,
@@ -114,10 +115,10 @@ const styles = StyleSheet.create({
   btnGhostPressed: {
     opacity: 0.7,
   },
-  btnText: {
+  btnPrimaryText: {
     fontFamily: ACCESS_FONTS.uiBold,
     fontSize: 15,
-    color: ACCESS_THEME.gold,
+    color: '#000000',
     letterSpacing: 0.3,
   },
   btnGhostText: {

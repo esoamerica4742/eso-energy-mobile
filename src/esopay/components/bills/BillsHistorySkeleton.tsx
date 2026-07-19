@@ -1,7 +1,17 @@
 import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Skeleton } from '@/esopay/components/Skeleton';
-import { luxury } from '@/esopay/theme/luxury';
+import {
+  ESO_PAY_BG,
+  ESO_PAY_GOLD,
+  ESO_PAY_GOLD_MUTED,
+  ESO_PAY_GOLD_MUTED_06,
+  ESO_PAY_SURFACE,
+  ESO_PAY_TEXT_PRIMARY,
+  ESO_PAY_TEXT_SECONDARY,
+  HOME_CARD_BORDER,
+} from '@/esopay/theme/brandColors';
+import { ds } from '@/esopay/theme/designSystem';
 
 const ROWS = 4;
 
@@ -10,9 +20,9 @@ function SkeletonHistoryRow() {
     <View style={styles.row}>
       <Skeleton height={32} width={32} borderRadius={8} />
       <View style={styles.middle}>
-        <Skeleton height={14} width="70%" borderRadius={6} />
-        <Skeleton height={11} width="45%" borderRadius={6} style={{ marginTop: 6 }} />
-        <Skeleton height={10} width="38%" borderRadius={6} style={{ marginTop: 6 }} />
+        <Skeleton height={14} width='70%' borderRadius={6} />
+        <Skeleton height={11} width='45%' borderRadius={6} style={{ marginTop: 6 }} />
+        <Skeleton height={10} width='38%' borderRadius={6} style={{ marginTop: 6 }} />
       </View>
       <View style={styles.right}>
         <Skeleton height={14} width={56} borderRadius={6} />

@@ -1,12 +1,12 @@
-/** Eso Inverter Monitoring sign-in — teal accent palette. */
+/** Eso Inverter Monitoring sign-in — quiet black/white chrome. */
 export const MONITORING_AUTH = {
-  bg: '#0D1117',
-  card: '#141B24',
-  teal: '#00C896',
-  logoBg: '#004D3A',
-  logoBorder: '#00C896',
+  bg: '#000000',
+  card: '#1C1C1E',
+  teal: '#FFFFFF',
+  logoBg: 'rgba(255,255,255,0.08)',
+  logoBorder: 'rgba(255,255,255,0.22)',
   buttonText: '#000000',
-  subtext: '#9CA3AF',
-  mutedIcon: '#6B7280',
-  pillBg: 'rgba(0,200,150,0.09)',
+  subtext: 'rgba(255,255,255,0.55)',
+  mutedIcon: 'rgba(255,255,255,0.4)',
+  pillBg: 'rgba(255,255,255,0.08)',
 } as const;

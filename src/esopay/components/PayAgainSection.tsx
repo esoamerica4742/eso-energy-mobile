@@ -9,8 +9,19 @@ import { getBillerBrandStyle } from '@/esopay/data/billerBrands';
 import { usePaymentModal } from '@/esopay/context/PaymentModalContext';
 import { EsoPaySectionLabel } from '@/esopay/components/EsoPaySectionLabel';
 import { Skeleton } from '@/esopay/components/Skeleton';
-import { HOME_CARD_BORDER, HOME_CARD_SURFACE, TEAL_ACCENT } from '@/esopay/theme/brandColors';
-import { luxury } from '@/esopay/theme/luxury';
+import {
+  ESO_PAY_BG,
+  ESO_PAY_GOLD,
+  ESO_PAY_GOLD_MUTED,
+  ESO_PAY_GOLD_MUTED_06,
+  ESO_PAY_SURFACE,
+  ESO_PAY_TEXT_PRIMARY,
+  ESO_PAY_TEXT_SECONDARY,
+  HOME_CARD_BORDER,
+  HOME_CARD_SURFACE,
+  TEAL_ACCENT,
+} from '@/esopay/theme/brandColors';
+import { ds } from '@/esopay/theme/designSystem';
 import { spacing } from '@/esopay/theme/spacing';
 import { fonts } from '@/esopay/theme/typography';
 import { formatCurrency } from '@/esopay/utils/currency';
@@ -110,7 +121,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 2.4,
     textTransform: 'uppercase',
-    color: luxury.warmWhite,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   scroll: {
     gap: spacing.sm,
@@ -121,7 +132,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)',
-    backgroundColor: luxury.surface,
+    backgroundColor: ESO_PAY_SURFACE,
     padding: spacing.md,
     gap: spacing.sm,
   },
@@ -147,12 +158,12 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: fonts.uiMedium,
     fontSize: 13,
-    color: luxury.textPrimary,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   meta: {
     fontFamily: fonts.ui,
     fontSize: 11,
-    color: luxury.textMuted,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
   repeatBadge: {
     position: 'absolute',
@@ -168,7 +179,7 @@ const styles = StyleSheet.create({
   date: {
     fontFamily: fonts.ui,
     fontSize: 10,
-    color: luxury.textMuted,
+    color: ESO_PAY_TEXT_SECONDARY,
     letterSpacing: 0.3,
   },
 });

@@ -13,9 +13,9 @@ import {
 } from 'react-native-reanimated';
 
 export const SPRING_PRIMARY: WithSpringConfig = {
-  damping: 18,
-  stiffness: 120,
-  mass: 0.8,
+  damping: 20,
+  stiffness: 280,
+  mass: 0.85,
   overshootClamping: false,
 };
 

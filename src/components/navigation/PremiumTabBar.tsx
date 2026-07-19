@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { BottomTabBarProps } from "expo-router/js-tabs";
-import { BlurView } from 'expo-blur';
 import {
   LayoutDashboard,
   Building2,
@@ -19,12 +18,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
-import { Colors, FontSize, Radius, Shadow, Spacing } from '@/tokens/design';
+import { Colors, FontSize, Radius, Spacing } from '@/tokens/design';
 import { fonts } from '@/theme/tokens';
 import { prefetchForTab } from '@/lib/prefetch';
 
-const MONITORING_TEAL = '#00C9A7';
-const MONITORING_TEAL_BG = 'rgba(0,201,167,0.15)';
 import { useAuthStore, selectTenantId } from '@/stores/authStore';
 import { useSiteStore, selectActiveSite } from '@/stores/siteStore';
 
@@ -83,12 +80,9 @@ export function PremiumTabBar({ state, navigation, unreadCount }: Props) {
   return (
     <View style={[styles.shell, { paddingBottom: Math.max(insets.bottom, 10) }]}>
       <View
-        style={[styles.dock, Shadow.card]}
+        style={styles.dock}
         onLayout={(event) => setDockWidth(event.nativeEvent.layout.width)}
       >
-        {Platform.OS !== 'web' ? (
-          <BlurView intensity={32} tint="dark" style={StyleSheet.absoluteFill} />
-        ) : null}
         <View style={styles.dockTint} pointerEvents="none" />
         <Animated.View style={[styles.activePill, pillStyle]} pointerEvents="none" />
         {orderedRoutes.map((route) => {
@@ -159,7 +153,7 @@ function TabItem({
     transform: [{ scale: badgeScale.value }],
   }));
 
-  const tint = focused ? MONITORING_TEAL : Colors.textMuted;
+  const tint = focused ? '#FFFFFF' : 'rgba(255,255,255,0.45)';
 
   return (
     <Pressable
@@ -190,32 +184,30 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.sm,
+    paddingHorizontal: 0,
+    paddingTop: 0,
   },
   dock: {
     flexDirection: 'row',
     alignItems: 'stretch',
-    minHeight: 68,
-    borderRadius: Radius.xl,
+    minHeight: 64,
+    borderRadius: 0,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.borderGold,
-    backgroundColor: Colors.surface,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: 'rgba(0,0,0,0.96)',
   },
   dockTint: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(9,9,11,0.55)',
+    backgroundColor: 'transparent',
   },
   activePill: {
     position: 'absolute',
-    top: 4,
-    bottom: 4,
+    top: 6,
+    bottom: 6,
     borderRadius: Radius.lg,
-    backgroundColor: Colors.goldWhisper,
-    borderWidth: 1,
-    borderColor: Colors.goldBorderStrong,
-    ...Shadow.goldGlow,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 0,
   },
   tab: {
     flex: 1,
@@ -239,7 +231,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   labelActive: {
-    color: Colors.gold,
+    color: '#FFFFFF',
     fontFamily: fonts.bold,
   },
   badge: {
@@ -250,14 +242,14 @@ const styles = StyleSheet.create({
     height: 16,
     borderRadius: 8,
     paddingHorizontal: 4,
-    backgroundColor: Colors.mint,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: Colors.bg,
+    borderColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
   },
   badgeText: {
-    color: '#03110C',
+    color: '#000000',
     fontSize: 9,
     fontFamily: fonts.bold,
   },

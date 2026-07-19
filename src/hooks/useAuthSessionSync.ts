@@ -32,11 +32,25 @@ export function useAuthSessionSync() {
     let settled = false;
     let timeout: ReturnType<typeof setTimeout> | undefined;
 
-    const finishBoot = () => {
+    const releaseLoadingGate = () => {
+      if (!mounted) return;
+      setLoading(false);
+    };
+
+    const finishInitialBoot = () => {
       if (!mounted || settled) return;
       settled = true;
       if (timeout) clearTimeout(timeout);
-      setLoading(false);
+      releaseLoadingGate();
+    };
+
+    const needsTenantBootstrap = (session: Session | null, bootstrapTenant: boolean) => {
+      if (!bootstrapTenant || !session || isDemoModeActiveSync()) return false;
+      const { tenant, session: currentSession } = useAuthStore.getState();
+      if (tenant) return false;
+      // Session refresh after boot — don't re-block the UI with a full-screen loader.
+      if (currentSession?.user?.id === session.user.id) return false;
+      return true;
     };
 
     const applySession = (session: Session | null, bootstrapTenant: boolean) => {
@@ -44,7 +58,10 @@ export function useAuthSessionSync() {
       if (isDemoModeActiveSync() && session) {
         exitDemoModeForRealAuth();
       }
-      if (isDemoModeActiveSync()) return;
+      if (isDemoModeActiveSync()) {
+        releaseLoadingGate();
+        return;
+      }
 
       if (!session) {
         reset();
@@ -53,7 +70,7 @@ export function useAuthSessionSync() {
         syncEsoPaySession(null);
         setEsoPayHydrated(true);
         setEsoPayLoading(false);
-        finishBoot();
+        finishInitialBoot();
         return;
       }
 
@@ -64,10 +81,10 @@ export function useAuthSessionSync() {
       setEsoPayLoading(false);
       void persistEsoPaySessionBackup(session);
       if (session.user?.id) void persistEsoPayUserId(session.user.id);
-      if (bootstrapTenant) {
+      if (needsTenantBootstrap(session, bootstrapTenant)) {
         setLoading(true);
       } else {
-        finishBoot();
+        releaseLoadingGate();
       }
     };
 
@@ -76,7 +93,7 @@ export function useAuthSessionSync() {
       if (__DEV__) {
         console.debug('[auth] Auth store boot timed out — releasing loading gate');
       }
-      finishBoot();
+      finishInitialBoot();
     }, SESSION_BOOT_TIMEOUT_MS);
 
     const rehydrate = () => {
@@ -109,7 +126,7 @@ export function useAuthSessionSync() {
         applySession(data.session, Boolean(data.session));
       })
       .catch(() => {
-        finishBoot();
+        finishInitialBoot();
       });
 
     return () => {

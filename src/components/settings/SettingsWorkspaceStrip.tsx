@@ -19,7 +19,7 @@ function Cell({ label, value }: { label: string; value: string }) {
 
 export function SettingsWorkspaceStrip({ snapshot }: Props) {
   return (
-    <CardShell glowColor="mint" borderVariant="gold" style={styles.shell}>
+    <CardShell glowColor="none" borderVariant="muted" style={styles.shell}>
       <Text style={styles.eyebrow}>WORKSPACE OVERVIEW</Text>
       <View style={styles.row}>
         <Cell label="Sites" value={`${snapshot.siteCount}`} />

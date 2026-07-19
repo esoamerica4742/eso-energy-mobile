@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { openEsoEnergySupportEmail } from '@/esopay/lib/esoEnergyLinks';
+import { ESO_PAY_GOLD } from '@/esopay/theme/brandColors';
 import { fonts } from '@/esopay/theme/typography';
 
 export function ProviderSupportPromptCard() {
@@ -46,7 +47,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uiMedium,
     fontSize: 14,
     fontWeight: '600',
-    color: '#E8A020',
+    color: ESO_PAY_GOLD,
     textAlign: 'center',
   },
 });

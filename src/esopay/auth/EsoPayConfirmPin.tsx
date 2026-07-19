@@ -7,8 +7,9 @@ import { PinKeypad } from '@/esopay/components/pin/PinKeypad';
 import { TRANSACTION_PIN_LENGTH } from '@/esopay/storage/transactionPin';
 import { inter } from '@/theme/fonts';
 import { ds } from '@/esopay/theme/designSystem';
-import { GOLD } from '@/theme/colors';
-const WARM_WHITE = '#F5F0E8';
+import { ESO_PAY_GOLD, ESO_PAY_TEXT_PRIMARY, ESO_PAY_TEXT_SECONDARY } from '@/esopay/theme/brandColors';
+const CHROME = ESO_PAY_GOLD;
+const WARM_WHITE = ESO_PAY_TEXT_PRIMARY;
 
 type Props = {
   onComplete: (pin: string) => void;
@@ -48,7 +49,7 @@ export function EsoPayConfirmPin({ onComplete, error }: Props) {
         <View>
           <View style={styles.brandRow}>
             <View style={styles.brandCircle}>
-              <Wallet color={GOLD} size={20} />
+              <Wallet color={CHROME} size={20} />
             </View>
             <Text style={styles.brandLabel}>ESO PAY</Text>
           </View>
@@ -68,6 +69,7 @@ export function EsoPayConfirmPin({ onComplete, error }: Props) {
           Your PIN is encrypted and never stored in plain text.
         </Text>
         <PinKeypad
+          variant="quiet"
           onDigit={appendDigit}
           onBackspace={handleBackspace}
           backspaceDisabled={pin.length === 0}
@@ -101,15 +103,15 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    borderWidth: 2,
-    borderColor: GOLD,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.35)',
     backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
   brandLabel: {
     fontFamily: inter.semibold,
-    color: GOLD,
+    color: 'rgba(255,255,255,0.55)',
     fontSize: 12,
     letterSpacing: 2,
   },
@@ -123,7 +125,7 @@ const styles = StyleSheet.create({
   },
   subtext: {
     fontFamily: inter.regular,
-    color: 'rgba(245,240,232,0.55)',
+    color: ESO_PAY_TEXT_SECONDARY,
     fontSize: 15,
     textAlign: 'center',
     lineHeight: 22,

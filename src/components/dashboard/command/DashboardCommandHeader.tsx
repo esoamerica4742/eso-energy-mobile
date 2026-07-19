@@ -30,7 +30,11 @@ type Props = {
 
 function statusPalette(tone: DashboardCommandSnapshot['statusTone']) {
   if (tone === 'live') {
-    return { accent: Colors.mint, bg: Colors.mintGlow, border: Colors.mintBorder };
+    return {
+      accent: '#FFFFFF',
+      bg: 'rgba(255,255,255,0.08)',
+      border: 'rgba(255,255,255,0.22)',
+    };
   }
   if (tone === 'fault') {
     return { accent: Colors.fault, bg: 'rgba(239, 68, 68, 0.12)', border: 'rgba(239, 68, 68, 0.35)' };
@@ -42,7 +46,7 @@ function statusPalette(tone: DashboardCommandSnapshot['statusTone']) {
 }
 
 function syncDotColor(tone: DashboardCommandSnapshot['syncDotTone']) {
-  if (tone === 'live') return Colors.mint;
+  if (tone === 'live') return '#FFFFFF';
   if (tone === 'stale') return Colors.warning;
   return Colors.textMuted;
 }

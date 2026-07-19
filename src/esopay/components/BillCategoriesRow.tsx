@@ -11,11 +11,20 @@ import {
 } from 'lucide-react-native';
 import type { BillFilterTab } from '@/esopay/data/utilities';
 import { EsoPaySectionLabel } from '@/esopay/components/EsoPaySectionLabel';
-import { luxury } from '@/esopay/theme/luxury';
-import { ESO_PAY_GOLD, ESO_PAY_GOLD_MUTED } from '@/esopay/theme/brandColors';
+import {
+  ESO_PAY_BG,
+  ESO_PAY_GOLD,
+  ESO_PAY_GOLD_MUTED,
+  ESO_PAY_GOLD_MUTED_06,
+  ESO_PAY_SURFACE,
+  ESO_PAY_TEXT_PRIMARY,
+  ESO_PAY_TEXT_SECONDARY,
+  HOME_CARD_BORDER,
+} from '@/esopay/theme/brandColors';
+import { ds } from '@/esopay/theme/designSystem';
 import { fonts } from '@/esopay/theme/typography';
 
-const ELECTRICITY_ACCENT = NAV_GOLD;
+const ELECTRICITY_ACCENT = ESO_PAY_GOLD;
 
 export type BillCategoryTile = {
   key: string;
@@ -43,7 +52,7 @@ type Props = {
 export const BillCategoriesRow = memo(function BillCategoriesRow({ activeFilter, onSelect }: Props) {
   return (
     <View style={styles.section}>
-      <EsoPaySectionLabel style={styles.sectionLabelTracking}>Pay a bill</EsoPaySectionLabel>
+      <EsoPaySectionLabel>Pay a bill</EsoPaySectionLabel>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -92,7 +101,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 2.2,
     textTransform: 'uppercase',
-    color: luxury.warmWhite,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   row: {
     gap: 10,

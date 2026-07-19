@@ -4,10 +4,14 @@ import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { Check, Copy, Share2 } from 'lucide-react-native';
 import type { EsoPayReservedAccount } from '@/esopay/api/types';
-import { colors } from '@/esopay/theme/colors';
-import { esopayFonts } from '@/esopay/theme/fonts';
-import { EsoPayTokens as T } from '@/esopay/theme/tokens';
-import { fonts } from '@/theme/fonts';
+import {
+  ESO_PAY_BG,
+  ESO_PAY_TEXT_PRIMARY,
+  ESO_PAY_TEXT_SECONDARY,
+  HOME_CARD_BORDER,
+} from '@/esopay/theme/brandColors';
+import { ds } from '@/esopay/theme/designSystem';
+import { grid } from '@/esopay/theme/homeGrid';
 import { useEnodeToast } from '@/providers/EnodeToastProvider';
 
 type CopyField = 'account' | 'bank' | 'name';
@@ -46,7 +50,7 @@ const CopyableDetailRow = memo(function CopyableDetailRow({
     <Pressable
       onPress={() => onCopy(field, value, `${label} copied!`)}
       style={({ pressed }) => [styles.detailRow, pressed && styles.detailRowPressed]}
-      accessibilityRole="button"
+      accessibilityRole='button'
       accessibilityLabel={`Copy ${label}`}
     >
       <View style={styles.detailCopy}>
@@ -54,9 +58,9 @@ const CopyableDetailRow = memo(function CopyableDetailRow({
           {value}
         </Text>
         {copied ? (
-          <Check size={16} color={colors.success} strokeWidth={2.4} />
+          <Check size={16} color={ESO_PAY_TEXT_PRIMARY} strokeWidth={2.4} />
         ) : (
-          <Copy size={15} color="rgba(255,255,255,0.55)" strokeWidth={2} />
+          <Copy size={15} color={ESO_PAY_TEXT_SECONDARY} strokeWidth={2} />
         )}
       </View>
     </Pressable>
@@ -114,8 +118,8 @@ export const FundWalletAccountCard = memo(function FundWalletAccountCard({ accou
       <Text style={styles.accountLabel}>Account number</Text>
       <Pressable
         onPress={copyAccountNumber}
-        accessibilityRole="button"
-        accessibilityLabel="Copy account number"
+        accessibilityRole='button'
+        accessibilityLabel='Copy account number'
         style={({ pressed }) => [styles.accountNumberWrap, pressed && styles.accountNumberPressed]}
       >
         <Text style={styles.accountNumber}>{account.account_number}</Text>
@@ -128,13 +132,13 @@ export const FundWalletAccountCard = memo(function FundWalletAccountCard({ accou
           accountCopied && styles.copyAccountBtnSuccess,
           pressed && styles.copyAccountBtnPressed,
         ]}
-        accessibilityRole="button"
-        accessibilityLabel="Copy account number"
+        accessibilityRole='button'
+        accessibilityLabel='Copy account number'
       >
-        {accountCopied ? (
-          <Check size={16} color={colors.success} strokeWidth={2.5} />
-        ) : null}
-        <Text style={[styles.copyAccountBtnText, accountCopied && styles.copyAccountBtnTextSuccess]}>
+        {accountCopied ? <Check size={16} color={ESO_PAY_BG} strokeWidth={2.5} /> : null}
+        <Text
+          style={[styles.copyAccountBtnText, accountCopied && styles.copyAccountBtnTextSuccess]}
+        >
           {accountCopied ? 'Copied' : 'Copy account number'}
         </Text>
       </Pressable>
@@ -142,16 +146,16 @@ export const FundWalletAccountCard = memo(function FundWalletAccountCard({ accou
       <View style={styles.bankGroup}>
         <Text style={styles.bankGroupLabel}>Transfer to</Text>
         <CopyableDetailRow
-          label="Bank name"
+          label='Bank name'
           value={account.bank_name}
-          field="bank"
+          field='bank'
           copiedField={copiedField}
           onCopy={copyValue}
         />
         <CopyableDetailRow
-          label="Account name"
+          label='Account name'
           value={account.account_name}
-          field="name"
+          field='name'
           copiedField={copiedField}
           onCopy={copyValue}
         />
@@ -160,10 +164,10 @@ export const FundWalletAccountCard = memo(function FundWalletAccountCard({ accou
       <Pressable
         onPress={() => void shareDetails()}
         style={({ pressed }) => [styles.shareBtn, pressed && styles.shareBtnPressed]}
-        accessibilityRole="button"
-        accessibilityLabel="Share wallet details"
+        accessibilityRole='button'
+        accessibilityLabel='Share wallet details'
       >
-        <Share2 size={15} color={colors.muted} strokeWidth={2.2} />
+        <Share2 size={15} color={ESO_PAY_TEXT_SECONDARY} strokeWidth={2.2} />
         <Text style={styles.shareBtnText}>Share details</Text>
       </Pressable>
 
@@ -177,39 +181,38 @@ export const FundWalletAccountCard = memo(function FundWalletAccountCard({ accou
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: T.spacing.lg,
-    gap: T.spacing.sm,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: 22,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: HOME_CARD_BORDER,
+    padding: grid.md,
+    gap: grid.sm,
   },
   sectionLabel: {
-    fontFamily: esopayFonts.label,
-    fontSize: 11,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    color: colors.muted,
+    fontFamily: ds.font.title,
+    fontSize: 15,
+    letterSpacing: -0.1,
+    color: ESO_PAY_TEXT_PRIMARY,
     marginBottom: 2,
   },
   accountLabel: {
-    fontFamily: esopayFonts.label,
+    fontFamily: ds.font.label,
     fontSize: 11,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
-    color: colors.muted,
-    marginTop: T.spacing.xs,
+    color: ESO_PAY_TEXT_SECONDARY,
+    marginTop: grid.xs,
   },
   accountNumberWrap: {
-    paddingVertical: T.spacing.xs,
+    paddingVertical: grid.xs,
   },
   accountNumberPressed: {
     opacity: 0.85,
   },
   accountNumber: {
-    fontFamily: fonts.bold,
+    fontFamily: ds.font.display,
     fontSize: 30,
-    color: colors.white,
+    color: ESO_PAY_TEXT_PRIMARY,
     letterSpacing: 2.5,
   },
   copyAccountBtn: {
@@ -218,45 +221,39 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     alignSelf: 'stretch',
-    paddingVertical: T.spacing.md,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.gold,
-    backgroundColor: `${T.color.gold.primary}12`,
-    marginTop: T.spacing.xs,
+    paddingVertical: 14,
+    borderRadius: 999,
+    backgroundColor: ESO_PAY_TEXT_PRIMARY,
+    marginTop: grid.xs,
   },
   copyAccountBtnSuccess: {
-    borderColor: colors.limeBorder,
-    backgroundColor: colors.limePillBg,
+    backgroundColor: 'rgba(255, 255, 255, 0.88)',
   },
   copyAccountBtnPressed: {
     opacity: 0.88,
   },
   copyAccountBtnText: {
-    fontFamily: esopayFonts.subheading,
-    fontSize: T.type.label.size,
-    letterSpacing: 0.5,
-    color: colors.gold,
-    textTransform: 'uppercase',
+    fontFamily: ds.font.bodyStrong,
+    fontSize: 14,
+    letterSpacing: 0.2,
+    color: ESO_PAY_BG,
   },
   copyAccountBtnTextSuccess: {
-    color: colors.success,
-    textTransform: 'none',
-    letterSpacing: 0.2,
+    color: ESO_PAY_BG,
   },
   bankGroup: {
-    marginTop: T.spacing.md,
-    paddingTop: T.spacing.md,
+    marginTop: grid.sm,
+    paddingTop: grid.md,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: T.color.border.subtle,
-    gap: T.spacing.sm,
+    borderTopColor: HOME_CARD_BORDER,
+    gap: grid.sm,
   },
   bankGroupLabel: {
-    fontFamily: esopayFonts.label,
+    fontFamily: ds.font.label,
     fontSize: 10,
     letterSpacing: 1,
     textTransform: 'uppercase',
-    color: colors.muted,
+    color: ESO_PAY_TEXT_SECONDARY,
     marginBottom: 2,
   },
   detailRow: {
@@ -271,14 +268,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: T.spacing.md,
+    gap: grid.sm,
   },
   detailValue: {
     flex: 1,
-    fontFamily: esopayFonts.subheading,
+    fontFamily: ds.font.bodyStrong,
     fontSize: 16,
     lineHeight: 22,
-    color: '#E8EAED',
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   shareBtn: {
     flexDirection: 'row',
@@ -286,24 +283,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     alignSelf: 'center',
-    paddingVertical: T.spacing.sm,
-    paddingHorizontal: T.spacing.md,
-    marginTop: T.spacing.xs,
+    paddingVertical: grid.sm,
+    paddingHorizontal: grid.md,
+    marginTop: grid.xs,
   },
   shareBtnPressed: {
     opacity: 0.7,
   },
   shareBtnText: {
-    fontFamily: esopayFonts.body,
-    fontSize: T.type.caption.size,
-    color: colors.muted,
+    fontFamily: ds.font.body,
+    fontSize: ds.type.caption.fontSize,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
   hint: {
-    marginTop: T.spacing.sm,
-    fontFamily: esopayFonts.body,
-    fontSize: T.type.caption.size,
-    lineHeight: T.type.caption.lineHeight,
-    color: colors.muted,
+    marginTop: grid.sm,
+    fontFamily: ds.font.caption,
+    fontSize: ds.type.caption.fontSize,
+    lineHeight: ds.type.caption.lineHeight,
+    color: ds.color.textMuted,
     textAlign: 'center',
   },
 });

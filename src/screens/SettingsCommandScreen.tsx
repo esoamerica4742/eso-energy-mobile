@@ -9,7 +9,6 @@ import {
   Building2,
   KeyRound,
   LogOut,
-  Shield,
   SlidersHorizontal,
   Sparkles,
   UserRound,
@@ -21,19 +20,18 @@ import { PremiumNavRow } from '@/components/navigation/PremiumNavRow';
 import { SectionLabel } from '@/components/atoms/SectionLabel';
 import { SkeletonListRows } from '@/components/atoms/Skeleton';
 import { FleetStatusPulse } from '@/components/fleet/command/FleetStatusPulse';
-import { OperatorPinModal } from '@/components/settings/OperatorPinModal';
 import { SettingsProfileHero } from '@/components/settings/SettingsProfileHero';
 import { SettingsSectionGroup } from '@/components/settings/SettingsSectionGroup';
 import { SettingsWorkspaceStrip } from '@/components/settings/SettingsWorkspaceStrip';
 import { persistMotionPrefsFromStore } from '@/components/auth/MotionPrefsBootstrap';
 import { useAppAccess } from '@/hooks/useAppAccess';
-import { useOperatorPin } from '@/hooks/useOperatorPin';
 import { useDemoModeActive } from '@/providers/DemoModeProvider';
 import { useSupabaseSession } from '@/hooks/useSupabaseSession';
-import { signOutMonitoring } from '@/lib/auth/signOutMonitoring';
-import { ACCESS_ROUTE, ESOPAY_HOME_ROUTE, MASTER_SIGN_IN_ROUTE, MONITORING_HOME_ROUTE } from '@/lib/navigation/productRoutes';
+import { navigateToProductHome } from '@/lib/navigation/productNavigation';
+import { ONBOARDING_ROUTE, MASTER_SIGN_IN_ROUTE } from '@/lib/navigation/productRoutes';
 import { getDefaultLaunchPreference, setDefaultLaunchPreference } from '@/master/launchPreference';
 import { SubscriptionBillingModal } from '@/master/components/SubscriptionBillingModal';
+import { signOutUnified } from '@/master/signOutUnified';
 import { buildSettingsSnapshot } from '@/lib/settingsData';
 import { supabaseConfigured } from '@/lib/supabase';
 import { useEnodeToast } from '@/providers/EnodeToastProvider';
@@ -58,11 +56,9 @@ export function SettingsCommandScreen() {
   const setReducedMotion = useMotionPrefsStore((s) => s.setReducedMotionEnabled);
   const setAmbientParallax = useMotionPrefsStore((s) => s.setAmbientParallaxEnabled);
   const [signOutOpen, setSignOutOpen] = useState(false);
-  const [pinOpen, setPinOpen] = useState(false);
   const [billingOpen, setBillingOpen] = useState(false);
   const [defaultLaunch, setDefaultLaunch] = useState(false);
   const toast = useEnodeToast();
-  const { pinConfigured, isChecking: pinChecking, configurePin } = useOperatorPin();
 
   const snapshot = useMemo(
     () =>
@@ -86,8 +82,8 @@ export function SettingsCommandScreen() {
   }, []);
 
   const signOut = async () => {
-    await signOutMonitoring();
-    router.replace('/access' as Href);
+    await signOutUnified();
+    router.replace(ONBOARDING_ROUTE as Href);
   };
 
   return (
@@ -157,7 +153,7 @@ export function SettingsCommandScreen() {
             title="Switch to Eso Pay"
             subtitle="Wallet, utilities, and bill payments"
             icon={Wallet}
-            onPress={() => router.push(ESOPAY_HOME_ROUTE)}
+            onPress={() => navigateToProductHome(router, 'esopay')}
           />
           <PremiumNavRow
             title="Set as Default Launch Screen"
@@ -195,25 +191,6 @@ export function SettingsCommandScreen() {
                 showChevron={false}
               />
             ) : null}
-            <PremiumNavRow
-              title="Operator PIN"
-              subtitle={
-                pinChecking
-                  ? 'Checking…'
-                  : pinConfigured
-                    ? 'Tap to change your 4-digit PIN'
-                    : 'Set a 4-digit PIN for operator actions'
-              }
-              icon={Shield}
-              value={pinConfigured ? 'Set' : 'Off'}
-              onPress={() => {
-                if (!isAuthenticated || isDemoMode) {
-                  router.push(MONITORING_LOGIN_ROUTE);
-                  return;
-                }
-                setPinOpen(true);
-              }}
-            />
             <PremiumNavRow
               title="API keys"
               subtitle="Integrations and automation"
@@ -268,8 +245,8 @@ export function SettingsCommandScreen() {
       <ConfirmDialog
         open={signOutOpen}
         onOpenChange={setSignOutOpen}
-        title="Sign out of monitoring?"
-        description="You'll need to sign in again to access Eso Energy on this device."
+        title="Sign out of Eso Energy?"
+        description="You'll need to sign in again with your email and PIN to access your account on this device."
         actionLabel="Sign out"
         destructive
         onAction={() => {
@@ -284,18 +261,6 @@ export function SettingsCommandScreen() {
         userName={snapshot.companyName ?? user?.email}
       />
 
-      <OperatorPinModal
-        open={pinOpen}
-        onOpenChange={setPinOpen}
-        pinConfigured={pinConfigured}
-        onSave={async (pin) => {
-          await configurePin(pin);
-          toast.show(
-            pinConfigured ? 'Operator PIN updated' : 'Operator PIN created',
-            'success',
-          );
-        }}
-      />
     </SafeAreaView>
   );
 }

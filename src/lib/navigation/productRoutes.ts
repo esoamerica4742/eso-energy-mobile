@@ -13,27 +13,22 @@ export const ESOPAY_HOME_ROUTE = '/(tabs)/billing/(pay-tabs)' as Href;
 
 export const MASTER_SIGN_IN_ROUTE = '/auth/sign-in' as Href;
 export const MASTER_REGISTER_ROUTE = '/auth/register' as Href;
+export const MASTER_PIN_SETUP_ROUTE = '/auth/pin-setup' as Href;
 
-export const MONITORING_LOGIN_ROUTE = {
-  pathname: '/login',
-  params: { module: 'inverter' },
-} as Href;
+/** @deprecated Use MASTER_SIGN_IN_ROUTE */
+export const MONITORING_LOGIN_ROUTE = MASTER_SIGN_IN_ROUTE;
 
-export const ESOPAY_LOGIN_ROUTE = {
-  pathname: '/login',
-  params: { module: 'esopay' },
-} as Href;
+/** @deprecated Use MASTER_SIGN_IN_ROUTE */
+export const ESOPAY_LOGIN_ROUTE = MASTER_SIGN_IN_ROUTE;
 
-/** Eso Pay transaction PIN gate (billing stack). */
-export const ESOPAY_PIN_GATE_ROUTE = '/(tabs)/billing/pin-gate' as Href;
+/** @deprecated Master PIN setup replaces per-product PIN setup */
+export const ESOPAY_PIN_SETUP_ROUTE = MASTER_PIN_SETUP_ROUTE;
 
-export const ESOPAY_PIN_SETUP_ROUTE = {
-  pathname: '/auth/esopay-pin-setup',
-  params: {},
-} as Href;
+/** @deprecated Master lock replaces billing pin-gate */
+export const ESOPAY_PIN_GATE_ROUTE = ESOPAY_HOME_ROUTE;
 
-/** Monitoring operator PIN unlock screen. */
-export const MONITORING_UNLOCK_ROUTE = '/inverter/unlock' as Href;
+/** @deprecated Master lock replaces inverter unlock */
+export const MONITORING_UNLOCK_ROUTE = ONBOARDING_ROUTE;
 
 export type AppProduct = 'monitoring' | 'esopay';
 

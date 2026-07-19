@@ -1,57 +1,119 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
-  Pressable,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Eye, EyeOff } from 'lucide-react-native';
+import { useEsoPayBack } from '@/esopay/navigation/useEsoPayBack';
 import { useWallet, useWalletTransactions } from '@/esopay/api/hooks/useBilling';
 import type { EsoPayWalletTransaction } from '@/esopay/api/types';
 import { EsoPayHeader } from '@/esopay/components/EsoPayHeader';
 import { EsoPayScreenShell } from '@/esopay/components/EsoPayScreenShell';
 import { useEsoPayScrollPadding } from '@/esopay/hooks/useEsoPayScrollPadding';
 import { esopayFundWalletHref } from '@/esopay/navigation/routes';
-import { NumberTicker } from '@/esopay/components/NumberTicker';
-import { Skeleton } from '@/esopay/components/Skeleton';
+import { MonnifyWalletCard } from '@/esopay/components/MonnifyWalletCard';
+import { EsoPayCashbackGlance } from '@/esopay/components/EsoPayCashbackGlance';
 import { EsoPayInlineError } from '@/esopay/components/EsoPayInlineError';
+import { EsoPayFilterChips } from '@/esopay/components/EsoPayFilterChips';
+import { LedgerEmptyState, LedgerSkeletonList } from '@/esopay/components/LedgerListStates';
+import { toEsoPayApiError } from '@/esopay/api/client';
 import { WalletLedgerRow } from '@/esopay/components/WalletLedgerRow';
-import { colors } from '@/esopay/theme/colors';
-import { spacing } from '@/esopay/theme/spacing';
-import { fonts } from '@/esopay/theme/typography';
+import {
+  ESO_PAY_TEXT_PRIMARY,
+  ESO_PAY_TEXT_SECONDARY,
+} from '@/esopay/theme/brandColors';
+import { ds } from '@/esopay/theme/designSystem';
+import { grid } from '@/esopay/theme/homeGrid';
 
 type LedgerFilter = 'ALL' | 'CREDIT' | 'DEBIT';
 
+const FILTERS: readonly LedgerFilter[] = ['ALL', 'CREDIT', 'DEBIT'];
+const FILTER_LABELS: Record<LedgerFilter, string> = {
+  ALL: 'All',
+  CREDIT: 'Credit',
+  DEBIT: 'Debit',
+};
+
 export function WalletScreen() {
   const router = useRouter();
+  const goBack = useEsoPayBack();
   const scrollPad = useEsoPayScrollPadding({ tabBar: false });
-  const [hidden, setHidden] = useState(false);
   const [filter, setFilter] = useState<LedgerFilter>('ALL');
   const [page, setPage] = useState(1);
 
   const walletQuery = useWallet();
   const ledgerQuery = useWalletTransactions({ page, limit: 30 });
 
-  const transactions = ledgerQuery.data?.data ?? [];
-  const filtered = transactions.filter((tx) => {
-    if (filter === 'ALL') return true;
-    if (filter === 'CREDIT') return tx.type === 'credit' || tx.type === 'refund' || tx.type === 'reversal';
-    return tx.type === 'debit' || tx.type === 'bill_payment';
-  });
-
-  useEffect(() => {
-    setPage(1);
-  }, [filter]);
+  const filtered = useMemo(() => {
+    const transactions = ledgerQuery.data?.data ?? [];
+    return transactions.filter((tx) => {
+      if (filter === 'ALL') return true;
+      if (filter === 'CREDIT') {
+        return tx.type === 'credit' || tx.type === 'refund' || tx.type === 'reversal';
+      }
+      return tx.type === 'debit' || tx.type === 'bill_payment';
+    });
+  }, [filter, ledgerQuery.data?.data]);
 
   const onRefresh = useCallback(() => {
     void walletQuery.refetch();
     void ledgerQuery.refetch();
   }, [ledgerQuery, walletQuery]);
+
+  const onFilterChange = useCallback((next: string) => {
+    setFilter(next as LedgerFilter);
+    setPage(1);
+  }, []);
+
+  const balance = walletQuery.data?.balance_kobo ?? 0;
+  const walletLoading = walletQuery.isLoading && walletQuery.data == null;
+
+  const listHeader = (
+    <View style={styles.headerBlock}>
+      <MonnifyWalletCard
+        balanceKobo={balance}
+        loading={walletLoading}
+        stableDisplay
+        onFundPress={() => router.push(esopayFundWalletHref())}
+      />
+      <EsoPayCashbackGlance />
+
+      {walletQuery.isError && walletQuery.data == null ? (
+        <EsoPayInlineError
+          title="Wallet unavailable"
+          message="We could not load your balance. Check your connection and try again."
+          onRetry={() => void walletQuery.refetch()}
+        />
+      ) : null}
+
+      <Text style={styles.activityTitle}>Transactions</Text>
+
+      <EsoPayFilterChips
+        options={FILTERS}
+        value={filter}
+        onChange={onFilterChange}
+        labels={FILTER_LABELS}
+      />
+    </View>
+  );
+
+  const listEmpty =
+    ledgerQuery.isError && filtered.length === 0 ? (
+      <EsoPayInlineError
+        message={
+          toEsoPayApiError(ledgerQuery.error).message ||
+          'We could not load your transactions.'
+        }
+        onRetry={() => void ledgerQuery.refetch()}
+      />
+    ) : ledgerQuery.isLoading ? (
+      <LedgerSkeletonList rows={4} />
+    ) : (
+      <LedgerEmptyState body="Wallet activity will appear here." />
+    );
 
   const renderTx = useCallback(
     ({ item }: { item: EsoPayWalletTransaction }) => (
@@ -60,195 +122,48 @@ export function WalletScreen() {
     [],
   );
 
-  const balance = walletQuery.data?.balance_kobo ?? 0;
-
   return (
     <EsoPayScreenShell>
-      <EsoPayHeader title="Wallet" canGoBack onBack={() => router.back()} />
-      <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingBottom: scrollPad.paddingBottom }]}
+      <EsoPayHeader title="Wallet" canGoBack onBack={goBack} />
+      <FlatList
+        data={filtered}
+        keyExtractor={(item) => item.id}
+        renderItem={renderTx}
+        ListHeaderComponent={listHeader}
+        ListEmptyComponent={listEmpty}
+        contentContainerStyle={[
+          styles.list,
+          { paddingBottom: scrollPad.paddingBottom },
+        ]}
         refreshControl={
           <RefreshControl
             refreshing={ledgerQuery.isFetching && !ledgerQuery.isLoading}
             onRefresh={onRefresh}
-            tintColor={colors.gold}
+            tintColor={ESO_PAY_TEXT_SECONDARY}
           />
         }
-      >
-        <Pressable
-          style={({ pressed }) => [styles.fundBtn, pressed && styles.fundBtnPressed]}
-          onPress={() => router.push(esopayFundWalletHref())}
-        >
-          <Text style={styles.fundBtnText}>Fund wallet</Text>
-        </Pressable>
-
-        <View style={styles.heroHeader}>
-          <Text style={styles.heroLabel}>Wallet Balance</Text>
-          <Pressable onPress={() => setHidden((v) => !v)} hitSlop={12}>
-            {hidden ? (
-              <EyeOff size={20} color={colors.muted} />
-            ) : (
-              <Eye size={20} color={colors.gold} />
-            )}
-          </Pressable>
-        </View>
-
-        {walletQuery.isLoading ? (
-          <Skeleton height={56} width="70%" />
-        ) : hidden ? (
-          <View style={styles.hiddenBalanceRow}>
-            <Text style={styles.hiddenSymbol}>₦</Text>
-            <Text style={styles.hiddenAmount}>••••••</Text>
-          </View>
-        ) : (
-          <NumberTicker
-            valueKobo={balance}
-            alwaysDecimals
-            style={styles.heroBalanceAmount}
-            symbolStyle={styles.heroBalanceSymbol}
-            containerStyle={styles.heroBalanceRow}
-          />
-        )}
-
-        <View style={styles.filters}>
-          {(['ALL', 'CREDIT', 'DEBIT'] as LedgerFilter[]).map((key) => (
-            <Pressable
-              key={key}
-              onPress={() => setFilter(key)}
-              style={[styles.filterChip, filter === key && styles.filterChipActive]}
-            >
-              <Text style={[styles.filterText, filter === key && styles.filterTextActive]}>
-                {key}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-
-        {ledgerQuery.isLoading ? (
-          <ActivityIndicator color={colors.gold} style={{ marginTop: spacing.lg }} />
-        ) : filtered.length === 0 ? (
-          <View style={styles.empty}>
-            <Text style={styles.emptyTitle}>No transactions yet</Text>
-            <Text style={styles.emptyBody}>Wallet activity will appear here.</Text>
-          </View>
-        ) : (
-          <FlatList
-            data={filtered}
-            keyExtractor={(item) => item.id}
-            renderItem={renderTx}
-            scrollEnabled={false}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
-          />
-        )}
-      </ScrollView>
+        showsVerticalScrollIndicator={false}
+      />
     </EsoPayScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    paddingHorizontal: spacing.lg,
-    gap: spacing.lg,
+  list: {
+    paddingHorizontal: grid.sm,
+    paddingTop: grid.sm,
+    flexGrow: 1,
   },
-  fundBtn: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: 10,
-    borderRadius: 12,
-    backgroundColor: colors.gold,
+  headerBlock: {
+    gap: grid.md,
+    marginBottom: grid.sm,
   },
-  fundBtnPressed: {
-    opacity: 0.9,
-  },
-  fundBtnText: {
-    fontFamily: fonts.uiMedium,
-    fontSize: 13,
-    color: colors.black,
-  },
-  heroHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  heroLabel: {
-    fontFamily: fonts.uiMedium,
-    fontSize: 12,
-    letterSpacing: 1.5,
-    color: colors.gold,
-    textTransform: 'uppercase',
-  },
-  heroBalanceRow: {
-    alignSelf: 'flex-start',
-  },
-  heroBalanceSymbol: {
-    fontFamily: fonts.uiMedium,
-    fontSize: 56,
-    lineHeight: 60,
-    color: colors.white,
-  },
-  heroBalanceAmount: {
-    fontFamily: fonts.display,
-    fontSize: 56,
-    lineHeight: 60,
-    letterSpacing: 0,
-    color: colors.white,
-  },
-  hiddenBalanceRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 6,
-  },
-  hiddenSymbol: {
-    fontFamily: fonts.uiMedium,
-    fontSize: 56,
-    lineHeight: 60,
-    color: colors.white,
-  },
-  hiddenAmount: {
-    fontFamily: fonts.display,
-    fontSize: 56,
-    lineHeight: 60,
-    color: colors.white,
-  },
-  filters: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  filterChip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: colors.goldBorder,
-  },
-  filterChipActive: {
-    backgroundColor: colors.goldGlow,
-    borderColor: colors.gold,
-  },
-  filterText: {
-    fontFamily: fonts.uiMedium,
-    fontSize: 11,
-    color: colors.muted,
-  },
-  filterTextActive: {
-    color: colors.gold,
-  },
-  separator: {
-    height: spacing.sm,
-  },
-  empty: {
-    alignItems: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.xxxl,
-  },
-  emptyTitle: {
-    fontFamily: fonts.display,
-    fontSize: 24,
-    color: colors.white,
-  },
-  emptyBody: {
-    fontFamily: fonts.ui,
-    fontSize: 14,
-    color: colors.muted,
+  activityTitle: {
+    fontFamily: ds.font.title,
+    fontSize: 15,
+    lineHeight: 20,
+    color: ESO_PAY_TEXT_PRIMARY,
+    letterSpacing: -0.1,
+    marginTop: grid.xs,
   },
 });

@@ -10,7 +10,7 @@ type Props = {
   style?: ViewStyle;
 };
 
-/** Flat gold CTA — Add Funds & Power Shield actions only. */
+/** Primary white-pill CTA (legacy name kept for callers). */
 export const GoldCTAButton = memo(function GoldCTAButton({
   label,
   onPress,

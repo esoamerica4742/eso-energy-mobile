@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useEsoPayBack } from '@/esopay/navigation/useEsoPayBack';
 import { useEsoPayScrollPadding } from '@/esopay/hooks/useEsoPayScrollPadding';
 import { formatDistanceToNow } from 'date-fns';
 import { Receipt } from 'lucide-react-native';
@@ -30,6 +31,7 @@ import { EsoPayTokens as T } from '@/esopay/theme/tokens';
 
 export function BillsListScreen() {
   const router = useRouter();
+  const goBack = useEsoPayBack();
   const scrollPad = useEsoPayScrollPadding({ tabBar: false });
   const [filter, setFilter] = useState<BillFilterChip>('all');
 
@@ -121,7 +123,7 @@ export function BillsListScreen() {
         <EsoPayHeader
           title="Payment history"
           canGoBack
-          onBack={() => router.back()}
+          onBack={goBack}
         />
         <View style={styles.loader}>
           <ActivityIndicator color={T.color.gold.primary} size="large" />
@@ -135,7 +137,7 @@ export function BillsListScreen() {
       <EsoPayHeader
         title="Payment history"
         canGoBack
-        onBack={() => router.back()}
+        onBack={goBack}
       />
       <FlatList
         data={bills}

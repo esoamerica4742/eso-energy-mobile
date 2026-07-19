@@ -1,16 +1,13 @@
 import { useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import {
-  ESOPAY_HOME_ROUTE,
-  MONITORING_HOME_ROUTE,
-  type AppProduct,
-} from '@/lib/navigation/productRoutes';
+import { MASTER_SIGN_IN_ROUTE, type AppProduct } from '@/lib/navigation/productRoutes';
 import { setLastProduct } from '@/lib/navigation/lastProduct';
 import { selectEsoPayHasAccess, useEsoPayAuthStore } from '@/esopay/auth/store';
 import { selectIsLoggedIn, useAuthStore } from '@/stores/authStore';
 import { useAuth } from '@/hooks/useAuth';
-import { MASTER_SIGN_IN_ROUTE } from '@/lib/navigation/productRoutes';
+import { resolveEsoPayLaunchRoute } from '@/esopay/navigation/resolveEsoPayLaunchRoute';
+import { resolveMonitoringLaunchRoute } from '@/monitoring/navigation/resolveMonitoringLaunchRoute';
 
 /**
  * Routes operators to the correct product shell.
@@ -35,13 +32,13 @@ export function useCommandCenterNavigation() {
       await setLastProduct(product);
       setModule(product === 'esopay' ? 'esopay' : 'inverter');
 
+      const userId = useEsoPayAuthStore.getState().user?.id;
       if (product === 'monitoring') {
-        router.replace(MONITORING_HOME_ROUTE);
+        router.replace(await resolveMonitoringLaunchRoute(useAuthStore.getState().user));
         return;
       }
 
-      useEsoPayAuthStore.getState().setPinSessionUnlocked(true);
-      router.replace(ESOPAY_HOME_ROUTE);
+      router.replace(await resolveEsoPayLaunchRoute(userId));
     },
     [isEsoPayAuthenticated, isMonitoringAuthenticated, router, setModule],
   );

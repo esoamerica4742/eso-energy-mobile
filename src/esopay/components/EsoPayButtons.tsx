@@ -73,7 +73,7 @@ export const EsoPayPrimaryButton = memo(function EsoPayPrimaryButton({
   );
 });
 
-/** Flat gold — Add Funds & Activate Power Shield only. */
+/** Revolut soft primary — white pill (GoldCTAButton API kept for callers). */
 export const EsoPayGoldButton = memo(function EsoPayGoldButton({
   label,
   onPress,
@@ -97,7 +97,7 @@ export const EsoPayGoldButton = memo(function EsoPayGoldButton({
         accessibilityRole="button"
       >
         {loading ? (
-          <ActivityIndicator color={ds.color.gold} />
+          <ActivityIndicator color={ds.color.textPrimary} />
         ) : (
           <Text style={styles.goldActiveStateText}>{label}</Text>
         )}
@@ -109,7 +109,7 @@ export const EsoPayGoldButton = memo(function EsoPayGoldButton({
     <Pressable
       onPress={() => {
         if (!canPress) return;
-        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         onPress();
       }}
       disabled={!canPress}
@@ -181,47 +181,46 @@ const styles = StyleSheet.create({
   primaryActive: {
     flex: 1,
     borderRadius: ds.radius.input,
-    backgroundColor: ds.color.gold,
+    backgroundColor: ds.color.textPrimary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   primaryActiveText: {
     fontFamily: ds.font.button,
     fontSize: ds.type.button.fontSize,
-    color: '#FFFFFF',
+    color: ds.color.bg,
   },
   goldBtn: {
     width: '100%',
     height: ds.size.buttonHeight,
-    borderRadius: ds.radius.input,
-    backgroundColor: ds.color.gold,
+    borderRadius: 999,
+    backgroundColor: ds.color.textPrimary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   goldBtnDisabled: {
-    opacity: 0.55,
+    opacity: 0.4,
   },
   goldBtnText: {
     fontFamily: ds.font.button,
     fontSize: ds.type.button.fontSize,
-    fontWeight: '700',
+    fontWeight: '600',
     color: ds.color.bg,
   },
   goldActiveState: {
     width: '100%',
     height: ds.size.buttonHeight,
-    borderRadius: ds.radius.input,
-    backgroundColor: ds.color.goldMuted12,
-    borderWidth: 1,
-    borderColor: ds.color.gold,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
   goldActiveStateText: {
     fontFamily: ds.font.button,
     fontSize: ds.type.button.fontSize,
-    color: ds.color.gold,
-    fontWeight: '700',
+    color: ds.color.textPrimary,
+    fontWeight: '600',
   },
   ghost: {
     width: '100%',

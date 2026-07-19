@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
-import Animated, { type StyleProp, type ViewStyle } from 'react-native-reanimated';
+import { type StyleProp, type ViewStyle } from 'react-native';
+import Animated from 'react-native-reanimated';
 import {
   SPRING_CARD,
   SPRING_PRIMARY,

@@ -2,8 +2,6 @@ import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { CaretRight } from 'phosphor-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MotiView } from 'moti';
-import { Easing } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import type { CommandCenterModule } from '@/screens/access/types';
 import { CARD_VARIANT_THEME, ACCESS_FONTS, ACCESS_THEME } from '@/screens/access/theme';
@@ -51,7 +49,7 @@ export function AccessPlatformCard({ module, onPress, delay }: Props) {
           />
 
           <LinearGradient
-            colors={['rgba(201,168,76,0.07)', 'rgba(201,168,76,0.02)', 'transparent']}
+            colors={['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.02)', 'transparent']}
             start={{ x: 0.5, y: 0 }}
             end={{ x: 0.5, y: 1 }}
             style={styles.cardInnerGlow}
@@ -62,31 +60,30 @@ export function AccessPlatformCard({ module, onPress, delay }: Props) {
 
           <View style={styles.cardBody}>
             <View style={[styles.cardIcon, { backgroundColor: cardTheme.iconContainerBg }]}>
-              <Icon size={24} color={cardTheme.iconColor} weight="regular" />
+              <Icon size={24} color={cardTheme.iconColor} strokeWidth={2} />
             </View>
 
             <Text style={styles.cardTitle}>{module.title}</Text>
             <Text style={styles.cardDescription} numberOfLines={2}>
               {module.description}
             </Text>
-            <Text
-              style={[
-                styles.cardMetadata,
-                { color: cardTheme.metadataColor },
-              ]}
-            >
-              {module.metadata}
-            </Text>
+            {module.metadata ? (
+              <Text
+                style={[
+                  styles.cardMetadata,
+                  { color: cardTheme.metadataColor },
+                ]}
+              >
+                {module.metadata}
+              </Text>
+            ) : null}
 
             <View style={styles.cardDivider} />
 
             <View style={[styles.ctaRow, pressed && styles.ctaRowPressed]}>
-              <MotiView
-                animate={{ translateX: pressed ? 3 : 0 }}
-                transition={{ type: 'timing', duration: 200, easing: Easing.out(Easing.ease) }}
-              >
+              <View style={pressed ? styles.chevronPressed : undefined}>
                 <CaretRight size={18} color={cardTheme.chevronColor} weight="bold" />
-              </MotiView>
+              </View>
             </View>
           </View>
         </View>
@@ -106,12 +103,12 @@ const styles = StyleSheet.create({
     opacity: 0.92,
   },
   cardSurface: {
-    backgroundColor: '#12151C',
+    backgroundColor: ACCESS_THEME.surface,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.1)',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.06)',
+    borderTopColor: 'rgba(255,255,255,0.12)',
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
@@ -161,14 +158,14 @@ const styles = StyleSheet.create({
     fontFamily: ACCESS_FONTS.ui,
     fontSize: 13,
     lineHeight: 18.2,
-    color: 'rgba(245,240,232,0.65)',
+    color: ACCESS_THEME.muted,
   },
   cardMetadata: {
-    fontFamily: 'DMSans_400Regular',
+    fontFamily: ACCESS_FONTS.body,
     fontWeight: '400',
     fontSize: 11,
     marginTop: 6,
-    opacity: 0.32,
+    opacity: 0.7,
   },
   cardDivider: {
     marginTop: 12,
@@ -184,5 +181,8 @@ const styles = StyleSheet.create({
   },
   ctaRowPressed: {
     backgroundColor: ACCESS_THEME.ctaPress,
+  },
+  chevronPressed: {
+    transform: [{ translateX: 3 }],
   },
 });

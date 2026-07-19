@@ -33,7 +33,7 @@ export default function EsoPayTabLayout() {
       <Tabs.Screen
         name="intelligence"
         options={{
-          title: 'Power Shield',
+          title: 'Power',
           sceneStyle: { backgroundColor: ds.color.bg },
         }}
       />

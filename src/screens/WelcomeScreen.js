@@ -229,9 +229,9 @@ export default function WelcomeScreen() {
               onPress={goEsoPayDashboard}
               style={styles.esopayDashLink}
               accessibilityRole="button"
-              accessibilityLabel="Go to Eso Pay Bills"
+              accessibilityLabel="Go to Eso Pay"
             >
-              <Text style={styles.esopayDashLinkText}>👉 Go to Eso Pay Bills</Text>
+              <Text style={styles.esopayDashLinkText}>👉 Go to Eso Pay</Text>
             </Pressable>
           ) : null}
           <Text style={styles.footerNote}>
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     width: 300,
     height: 300,
     borderRadius: 150,
-    backgroundColor: 'rgba(201,168,76,0.08)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     alignSelf: 'center',
     top: '22%',
   },

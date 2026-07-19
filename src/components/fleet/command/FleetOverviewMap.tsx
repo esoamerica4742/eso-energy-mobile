@@ -2,8 +2,11 @@ import { useMemo } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import type { MapStyleElement } from 'react-native-maps';
 import MapView, { Marker, PROVIDER_GOOGLE, type Region } from 'react-native-maps';
-import { fleetMapStyle, NIGERIA_FLEET_REGION } from '@/constants/fleetMapStyle';
+import { fleetMapStyle } from '@/constants/fleetMapStyle';
 import { FleetMapPin } from '@/components/fleet/command/FleetMapPin';
+import { FleetOverviewCanvas } from '@/components/fleet/command/FleetOverviewCanvas';
+import { buildFleetMapRegion } from '@/lib/fleetMapProjection';
+import { isGoogleMapsAvailable } from '@/lib/mapsAvailability';
 import { Colors } from '@/tokens/design';
 import type { FleetSite } from '@/types/fleet';
 
@@ -13,37 +16,27 @@ type Props = {
   onSelectSite: (siteId: string) => void;
 };
 
-function buildRegion(sites: FleetSite[]): Region {
-  if (sites.length === 0) return NIGERIA_FLEET_REGION;
-  if (sites.length === 1) {
-    return {
-      latitude: sites[0].latitude,
-      longitude: sites[0].longitude,
-      latitudeDelta: 0.45,
-      longitudeDelta: 0.45,
-    };
+export function FleetOverviewMap({ sites, selectedSiteId, onSelectSite }: Props) {
+  const region = useMemo(() => buildFleetMapRegion(sites), [sites]);
+
+  if (!isGoogleMapsAvailable()) {
+    return (
+      <FleetOverviewCanvas
+        sites={sites}
+        selectedSiteId={selectedSiteId}
+        onSelectSite={onSelectSite}
+      />
+    );
   }
 
-  const lats = sites.map((s) => s.latitude);
-  const lngs = sites.map((s) => s.longitude);
-  const minLat = Math.min(...lats);
-  const maxLat = Math.max(...lats);
-  const minLng = Math.min(...lngs);
-  const maxLng = Math.max(...lngs);
-
-  return {
-    latitude: (minLat + maxLat) / 2,
-    longitude: (minLng + maxLng) / 2,
-    latitudeDelta: Math.max((maxLat - minLat) * 1.8, 0.6),
-    longitudeDelta: Math.max((maxLng - minLng) * 1.8, 0.6),
-  };
-}
-
-export function FleetOverviewMap({ sites, selectedSiteId, onSelectSite }: Props) {
-  const region = useMemo(() => buildRegion(sites), [sites]);
-
   if (Platform.OS === 'web') {
-    return <View style={styles.fallback} accessibilityLabel="Map preview unavailable on web" />;
+    return (
+      <FleetOverviewCanvas
+        sites={sites}
+        selectedSiteId={selectedSiteId}
+        onSelectSite={onSelectSite}
+      />
+    );
   }
 
   return (
@@ -52,8 +45,8 @@ export function FleetOverviewMap({ sites, selectedSiteId, onSelectSite }: Props)
         style={StyleSheet.absoluteFill}
         provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
         customMapStyle={fleetMapStyle as unknown as MapStyleElement[]}
-        initialRegion={region}
-        region={sites.length === 1 ? region : undefined}
+        initialRegion={region as Region}
+        region={sites.length === 1 ? (region as Region) : undefined}
         showsCompass={false}
         showsPointsOfInterests={false}
         showsBuildings={false}
@@ -84,10 +77,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.bg,
     overflow: 'hidden',
-  },
-  fallback: {
-    flex: 1,
-    backgroundColor: Colors.surface,
   },
   vignetteTop: {
     position: 'absolute',

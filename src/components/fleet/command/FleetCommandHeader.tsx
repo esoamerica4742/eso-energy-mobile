@@ -100,14 +100,14 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 100,
     borderWidth: 1,
-    borderColor: Colors.mintBorder,
-    backgroundColor: Colors.mintGlow,
+    borderColor: 'rgba(255,255,255,0.22)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
     minHeight: 36,
   },
   liveText: {
     fontFamily: fonts.medium,
     fontSize: FontSize.label,
-    color: Colors.mint,
+    color: '#FFFFFF',
     letterSpacing: 1.4,
   },
   stalePill: {

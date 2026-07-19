@@ -36,10 +36,10 @@ import { getBillerBrandStyle } from '@/esopay/data/billerBrands';
 import { fonts } from '@/esopay/theme/typography';
 import { spacing } from '@/esopay/theme/spacing';
 
-const ESO_PAY_GOLD = '#C9A84C';
-const ESO_PAY_GOLD_DIM = '#8A6E2F';
-const SURFACE = '#0D0F17';
-const SURFACE2 = '#12151F';
+const ESO_PAY_GOLD = '#FFFFFF';
+const ESO_PAY_GOLD_DIM = 'rgba(255,255,255,0.45)';
+const SURFACE = '#1C1C1E';
+const SURFACE2 = '#2C2C2E';
 const COL_GAP = 12;
 const CARD_H = 88;
 
@@ -268,10 +268,10 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   offlineBanner: {
-    backgroundColor: 'rgba(232,160,32,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.1)',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(232,160,32,0.25)',
+    borderColor: 'rgba(255,255,255,0.25)',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
@@ -285,11 +285,11 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: SURFACE,
     borderWidth: 1,
-    borderColor: 'rgba(232,160,32,0.12)',
+    borderColor: 'rgba(255,255,255,0.12)',
     overflow: 'hidden',
   },
   folderExpanded: {
-    borderColor: 'rgba(232,160,32,0.35)',
+    borderColor: 'rgba(255,255,255,0.35)',
     backgroundColor: SURFACE2,
   },
   folderHeader: {
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   folderHeaderPressed: {
-    backgroundColor: 'rgba(232,160,32,0.06)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   folderOrb: {
     width: 40,
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     gap: COL_GAP,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(232,160,32,0.08)',
+    borderTopColor: 'rgba(255,255,255,0.08)',
   },
   row: {
     flexDirection: 'row',
@@ -355,14 +355,14 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: SURFACE,
     borderWidth: 1,
-    borderColor: 'rgba(232,160,32,0.18)',
+    borderColor: 'rgba(255,255,255,0.18)',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 8,
     gap: 6,
   },
   billerTilePressed: {
-    backgroundColor: 'rgba(232,160,32,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.1)',
     transform: [{ scale: 0.97 }],
   },
   billerLogo: {

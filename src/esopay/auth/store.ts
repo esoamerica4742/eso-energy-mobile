@@ -3,7 +3,7 @@ import type { Session, User } from '@supabase/supabase-js';
 import {
   clearEsoPaySessionBackup,
   persistEsoPaySessionBackup,
-} from '@/esopay/auth/esoPaySessionBackup';
+} from '@/esopay/auth/esoPaySessionBackupStorage';
 
 type State = {
   session: Session | null;
@@ -16,7 +16,7 @@ type State = {
    */
   signedIn: boolean;
   /**
-   * Local device lock for Eso Pay Bills. When enabled (PIN exists),
+   * Master app lock for Eso Pay. When enabled (PIN exists),
    * this must be true to view Eso Pay screens.
    */
   loginPinUnlocked: boolean;

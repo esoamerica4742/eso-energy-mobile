@@ -22,10 +22,10 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { establishMonitoringSession, isMonitoringProfileComplete } from '@/lib/authProfile';
+import { isMonitoringProfileComplete } from '@/lib/authProfile';
 import { sendEmailOtp, verifyEmailOtp } from '@/lib/authOtp';
 import { paramString } from '@/lib/authRouteParams';
-import { signOutEsoPay } from '@/esopay/auth/signOutEsoPay';
+import { establishUnifiedSession } from '@/master/unifiedSession';
 import { setLastProduct } from '@/lib/navigation/lastProduct';
 import { setOnboardingComplete } from '@/lib/onboardingStorage';
 import { MONITORING_HOME_ROUTE } from '@/lib/navigation/productRoutes';
@@ -33,15 +33,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { inter } from '@/theme/fonts';
 
 const COLORS = {
-  background: '#0D1B2A',
-  card: '#1A2A3A',
-  gold: '#F5A623',
+  background: '#000000',
+  card: '#1C1C1E',
+  gold: '#FFFFFF',
   white: '#FFFFFF',
-  grey: '#8A9BB0',
-  borderInactive: '#2A3A4A',
-  borderActive: '#F5A623',
-  error: '#FF4444',
-  buttonDisabled: '#2A3A4A',
+  grey: 'rgba(255,255,255,0.55)',
+  borderInactive: 'rgba(255,255,255,0.12)',
+  borderActive: 'rgba(255,255,255,0.55)',
+  error: '#FF6B6B',
+  buttonDisabled: '#2C2C2E',
 } as const;
 
 const OTP_LENGTH = 6;
@@ -149,8 +149,7 @@ export default function OTPVerificationScreen() {
 
     try {
       await setLastProduct('monitoring');
-      await signOutEsoPay();
-      await establishMonitoringSession(result.session);
+      await establishUnifiedSession(result.session);
 
       if (isMonitoringProfileComplete(result.user)) {
         await setOnboardingComplete();

@@ -7,18 +7,21 @@ type Options = {
   tabBar?: boolean;
   /** Extra top offset below the safe area (e.g. hero breathing room) */
   topExtra?: number;
+  /** Extra bottom inset above the tab bar (e.g. last section breathing room) */
+  bottomExtra?: number;
 };
 
 /** Consistent scroll insets for Eso Pay tabs and stack screens. */
 export function useEsoPayScrollPadding(options: Options = {}) {
-  const { tabBar = true, topExtra = 0 } = options;
+  const { tabBar = true, topExtra = 0, bottomExtra = 0 } = options;
   const insets = useSafeAreaInsets();
 
   return useMemo(
     () => ({
       paddingTop: insets.top + topExtra,
-      paddingBottom: spacing.xxxl + (tabBar ? spacing.navHeight : 0) + insets.bottom,
+      paddingBottom:
+        spacing.xxxl + bottomExtra + (tabBar ? spacing.navHeight : 0) + insets.bottom,
     }),
-    [insets.bottom, insets.top, tabBar, topExtra],
+    [bottomExtra, insets.bottom, insets.top, tabBar, topExtra],
   );
 }

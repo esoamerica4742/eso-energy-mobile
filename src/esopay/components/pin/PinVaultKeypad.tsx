@@ -1,6 +1,6 @@
 import { memo, useCallback, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
-import { ArrowLeft } from 'phosphor-react-native';
+import { Backspace } from 'phosphor-react-native';
 import Animated, {
   useAnimatedStyle,
   useReducedMotion,
@@ -10,14 +10,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { inter } from '@/theme/fonts';
 
-const TEXT_PRIMARY = '#F5F0E8';
-const GOLD = '#C9A84C';
-const KEY_IDLE_BG = '#0D1018';
-const KEY_PRESS_BG = '#161B28';
-const KEY_IDLE_BORDER = '#1C2030';
-const KEY_PRESS_BORDER = 'rgba(201, 168, 76, 0.19)';
-const KEY_HEIGHT = 72;
-const KEY_SPRING = { stiffness: 300, damping: 20 };
+const TEXT_PRIMARY = '#FFFFFF';
+const KEY_SIZE = 76;
+const KEY_SPRING = { stiffness: 320, damping: 22 };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -52,40 +47,32 @@ const VaultKey = memo(function VaultKey({
 }) {
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
-  const bg = useSharedValue(KEY_IDLE_BG);
-  const border = useSharedValue(KEY_IDLE_BORDER);
 
   const animStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
     opacity: opacity.value,
-    backgroundColor: bg.value,
-    borderColor: border.value,
   }));
 
   const handlePressIn = useCallback(() => {
     if (disabled) return;
-    bg.value = KEY_PRESS_BG;
-    border.value = KEY_PRESS_BORDER;
     if (reduceMotion) {
-      opacity.value = 0.8;
+      opacity.value = 0.35;
       return;
     }
-    scale.value = withTiming(0.92, { duration: 80 });
-    opacity.value = withTiming(0.8, { duration: 80 });
-  }, [bg, border, disabled, opacity, reduceMotion, scale]);
+    scale.value = withTiming(0.88, { duration: 70 });
+    opacity.value = withTiming(0.35, { duration: 70 });
+  }, [disabled, opacity, reduceMotion, scale]);
 
   const handlePressOut = useCallback(() => {
     if (disabled) return;
-    bg.value = KEY_IDLE_BG;
-    border.value = KEY_IDLE_BORDER;
     if (reduceMotion) {
       opacity.value = 1;
       scale.value = 1;
       return;
     }
     scale.value = withSpring(1, KEY_SPRING);
-    opacity.value = withTiming(1, { duration: 100 });
-  }, [bg, border, disabled, opacity, reduceMotion, scale]);
+    opacity.value = withTiming(1, { duration: 120 });
+  }, [disabled, opacity, reduceMotion, scale]);
 
   return (
     <View style={styles.keySlot}>
@@ -146,7 +133,11 @@ export const PinVaultKeypad = memo(function PinVaultKeypad({
           reduceMotion={reduceMotion}
           accessibilityLabel="Backspace"
         >
-          <ArrowLeft size={22} color={GOLD} weight="regular" />
+          <Backspace
+            size={26}
+            color={backspaceDisabled || disabled ? 'rgba(255,255,255,0.22)' : TEXT_PRIMARY}
+            weight="regular"
+          />
         </VaultKey>
       </View>
     </View>
@@ -156,31 +147,34 @@ export const PinVaultKeypad = memo(function PinVaultKeypad({
 const styles = StyleSheet.create({
   keypad: {
     width: '100%',
-    marginTop: 36,
-    paddingHorizontal: 32,
-    gap: 10,
+    marginTop: 28,
+    paddingHorizontal: 28,
+    gap: 8,
   },
   keyRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
   },
   keySlot: {
     flex: 1,
-    height: KEY_HEIGHT,
-  },
-  keyCell: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 16,
-    borderWidth: 1,
+    height: KEY_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  keyCell: {
+    width: KEY_SIZE,
+    height: KEY_SIZE,
+    borderRadius: KEY_SIZE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
   keyLabel: {
-    fontFamily: inter.medium,
-    fontSize: 24,
-    fontWeight: '500',
+    fontFamily: inter.regular,
+    fontSize: 30,
+    fontWeight: '400',
     color: TEXT_PRIMARY,
+    includeFontPadding: false,
   },
 });

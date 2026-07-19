@@ -6,6 +6,9 @@ export const esoPayKeys = {
 
   wallet: (companyId: string) => [...esoPayKeys.all, 'wallet', companyId] as const,
 
+  walletCashback: (companyId: string) =>
+    [...esoPayKeys.all, 'wallet-cashback', companyId] as const,
+
   walletTransactions: (companyId: string, page = 1, limit = 20, category: string = 'all') =>
     [...esoPayKeys.all, 'wallet-transactions', companyId, page, limit, category] as const,
 

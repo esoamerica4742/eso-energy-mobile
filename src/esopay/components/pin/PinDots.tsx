@@ -15,10 +15,11 @@ import {
   SPRING_DOT_SETTLE,
 } from '@/lib/motion/springMotion';
 import { TRANSACTION_PIN_LENGTH } from '@/esopay/storage/transactionPin';
+import { ESO_PAY_GOLD } from '@/esopay/theme/brandColors';
 
-const GOLD = '#E8A020';
+const GOLD = ESO_PAY_GOLD;
 
-type PinDotsVariant = 'default' | 'welcomeBack';
+type PinDotsVariant = 'default' | 'welcomeBack' | 'quiet';
 
 type Props = {
   filledCount: number;
@@ -80,8 +81,18 @@ const PinDot = memo(function PinDot({
     opacity: interpolate(dotAnim.value, [0, 1], [0, 1]),
   }));
 
-  const emptyStyle = variant === 'welcomeBack' ? styles.dotEmptyWelcome : styles.dotEmpty;
-  const filledStyle = variant === 'welcomeBack' ? styles.dotFilledWelcome : styles.dotFilled;
+  const emptyStyle =
+    variant === 'quiet'
+      ? styles.dotEmptyQuiet
+      : variant === 'welcomeBack'
+        ? styles.dotEmptyWelcome
+        : styles.dotEmpty;
+  const filledStyle =
+    variant === 'quiet'
+      ? styles.dotFilledQuiet
+      : variant === 'welcomeBack'
+        ? styles.dotFilledWelcome
+        : styles.dotFilled;
 
   return (
     <Animated.View
@@ -130,12 +141,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 16,
+    gap: 18,
   },
   dot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
   },
   dotEmpty: {
     backgroundColor: 'transparent',
@@ -151,7 +162,16 @@ const styles = StyleSheet.create({
     borderWidth: 0,
   },
   dotFilledWelcome: {
-    backgroundColor: '#E8A020',
+    backgroundColor: GOLD,
+    borderWidth: 0,
+  },
+  dotEmptyQuiet: {
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.28)',
+  },
+  dotFilledQuiet: {
+    backgroundColor: '#FFFFFF',
     borderWidth: 0,
   },
 });

@@ -1,1219 +1,539 @@
-import { useCallback, useEffect, useState } from 'react';
-
-import {
-
-  Modal,
-
-  Pressable,
-
-  ScrollView,
-
-  StyleSheet,
-
-  Switch,
-
-  Text,
-
-  View,
-
-} from 'react-native';
-
-import { LinearGradient } from 'expo-linear-gradient';
-
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Modal, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import Constants from 'expo-constants';
-
-import {
-
-  Activity,
-
-  Bell,
-
-  ChevronRight,
-
-  Fingerprint,
-
-  HelpCircle,
-
-  KeyRound,
-
-  MessageCircle,
-
-  Receipt,
-
-  Shield,
-
-  Trash2,
-
-  User,
-
-  X,
-
-} from 'lucide-react-native';
-
-import { useRouter } from 'expo-router';
-import { signOutEsoPay } from '@/esopay/auth/signOutEsoPay';
-import { MONITORING_HOME_ROUTE } from '@/lib/navigation/productRoutes';
+import { ChevronRight, Trash2, X } from 'lucide-react-native';
+import { useRouter, type Href } from 'expo-router';
+import { signOutUnified } from '@/master/signOutUnified';
+import { navigateToProductHome } from '@/lib/navigation/productNavigation';
+import { ONBOARDING_ROUTE } from '@/lib/navigation/productRoutes';
 import { getDefaultLaunchPreference, setDefaultLaunchPreference } from '@/master/launchPreference';
-import {
-  openEsoEnergyPrivacy,
-  openEsoEnergySupportEmail,
-  openEsoEnergyTerms,
-  openEsoEnergyWebsite,
-} from '@/esopay/lib/esoEnergyLinks';
-
+import { openEsoEnergySupportEmail } from '@/esopay/lib/esoEnergyLinks';
 import { useEsoPayAuthStore } from '@/esopay/auth/store';
-
 import { EsoPayScreenShell } from '@/esopay/components/EsoPayScreenShell';
-
-import { EsoPayTransactionPinModal } from '@/esopay/components/EsoPayTransactionPinModal';
-import { EsoPayLoginPinModal } from '@/esopay/components/EsoPayLoginPinModal';
-import { EsoPayDisputeModal } from '@/esopay/components/EsoPayDisputeModal';
 import { useEsoPayHost } from '@/esopay/context/EsoPayHostContext';
 import { deleteEsoPayAccount } from '@/esopay/lib/deleteEsoPayAccount';
-
-
-import { useBiometricPin } from '@/esopay/hooks/useBiometricPin';
-import { useLoginPin } from '@/esopay/hooks/useLoginPin';
-
 import { useEsoPayScrollPadding } from '@/esopay/hooks/useEsoPayScrollPadding';
-
 import { useEsoPayUserId } from '@/esopay/hooks/useEsoPayUserId';
-
 import { useBeneficiaries } from '@/esopay/hooks/useBeneficiaries';
-
-import { useTransactionPin } from '@/esopay/hooks/useTransactionPin';
 import { useEsoPayKyc } from '@/esopay/hooks/useEsoPayKyc';
-
-import { useRegisterPowerShieldPush } from '@/esopay/hooks/usePowerShield';
-import { registerEsoPayRemotePush } from '@/esopay/lib/esoPayPushRegistration';
-
+import { EsoPayKycModal } from '@/esopay/components/EsoPayKycModal';
+import { ESOPAY_HISTORY_HREF } from '@/esopay/navigation/routes';
 import {
-  ESOPAY_HISTORY_HREF,
-  ESOPAY_WALLET_HREF,
-} from '@/esopay/navigation/routes';
-
-import {
-
   getNotificationPreferences,
-
   setNotificationPreferences,
-
   type NotificationPreferences,
-
 } from '@/esopay/storage/notificationPreferences';
-
-import { colors } from '@/esopay/theme/colors';
-
-import { luxury } from '@/esopay/theme/luxury';
-
-import { spacing } from '@/esopay/theme/spacing';
-
-import { fonts } from '@/esopay/theme/typography';
-
 import { ConfirmDialog } from '@/components/primitives/AlertDialog';
-import { Colors, FontSize } from '@/tokens/design';
-
-import { fonts as appFonts } from '@/theme/tokens';
-import { ESO_PAY_GOLD, ESO_PAY_GOLD_MUTED, ESO_PAY_SURFACE } from '@/esopay/theme/brandColors';
+import {
+  ESO_PAY_BG,
+  ESO_PAY_TEXT_PRIMARY,
+  ESO_PAY_TEXT_SECONDARY,
+} from '@/esopay/theme/brandColors';
+import { ds } from '@/esopay/theme/designSystem';
 import { inter } from '@/theme/fonts';
-
 import { useEnodeToast } from '@/providers/EnodeToastProvider';
-
-
 
 type ActiveSheet = 'none' | 'beneficiaries';
 
-
-
-const APP_VERSION =
-
-  Constants.expoConfig?.version ?? Constants.nativeAppVersion ?? '1.0.0';
-
-
+const APP_VERSION = Constants.expoConfig?.version ?? Constants.nativeAppVersion ?? '1.0.0';
 
 function SettingsToggleRow({
-
-  icon: Icon,
-
   label,
-
-  description,
-
   value,
-
   onValueChange,
-
   disabled,
-
+  isLast,
 }: {
-
-  icon: typeof Bell;
-
   label: string;
-
-  description?: string;
-
   value: boolean;
-
   onValueChange: (next: boolean) => void;
-
   disabled?: boolean;
-
+  isLast?: boolean;
 }) {
-
   return (
-
-    <View style={styles.toggleRow}>
-
-      <View style={styles.rowIconWrap}>
-
-        <Icon size={18} color={colors.gold} strokeWidth={2} />
-
-      </View>
-
-      <View style={styles.rowCopy}>
-
-        <Text style={styles.rowLabel}>{label}</Text>
-
-        {description ? <Text style={styles.rowMeta}>{description}</Text> : null}
-
-      </View>
-
+    <View style={[styles.row, !isLast && styles.rowDivider]}>
+      <Text style={styles.rowLabel}>{label}</Text>
       <Switch
-
         value={value}
-
         onValueChange={onValueChange}
-
         disabled={disabled}
-
-        trackColor={{ false: colors.surface2, true: colors.goldGlow }}
-
-        thumbColor={value ? colors.gold : colors.muted}
-
+        trackColor={{ false: 'rgba(255,255,255,0.12)', true: 'rgba(255,255,255,0.28)' }}
+        thumbColor={value ? ESO_PAY_TEXT_PRIMARY : 'rgba(245,240,232,0.55)'}
       />
-
     </View>
-
   );
-
 }
-
-
 
 function SettingsLinkRow({
-
-  icon: Icon,
-
   label,
-
-  meta,
-
+  value,
   onPress,
-
-  disabled,
-
+  destructive,
+  isLast,
 }: {
-
-  icon: typeof Bell;
-
   label: string;
-
-  meta?: string;
-
+  value?: string;
   onPress?: () => void;
-
-  disabled?: boolean;
-
+  destructive?: boolean;
+  isLast?: boolean;
 }) {
-
   return (
-
     <Pressable
-
       onPress={onPress}
-
-      disabled={disabled || !onPress}
-
-      style={({ pressed }) => [styles.linkRow, pressed && onPress && styles.rowPressed]}
-
+      disabled={!onPress}
+      style={({ pressed }) => [
+        styles.row,
+        !isLast && styles.rowDivider,
+        pressed && onPress && styles.rowPressed,
+      ]}
     >
-
-      <View style={styles.rowIconWrap}>
-
-        <Icon size={18} color={colors.gold} strokeWidth={2} />
-
+      <Text style={[styles.rowLabel, destructive && styles.rowLabelDestructive]}>{label}</Text>
+      <View style={styles.rowTrailing}>
+        {value ? <Text style={styles.rowValue}>{value}</Text> : null}
+        {onPress && !destructive ? (
+          <ChevronRight size={16} color={ESO_PAY_TEXT_SECONDARY} strokeWidth={2} />
+        ) : null}
       </View>
-
-      <View style={styles.rowCopy}>
-
-        <Text style={styles.rowLabel}>{label}</Text>
-
-        {meta ? <Text style={styles.rowMeta}>{meta}</Text> : null}
-
-      </View>
-
-      {onPress ? <ChevronRight size={16} color={colors.muted} /> : null}
-
     </Pressable>
-
   );
-
 }
 
-
+function SettingsGroup({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <View style={styles.group}>
+      <Text style={styles.groupTitle}>{title}</Text>
+      <View style={styles.groupCard}>{children}</View>
+    </View>
+  );
+}
 
 export function SettingsScreen() {
-
   const router = useRouter();
-
-  const scrollPad = useEsoPayScrollPadding({ topExtra: spacing.md });
-
+  const scrollPad = useEsoPayScrollPadding({ topExtra: 16 });
   const user = useEsoPayAuthStore((s) => s.user);
-  const setPinUnlocked = useEsoPayAuthStore((s) => s.setLoginPinUnlocked);
-
   const toast = useEnodeToast();
-
   const { userId } = useEsoPayUserId();
   const host = useEsoPayHost();
 
-
-
   const meta = user?.user_metadata as { full_name?: string } | undefined;
-
   const name = meta?.full_name ?? user?.email ?? 'ESO User';
-
   const initials = name
-
     .split(/\s+/)
-
     .slice(0, 2)
-
     .map((part) => part[0]?.toUpperCase() ?? '')
-
     .join('');
 
-
-
   const { allBeneficiaries, remove } = useBeneficiaries();
-
-  const {
-    pinConfigured,
-    isChecking: pinChecking,
-    configurePin,
-    verifyPin,
-    userIdReady,
-  } = useTransactionPin();
-  const { status: kycStatus } = useEsoPayKyc();
-
-  const profileBadge = (() => {
-    const identityVerified = Boolean(kycStatus?.bvn_configured || kycStatus?.nin_configured);
-    if (identityVerified && pinConfigured) return 'Wallet identity verified';
-    if (pinConfigured) return 'Secured with transaction PIN';
-    return 'Complete setup to fund wallet';
-  })();
-  const {
-    pinConfigured: loginPinConfigured,
-    isChecking: loginPinChecking,
-    configurePin: configureLoginPin,
-    clearPin: clearLoginPin,
-    userIdReady: loginPinReady,
-  } = useLoginPin();
-
-  const {
-
-    available: biometricAvailable,
-
-    enabled: biometricEnabled,
-
-    label: biometricLabel,
-
-    loading: biometricLoading,
-
-    setPreference: setBiometricPreference,
-
-  } = useBiometricPin();
-
-
+  const { status: kycStatus, saveKyc, saving: kycSaving } = useEsoPayKyc();
+  const identityVerified = Boolean(kycStatus?.bvn_configured || kycStatus?.nin_configured);
 
   const [activeSheet, setActiveSheet] = useState<ActiveSheet>('none');
-
-  const [pinOpen, setPinOpen] = useState(false);
-  const [loginPinOpen, setLoginPinOpen] = useState(false);
+  const [kycOpen, setKycOpen] = useState(false);
   const [defaultLaunch, setDefaultLaunch] = useState(false);
+  const [signOutOpen, setSignOutOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationPreferences>({
+    billReminders: true,
+    paymentAlerts: true,
+    promotionalOffers: false,
+  });
 
   useEffect(() => {
     void getDefaultLaunchPreference().then((pref) => setDefaultLaunch(pref === 'eso_pay'));
   }, []);
-  const [signOutOpen, setSignOutOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [disputeOpen, setDisputeOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-
-  const [notifications, setNotifications] = useState<NotificationPreferences>({
-
-    billReminders: true,
-
-    paymentAlerts: true,
-
-    promotionalOffers: false,
-
-  });
-
-
 
   useEffect(() => {
-
     if (!userId) return;
-
     void getNotificationPreferences(userId).then(setNotifications);
-
   }, [userId]);
 
-
-
   const persistNotifications = useCallback(
-
     async (next: NotificationPreferences) => {
-
       setNotifications(next);
-
       if (userId) await setNotificationPreferences(userId, next);
-
     },
-
     [userId],
-
   );
-
-
-
-  const openPinSheet = useCallback(() => {
-
-    if (!userIdReady) {
-
-      toast.show('Still loading your account — try again in a moment', 'info');
-
-      return;
-
-    }
-
-    setPinOpen(true);
-
-  }, [toast, userIdReady]);
-
-  const openLoginPinSheet = useCallback(() => {
-    if (!loginPinReady) {
-      toast.show('Still loading your account — try again in a moment', 'info');
-      return;
-    }
-    setLoginPinOpen(true);
-  }, [loginPinReady, toast]);
-
-
 
   const handleRemoveBeneficiary = useCallback(
-
     async (beneficiaryId: string) => {
-
       await remove(beneficiaryId);
-
       toast.show('Beneficiary removed', 'info');
-
     },
-
     [remove, toast],
-
   );
 
+  const signOut = useCallback(async () => {
+    await signOutUnified();
+    router.replace(ONBOARDING_ROUTE as Href);
+  }, [router]);
 
-
-  const handleBiometricToggle = useCallback(
-
-    async (next: boolean) => {
-
-      if (!pinConfigured) {
-
-        toast.show('Set up your transaction PIN first', 'info');
-
+  const handleDeleteAccount = useCallback(async () => {
+    if (!userId) return;
+    setDeleting(true);
+    try {
+      const result = await deleteEsoPayAccount(userId, host.companyId || userId);
+      if (!result.ok) {
+        toast.show(result.error, 'error');
         return;
-
       }
-
-      const ok = await setBiometricPreference(next);
-
-      if (ok) {
-
-        toast.show(next ? `${biometricLabel} enabled for payments` : `${biometricLabel} disabled`, 'success');
-
-      }
-
-    },
-
-    [biometricLabel, pinConfigured, setBiometricPreference, toast],
-
-  );
-
-
+      toast.show('Account closed on this device', 'success');
+      router.replace(ONBOARDING_ROUTE as Href);
+    } finally {
+      setDeleting(false);
+      setDeleteOpen(false);
+    }
+  }, [host.companyId, router, toast, userId]);
 
   return (
-
     <EsoPayScreenShell>
-
       <ScrollView
-
         contentContainerStyle={[styles.scroll, scrollPad]}
-
         showsVerticalScrollIndicator={false}
-
       >
-
-        <Text style={styles.title}>Settings</Text>
-
-
-
-        <LinearGradient
-
-          colors={['rgba(201,168,76,0.22)', 'rgba(13,15,23,0.98)']}
-
-          start={{ x: 0, y: 0 }}
-
-          end={{ x: 1, y: 1 }}
-
-          style={styles.profileHero}
-
-        >
-
+        <View style={styles.profile}>
           <View style={styles.avatar}>
-
             <Text style={styles.avatarText}>{initials || 'E'}</Text>
-
           </View>
+          <Text style={styles.name} numberOfLines={1}>
+            {name}
+          </Text>
+          <Text style={styles.email} numberOfLines={1}>
+            {user?.email ?? '—'}
+          </Text>
+          {identityVerified ? (
+            <Text style={styles.verified}>Identity verified</Text>
+          ) : null}
+        </View>
 
-          <View style={styles.profileCopy}>
-
-            <Text style={styles.name}>{name}</Text>
-
-            <Text style={styles.email}>{user?.email ?? '—'}</Text>
-
-            <View style={styles.profileBadge}>
-
-              <Shield size={12} color={luxury.gold} strokeWidth={2.2} />
-
-              <Text style={styles.profileBadgeText}>{profileBadge}</Text>
-
-            </View>
-
-          </View>
-
-        </LinearGradient>
-
-
-
-        <View style={styles.section}>
-
-          <Text style={styles.sectionTitle}>Command centers</Text>
-
+        <SettingsGroup title="App">
           <SettingsLinkRow
-            icon={Activity}
-            label="Switch to Inverter Monitoring"
-            meta="Fleet telemetry and alerts"
-            onPress={() => router.push(MONITORING_HOME_ROUTE)}
+            label="Inverter Monitoring"
+            onPress={() => navigateToProductHome(router, 'monitoring')}
           />
-
           <SettingsToggleRow
-            icon={Shield}
-            label="Set as Default Launch Screen"
-            description="Open Eso Pay when you unlock the app"
+            label="Open Eso Pay by default"
             value={defaultLaunch}
             onValueChange={(enabled) => {
               setDefaultLaunch(enabled);
               void setDefaultLaunchPreference(enabled ? 'eso_pay' : null);
             }}
+            isLast
           />
+        </SettingsGroup>
 
-        </View>
-
-
-
-        <View style={styles.section}>
-
-          <Text style={styles.sectionTitle}>Security</Text>
-
-          <SettingsLinkRow
-
-            icon={KeyRound}
-
-            label={pinConfigured ? 'App PIN' : 'Set up 4-digit PIN'}
-
-            meta={pinChecking ? 'Checking…' : pinConfigured ? 'Unlock & payments' : 'Required for payments'}
-
-            onPress={openPinSheet}
-
-          />
-
+        <SettingsGroup title="Notifications">
           <SettingsToggleRow
-
-            icon={Fingerprint}
-
-            label={`${biometricLabel} for payments`}
-
-            description={
-
-              biometricAvailable
-
-                ? 'Authorize bill payments without typing your PIN'
-
-                : 'Not available on this device'
-
-            }
-
-            value={biometricEnabled}
-
-            onValueChange={(next) => void handleBiometricToggle(next)}
-
-            disabled={!biometricAvailable || biometricLoading || !pinConfigured}
-
-          />
-
-          <SettingsLinkRow
-
-            icon={Shield}
-
-            label="Two-factor authentication"
-
-            meta="Coming soon"
-
-            disabled
-
-          />
-
-        </View>
-
-
-
-        <View style={styles.section}>
-
-          <Text style={styles.sectionTitle}>Notifications</Text>
-
-          <SettingsToggleRow
-
-            icon={Bell}
-
             label="Bill reminders"
-
-            description="Due dates and overdue alerts"
-
             value={notifications.billReminders}
-
             onValueChange={(billReminders) =>
-
               void persistNotifications({ ...notifications, billReminders })
-
             }
-
           />
-
           <SettingsToggleRow
-
-            icon={Receipt}
-
             label="Payment alerts"
-
-            description="Successful debits and wallet credits"
-
             value={notifications.paymentAlerts}
-
             onValueChange={(paymentAlerts) =>
-
               void persistNotifications({ ...notifications, paymentAlerts })
-
             }
-
+            isLast
           />
+        </SettingsGroup>
 
-          <SettingsToggleRow
-
-            icon={MessageCircle}
-
-            label="Offers & tips"
-
-            description="Product updates and savings tips"
-
-            value={notifications.promotionalOffers}
-
-            onValueChange={(promotionalOffers) =>
-
-              void persistNotifications({ ...notifications, promotionalOffers })
-
-            }
-
-          />
-
-        </View>
-
-
-
-        <View style={styles.section}>
-
-          <Text style={styles.sectionTitle}>Payments</Text>
-
+        <SettingsGroup title="Payments">
           <SettingsLinkRow
-
-            icon={Receipt}
-
             label="Payment history"
-
             onPress={() => router.push(ESOPAY_HISTORY_HREF)}
-
           />
-
           <SettingsLinkRow
-
-            icon={User}
-
-            label="Saved beneficiaries"
-
-            meta={`${allBeneficiaries.length} saved`}
-
+            label="Beneficiaries"
+            value={String(allBeneficiaries.length)}
             onPress={() => setActiveSheet('beneficiaries')}
-
+            isLast
           />
+        </SettingsGroup>
 
-        </View>
+        <SettingsGroup title="Help">
+          <SettingsLinkRow
+            label="Report an issue"
+            onPress={() => {
+              void openEsoEnergySupportEmail().catch(() => {
+                toast.show('Could not open email. Contact support@eso-energy.com', 'error');
+              });
+            }}
+            isLast
+          />
+        </SettingsGroup>
 
+        <SettingsGroup title="Account">
+          <SettingsLinkRow
+            label={identityVerified ? 'Identity verified' : 'Verify identity'}
+            value={identityVerified ? 'Done' : 'BVN / NIN'}
+            onPress={() => {
+              if (!identityVerified) setKycOpen(true);
+            }}
+          />
+          <SettingsLinkRow label="Sign out" onPress={() => setSignOutOpen(true)} />
+          <SettingsLinkRow
+            label="Delete account"
+            onPress={() => setDeleteOpen(true)}
+            destructive
+            isLast
+          />
+        </SettingsGroup>
 
-
-        <View style={styles.section}>
-
-          <Text style={styles.sectionTitle}>Support</Text>
-
-          <SettingsLinkRow icon={HelpCircle} label="Help center" meta="FAQ & guides" disabled />
-
-          <SettingsLinkRow icon={MessageCircle} label="Live chat" meta="24/7 support" disabled />
-
-          <SettingsLinkRow icon={Bell} label="Report an issue" disabled />
-
-        </View>
-
-
-
-        <View style={styles.section}>
-
-          <Text style={styles.sectionTitle}>About</Text>
-
-          <SettingsLinkRow icon={Shield} label={`Eso Pay v${APP_VERSION}`} />
-
-          <SettingsLinkRow icon={HelpCircle} label="Terms of Service" disabled />
-
-          <SettingsLinkRow icon={Shield} label="Privacy Policy" disabled />
-
-        </View>
-
+        <Text style={styles.versionFooter}>Eso Pay · {APP_VERSION}</Text>
       </ScrollView>
 
-
-
       <Modal
-
         visible={activeSheet !== 'none'}
-
         animationType="slide"
-
         transparent
-
         onRequestClose={() => setActiveSheet('none')}
-
       >
-
         <View style={styles.modalBackdrop}>
-
           <View style={styles.modalCard}>
-
             <View style={styles.modalHeader}>
-
-              <Text style={styles.modalTitle}>Saved beneficiaries</Text>
-
+              <Text style={styles.modalTitle}>Beneficiaries</Text>
               <Pressable onPress={() => setActiveSheet('none')} hitSlop={12}>
-
-                <X size={22} color={colors.muted} />
-
+                <X size={22} color={ESO_PAY_TEXT_SECONDARY} />
               </Pressable>
-
             </View>
-
             <ScrollView contentContainerStyle={styles.modalScroll}>
-
               {allBeneficiaries.length === 0 ? (
-
                 <Text style={styles.emptyCopy}>
-
-                  Saved beneficiaries appear here after you pay with “Save beneficiary” enabled.
-
+                  Beneficiaries appear here after you save one during payment.
                 </Text>
-
               ) : (
-
-                allBeneficiaries.map((item) => (
-
-                  <View key={item.id} style={styles.beneficiaryRow}>
-
+                allBeneficiaries.map((item, index) => (
+                  <View
+                    key={item.id}
+                    style={[
+                      styles.beneficiaryRow,
+                      index < allBeneficiaries.length - 1 && styles.rowDivider,
+                    ]}
+                  >
                     <View style={styles.beneficiaryCopy}>
-
                       <Text style={styles.beneficiaryName}>
-
                         {item.customerName ?? item.providerName}
-
                       </Text>
-
                       <Text style={styles.beneficiaryMeta}>
-
                         {item.providerName} · {item.accountNumber}
-
                       </Text>
-
                     </View>
-
                     <Pressable onPress={() => void handleRemoveBeneficiary(item.id)} hitSlop={8}>
-
-                      <Trash2 size={18} color={colors.danger} />
-
+                      <Trash2 size={18} color={ds.color.error} />
                     </Pressable>
-
                   </View>
-
                 ))
-
               )}
-
             </ScrollView>
-
           </View>
-
         </View>
-
       </Modal>
 
-
-
-      <EsoPayTransactionPinModal
-
-        open={pinOpen}
-
-        onOpenChange={setPinOpen}
-
-        pinConfigured={pinConfigured}
-
-        onSave={async (pin) => {
-
-          await configurePin(pin);
-
-          toast.show(pinConfigured ? 'Transaction PIN updated' : 'Transaction PIN created', 'success');
-
-        }}
-
-      />
-
-      <EsoPayLoginPinModal
-        open={loginPinOpen}
-        onOpenChange={setLoginPinOpen}
-        pinConfigured={loginPinConfigured}
-        onSave={async (pin) => {
-          await configureLoginPin(pin);
-          toast.show(loginPinConfigured ? 'Login PIN updated' : 'Login PIN enabled', 'success');
-        }}
-        onClear={async () => {
-          await clearLoginPin();
-          toast.show('Login PIN removed', 'info');
+      <EsoPayKycModal
+        open={kycOpen}
+        onOpenChange={setKycOpen}
+        loading={kycSaving}
+        onSubmit={saveKyc}
+        onSaved={() => {
+          toast.show('Identity saved', 'success');
         }}
       />
 
+      <ConfirmDialog
+        open={signOutOpen}
+        onOpenChange={setSignOutOpen}
+        title="Sign out?"
+        description="You'll need your email and PIN to sign back in on this device."
+        actionLabel="Sign out"
+        destructive
+        onAction={() => {
+          setSignOutOpen(false);
+          void signOut();
+        }}
+      />
+
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Delete Eso Pay account?"
+        description="This closes your wallet on this device and signs you out."
+        actionLabel={deleting ? 'Deleting…' : 'Delete account'}
+        destructive
+        onAction={() => void handleDeleteAccount()}
+      />
     </EsoPayScreenShell>
-
   );
-
 }
 
-
-
 const styles = StyleSheet.create({
-
   scroll: {
-
-    paddingHorizontal: spacing.lg,
-
-    gap: spacing.lg,
-
+    paddingHorizontal: 16,
+    gap: 22,
+    paddingBottom: 28,
   },
-
-  title: {
-
-    fontFamily: appFonts.bold,
-
-    fontSize: FontSize.title,
-
-    color: Colors.textPrimary,
-
-  },
-
-  profileHero: {
-
-    flexDirection: 'row',
-
+  profile: {
     alignItems: 'center',
-
-    gap: spacing.lg,
-
-    borderRadius: 20,
-
-    borderWidth: 1,
-
-    borderColor: colors.goldBorder,
-
-    padding: spacing.lg,
-
-    overflow: 'hidden',
-
-  },
-
-  avatar: {
-
-    width: 64,
-
-    height: 64,
-
-    borderRadius: 32,
-
-    alignItems: 'center',
-
-    justifyContent: 'center',
-
-    backgroundColor: colors.goldDim,
-
-    borderWidth: 2,
-
-    borderColor: 'rgba(255,255,255,0.08)',
-
-  },
-
-  avatarText: {
-
-    fontFamily: fonts.display,
-
-    fontSize: 24,
-
-    color: colors.black,
-
-  },
-
-  profileCopy: {
-
-    flex: 1,
-
-    gap: 4,
-
-  },
-
-  name: {
-
-    fontFamily: fonts.uiMedium,
-
-    fontSize: 18,
-
-    color: colors.white,
-
-  },
-
-  email: {
-
-    fontFamily: fonts.ui,
-
-    fontSize: 13,
-
-    color: colors.muted,
-
-  },
-
-  profileBadge: {
-
-    flexDirection: 'row',
-
-    alignItems: 'center',
-
+    paddingTop: 8,
+    paddingBottom: 4,
     gap: 6,
-
-    marginTop: spacing.sm,
-
-    alignSelf: 'flex-start',
-
-    paddingHorizontal: 10,
-
-    paddingVertical: 4,
-
-    borderRadius: 999,
-
-    backgroundColor: 'rgba(201,168,76,0.12)',
-
   },
-
-  profileBadgeText: {
-
-    fontFamily: fonts.uiMedium,
-
-    fontSize: 11,
-
-    color: luxury.gold,
-
-    letterSpacing: 0.2,
-
-  },
-
-  section: {
-
-    backgroundColor: colors.surface,
-
-    borderRadius: 16,
-
-    borderWidth: 1,
-
-    borderColor: colors.goldBorder,
-
-    overflow: 'hidden',
-
-  },
-
-  sectionTitle: {
-
-    fontFamily: fonts.uiMedium,
-
-    fontSize: 11,
-
-    letterSpacing: 1.2,
-
-    color: colors.gold,
-
-    textTransform: 'uppercase',
-
-    paddingHorizontal: spacing.lg,
-
-    paddingTop: spacing.lg,
-
-    paddingBottom: spacing.sm,
-
-  },
-
-  linkRow: {
-
-    flexDirection: 'row',
-
+  avatar: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     alignItems: 'center',
-
-    gap: spacing.md,
-
-    paddingHorizontal: spacing.lg,
-
-    paddingVertical: 14,
-
-    borderTopWidth: StyleSheet.hairlineWidth,
-
-    borderTopColor: colors.goldBorder,
-
-  },
-
-  toggleRow: {
-
-    flexDirection: 'row',
-
-    alignItems: 'center',
-
-    gap: spacing.md,
-
-    paddingHorizontal: spacing.lg,
-
-    paddingVertical: 14,
-
-    borderTopWidth: StyleSheet.hairlineWidth,
-
-    borderTopColor: colors.goldBorder,
-
-  },
-
-  rowPressed: {
-
-    backgroundColor: 'rgba(255,255,255,0.03)',
-
-  },
-
-  rowIconWrap: {
-
-    width: 36,
-
-    height: 36,
-
-    borderRadius: 10,
-
-    alignItems: 'center',
-
     justifyContent: 'center',
-
-    backgroundColor: 'rgba(201,168,76,0.1)',
-
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    marginBottom: 8,
   },
-
-  rowCopy: {
-
-    flex: 1,
-
-    gap: 2,
-
+  avatarText: {
+    fontFamily: inter.bold,
+    fontSize: 26,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
-
-  rowLabel: {
-
-    fontFamily: fonts.ui,
-
+  name: {
+    fontFamily: inter.semibold,
+    fontSize: 22,
+    lineHeight: 28,
+    letterSpacing: -0.3,
+    color: ESO_PAY_TEXT_PRIMARY,
+  },
+  email: {
+    fontFamily: inter.regular,
     fontSize: 14,
-
-    color: colors.white,
-
+    color: ESO_PAY_TEXT_SECONDARY,
   },
-
-  rowMeta: {
-
-    fontFamily: fonts.ui,
-
+  verified: {
+    marginTop: 4,
+    fontFamily: inter.medium,
     fontSize: 12,
-
-    color: colors.muted,
-
+    color: ESO_PAY_TEXT_SECONDARY,
   },
-
-  modalBackdrop: {
-
-    flex: 1,
-
-    backgroundColor: 'rgba(0,0,0,0.72)',
-
-    justifyContent: 'flex-end',
-
+  group: {
+    gap: 8,
   },
-
-  modalCard: {
-
-    backgroundColor: colors.surface,
-
-    borderTopLeftRadius: 24,
-
-    borderTopRightRadius: 24,
-
-    borderWidth: 1,
-
-    borderColor: colors.goldBorder,
-
-    maxHeight: '82%',
-
-    paddingBottom: spacing.xxxl,
-
+  groupTitle: {
+    fontFamily: inter.medium,
+    fontSize: 13,
+    letterSpacing: -0.1,
+    color: ESO_PAY_TEXT_SECONDARY,
+    paddingHorizontal: 4,
   },
-
-  modalHeader: {
-
+  groupCard: {
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    overflow: 'hidden',
+  },
+  row: {
     flexDirection: 'row',
-
     alignItems: 'center',
-
     justifyContent: 'space-between',
-
-    paddingHorizontal: spacing.screen,
-
-    paddingTop: spacing.lg,
-
-    paddingBottom: spacing.md,
-
+    minHeight: 52,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    gap: 12,
   },
-
-  modalTitle: {
-
-    fontFamily: fonts.display,
-
-    fontSize: 24,
-
-    color: colors.white,
-
+  rowDivider: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: 'rgba(255,255,255,0.08)',
   },
-
-  modalScroll: {
-
-    paddingHorizontal: spacing.screen,
-
-    paddingBottom: spacing.xl,
-
-    gap: spacing.sm,
-
+  rowPressed: {
+    backgroundColor: 'rgba(255,255,255,0.04)',
   },
-
-  emptyCopy: {
-
-    fontFamily: fonts.ui,
-
-    fontSize: 14,
-
-    lineHeight: 20,
-
-    color: colors.muted,
-
-    paddingVertical: spacing.lg,
-
-  },
-
-  beneficiaryRow: {
-
-    flexDirection: 'row',
-
-    alignItems: 'center',
-
-    gap: spacing.md,
-
-    backgroundColor: colors.surface2,
-
-    borderRadius: 14,
-
-    borderWidth: 1,
-
-    borderColor: colors.goldBorder,
-
-    padding: spacing.lg,
-
-  },
-
-  beneficiaryCopy: {
-
+  rowLabel: {
     flex: 1,
-
-    gap: 4,
-
+    fontFamily: inter.regular,
+    fontSize: 16,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
-
-  beneficiaryName: {
-
-    fontFamily: fonts.uiMedium,
-
+  rowLabelDestructive: {
+    color: ds.color.error,
+  },
+  rowTrailing: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  rowValue: {
+    fontFamily: inter.regular,
     fontSize: 15,
-
-    color: colors.white,
-
+    color: ESO_PAY_TEXT_SECONDARY,
   },
-
-  beneficiaryMeta: {
-
-    fontFamily: fonts.ui,
-
+  versionFooter: {
+    fontFamily: inter.regular,
     fontSize: 12,
-
-    color: colors.muted,
-
+    color: ESO_PAY_TEXT_SECONDARY,
+    textAlign: 'center',
+    paddingTop: 4,
   },
-
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.72)',
+    justifyContent: 'flex-end',
+  },
+  modalCard: {
+    backgroundColor: ESO_PAY_BG,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.1)',
+    maxHeight: '82%',
+    paddingBottom: 32,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 12,
+  },
+  modalTitle: {
+    fontFamily: inter.semibold,
+    fontSize: 18,
+    color: ESO_PAY_TEXT_PRIMARY,
+  },
+  modalScroll: {
+    paddingHorizontal: 8,
+    paddingBottom: 20,
+  },
+  emptyCopy: {
+    fontFamily: inter.regular,
+    fontSize: 14,
+    lineHeight: 20,
+    color: ESO_PAY_TEXT_SECONDARY,
+    paddingHorizontal: 12,
+    paddingVertical: 20,
+  },
+  beneficiaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 14,
+  },
+  beneficiaryCopy: {
+    flex: 1,
+    gap: 2,
+  },
+  beneficiaryName: {
+    fontFamily: inter.medium,
+    fontSize: 15,
+    color: ESO_PAY_TEXT_PRIMARY,
+  },
+  beneficiaryMeta: {
+    fontFamily: inter.regular,
+    fontSize: 12,
+    color: ESO_PAY_TEXT_SECONDARY,
+  },
 });
-
-

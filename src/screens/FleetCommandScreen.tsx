@@ -30,6 +30,8 @@ import { useMonitoringCrisisMode } from '@/hooks/useMonitoringCrisisMode';
 type Props = {
   refreshing: boolean;
   onRefresh: () => void;
+  canAddSite?: boolean;
+  onAddSite?: () => void;
 };
 
 function fleetHealthStatus(liveCount: number, siteCount: number): DashboardData['health']['status'] {

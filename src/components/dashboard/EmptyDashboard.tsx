@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { ActivityIndicator, Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import * as Haptics from 'expo-haptics';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, type Href } from 'expo-router';
 import { useDemoMode } from '@/providers/DemoModeProvider';
 import Svg, {
@@ -13,7 +12,6 @@ import Svg, {
   Stop,
 } from 'react-native-svg';
 import { Colors, FontSize, Radius, Spacing } from '@/tokens/design';
-import { GOLD } from '@/theme/colors';
 import { fonts } from '@/theme/tokens';
 
 const SITES_ROUTE = '/(tabs)/sites' as Href;
@@ -41,8 +39,8 @@ function InverterIllustration() {
             <Stop offset="100%" stopColor="#0D1018" />
           </SvgGradient>
           <SvgGradient id="inverterScreen" x1="0" y1="0" x2="1" y2="0">
-            <Stop offset="0%" stopColor="rgba(201,155,58,0.15)" />
-            <Stop offset="100%" stopColor="rgba(201,155,58,0.45)" />
+            <Stop offset="0%" stopColor="rgba(255,255,255,0.08)" />
+            <Stop offset="100%" stopColor="rgba(255,255,255,0.22)" />
           </SvgGradient>
         </Defs>
 
@@ -52,16 +50,16 @@ function InverterIllustration() {
           width={104}
           height={104}
           rx={18}
-          fill="rgba(201,168,76,0.04)"
-          stroke="rgba(201,168,76,0.12)"
+          fill="rgba(255,255,255,0.03)"
+          stroke="rgba(255,255,255,0.12)"
           strokeWidth={1}
         />
 
-        <Rect x={46} y={58} width={68} height={44} rx={10} fill="url(#inverterBody)" stroke="rgba(201,168,76,0.28)" strokeWidth={1.2} />
+        <Rect x={46} y={58} width={68} height={44} rx={10} fill="url(#inverterBody)" stroke="rgba(255,255,255,0.22)" strokeWidth={1.2} />
         <Rect x={54} y={66} width={52} height={16} rx={4} fill="url(#inverterScreen)" />
         <Rect x={54} y={88} width={18} height={6} rx={2} fill="rgba(255,255,255,0.12)" />
         <Rect x={76} y={88} width={18} height={6} rx={2} fill="rgba(255,255,255,0.12)" />
-        <Rect x={98} y={88} width={8} height={6} rx={2} fill="rgba(0,229,160,0.35)" />
+        <Rect x={98} y={88} width={8} height={6} rx={2} fill="rgba(255,255,255,0.28)" />
 
         <Circle cx={58} cy={74} r={2.2} fill={Colors.gold} opacity={0.85} />
         <Circle cx={66} cy={74} r={2.2} fill="rgba(255,255,255,0.18)" />
@@ -165,6 +163,9 @@ export function EmptyDashboard({
 
       <View style={styles.panel}>
         <InverterIllustration />
+        {variant === 'no_sites' ? (
+          <Text style={styles.panelEyebrow}>Getting started</Text>
+        ) : null}
         <Text style={styles.headline}>{copy.headline}</Text>
         <Text style={styles.body}>{copy.body}</Text>
 
@@ -173,7 +174,7 @@ export function EmptyDashboard({
             const progress = index === 0 ? p1 : index === 1 ? p2 : p3;
             const bg = progress.interpolate({
               inputRange: [0, 1],
-              outputRange: [Colors.gold, Colors.battery],
+              outputRange: ['rgba(255,255,255,0.22)', '#FFFFFF'],
             });
             const textFade = progress.interpolate({
               inputRange: [0, 1],
@@ -221,18 +222,13 @@ export function EmptyDashboard({
             primaryLoading && styles.ctaDisabled,
           ]}
         >
-          <LinearGradient
-            colors={[GOLD, GOLD, GOLD]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.ctaGradient}
-          >
+          <View style={styles.ctaGradient}>
             {primaryLoading ? (
-              <ActivityIndicator color="#09090B" />
+              <ActivityIndicator color="#000000" />
             ) : (
               <Text style={styles.ctaText}>{ctaLabel}</Text>
             )}
-          </LinearGradient>
+          </View>
         </Pressable>
 
         {showDemoCta ? (
@@ -278,49 +274,51 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xl,
   },
   panelEyebrow: {
-    marginBottom: Spacing.md,
-    fontFamily: fonts.medium,
+    marginBottom: Spacing.sm,
+    fontFamily: fonts.semibold,
     fontSize: FontSize.label,
     color: Colors.gold,
-    letterSpacing: 1.2,
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
   },
   illustrationWrap: {
     width: 160,
     height: 160,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing.lg * 0.7,
+    marginBottom: Spacing.lg,
   },
   headline: {
     color: Colors.textPrimary,
     fontFamily: fonts.bold,
-    fontSize: FontSize.sub,
-    letterSpacing: -0.3,
+    fontSize: 22,
+    lineHeight: 28,
+    letterSpacing: -0.4,
     textAlign: 'center',
   },
   body: {
-    marginTop: Spacing.sm,
+    marginTop: Spacing.md,
     maxWidth: 320,
     color: Colors.textSecondary,
     fontFamily: fonts.regular,
-    fontSize: FontSize.caption,
-    lineHeight: 20,
+    fontSize: 15,
+    lineHeight: 22,
     textAlign: 'center',
   },
   stepsRow: {
-    marginTop: Spacing.lg,
+    marginTop: Spacing.xl,
     width: '100%',
     maxWidth: 340,
-    gap: Spacing.sm,
+    gap: Spacing.md,
   },
   stepChip: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
     borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.goldBorder,
-    backgroundColor: Colors.goldWhisper,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: 'rgba(255,255,255,0.04)',
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
   },
@@ -330,17 +328,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.gold,
+    backgroundColor: 'rgba(255,255,255,0.22)',
   },
   stepIndex: {
-    color: Colors.bg,
+    color: '#FFFFFF',
     fontFamily: fonts.bold,
     fontSize: FontSize.micro,
     lineHeight: 12,
   },
   stepCheck: {
     position: 'absolute',
-    color: Colors.bg,
+    color: '#000000',
     fontFamily: fonts.bold,
     fontSize: FontSize.micro,
     lineHeight: 12,
@@ -352,7 +350,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.caption,
   },
   ctaPressable: {
-    marginTop: Spacing.lg,
+    marginTop: Spacing.xl,
     minWidth: 220,
     borderRadius: Radius.pill,
   },
@@ -364,16 +362,15 @@ const styles = StyleSheet.create({
     opacity: 0.75,
   },
   ctaGradient: {
-    minHeight: 48,
-    borderRadius: Radius.pill,
+    minHeight: 52,
+    borderRadius: 26,
     paddingHorizontal: Spacing.xl,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: '#FFFFFF',
   },
   ctaText: {
-    color: '#09090B',
+    color: '#000000',
     fontFamily: fonts.bold,
     fontSize: FontSize.body,
     letterSpacing: 0.2,
@@ -384,23 +381,23 @@ const styles = StyleSheet.create({
     minHeight: 46,
     paddingHorizontal: Spacing.xl,
     borderRadius: Radius.pill,
-    borderWidth: 1,
-    borderColor: Colors.goldBorder,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.22)',
     backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
   demoGhostPressed: {
     opacity: 0.9,
-    backgroundColor: Colors.goldWhisper,
-    borderColor: Colors.goldBorderStrong,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.35)',
     transform: [{ scale: 0.98 }],
   },
   demoGhostText: {
     fontFamily: fonts.medium,
     fontSize: FontSize.body,
     letterSpacing: 0.25,
-    color: Colors.gold,
+    color: '#FFFFFF',
   },
   hint: {
     marginTop: Spacing.md,

@@ -1,22 +1,14 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  getBiometricUnlockEnabled,
+  setBiometricUnlockEnabled,
+} from '@/master/storage/biometricUnlockPreference';
 
-const PREFIX = 'esopay:biometric-pin:';
-
-function storageKey(userId: string): string {
-  return `${PREFIX}${userId}`;
-}
-
+/** @deprecated Alias — master biometric preference covers unlock and payments. */
 export async function getBiometricPinEnabled(userId: string): Promise<boolean> {
-  if (!userId) return false;
-  try {
-    const raw = await AsyncStorage.getItem(storageKey(userId));
-    return raw === '1';
-  } catch {
-    return false;
-  }
+  return getBiometricUnlockEnabled(userId);
 }
 
+/** @deprecated Alias — master biometric preference covers unlock and payments. */
 export async function setBiometricPinEnabled(userId: string, enabled: boolean): Promise<void> {
-  if (!userId) return;
-  await AsyncStorage.setItem(storageKey(userId), enabled ? '1' : '0');
+  return setBiometricUnlockEnabled(userId, enabled);
 }

@@ -16,7 +16,12 @@ function statusMeta(status: DbDevice['status']) {
   if (status === 'maintenance')
     return { label: 'MAINT', accent: Colors.warning, bg: Colors.warningWhisper, border: Colors.warningBorder };
   if (status === 'offline') return { label: 'OFF', accent: Colors.textMuted, bg: Colors.surfaceRaised, border: Colors.borderSubtle };
-  return { label: 'ON', accent: Colors.mint, bg: Colors.mintGlow, border: Colors.mintBorder };
+  return {
+    label: 'ON',
+    accent: '#FFFFFF',
+    bg: 'rgba(255,255,255,0.08)',
+    border: 'rgba(255,255,255,0.22)',
+  };
 }
 
 export const InverterChipRow = memo(function InverterChipRow({ devices, selectedId, onSelect }: Props) {

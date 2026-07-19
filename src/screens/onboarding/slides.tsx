@@ -33,7 +33,7 @@ export const ONBOARDING_SLIDE: OnboardingSlide = {
   id: 'platform',
   title: 'One Platform.\nTwo Command Centers.',
   subtitle:
-    'Monitor your solar fleet and pay utility bills from a single enterprise app — one PIN when you pay.',
+    'Monitor your solar fleet and pay utility bills from one secure app — one account. One Secure PIN.',
   badgeText: 'ESO ENERGY',
   footerText: 'Trusted by energy operators across Africa.',
   renderCard: () => <PlatformIntroCard />,

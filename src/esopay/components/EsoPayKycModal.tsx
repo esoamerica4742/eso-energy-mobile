@@ -8,9 +8,7 @@ import {
   View,
 } from 'react-native';
 import { toEsoPayApiError } from '@/esopay/api/client';
-import { colors } from '@/esopay/theme/colors';
-import { spacing } from '@/esopay/theme/spacing';
-import { fonts } from '@/esopay/theme/typography';
+import { inter } from '@/theme/fonts';
 
 function getKycSaveErrorMessage(err: unknown): string {
   const apiError = toEsoPayApiError(err);
@@ -35,6 +33,8 @@ export function EsoPayKycModal({ open, onOpenChange, onSaved, onSubmit, loading 
   const [bvn, setBvn] = useState('');
   const [nin, setNin] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [bvnFocused, setBvnFocused] = useState(false);
+  const [ninFocused, setNinFocused] = useState(false);
 
   const close = useCallback(() => {
     onOpenChange(false);
@@ -67,35 +67,38 @@ export function EsoPayKycModal({ open, onOpenChange, onSaved, onSubmit, loading 
         <View style={styles.card}>
           <Text style={styles.title}>Verify your identity</Text>
           <Text style={styles.body}>
-            Nigerian regulations require BVN or NIN to open your Eso Pay virtual account and fund
-            your wallet. Your identity is encrypted and used only for wallet provisioning under
-            NDPR — we do not sell your data.
+            Nigerian regulations require BVN or NIN to open your Eso Pay virtual account. Your
+            details are encrypted and used only for wallet provisioning.
           </Text>
 
-          <Text style={styles.label}>BVN (11 digits)</Text>
+          <Text style={styles.label}>BVN</Text>
           <TextInput
             value={bvn}
             onChangeText={setBvn}
             keyboardType="number-pad"
             maxLength={11}
             secureTextEntry
-            placeholder="•••••••••••"
-            placeholderTextColor={colors.muted}
-            style={styles.input}
+            placeholder="11-digit BVN"
+            placeholderTextColor="rgba(255,255,255,0.34)"
+            style={[styles.input, bvnFocused && styles.inputFocused]}
+            onFocus={() => setBvnFocused(true)}
+            onBlur={() => setBvnFocused(false)}
           />
 
           <Text style={styles.or}>or</Text>
 
-          <Text style={styles.label}>NIN (11 digits)</Text>
+          <Text style={styles.label}>NIN</Text>
           <TextInput
             value={nin}
             onChangeText={setNin}
             keyboardType="number-pad"
             maxLength={11}
             secureTextEntry
-            placeholder="•••••••••••"
-            placeholderTextColor={colors.muted}
-            style={styles.input}
+            placeholder="11-digit NIN"
+            placeholderTextColor="rgba(255,255,255,0.34)"
+            style={[styles.input, ninFocused && styles.inputFocused]}
+            onFocus={() => setNinFocused(true)}
+            onBlur={() => setNinFocused(false)}
           />
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -122,81 +125,85 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.72)',
     justifyContent: 'center',
-    padding: spacing.lg,
+    padding: 24,
   },
   card: {
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: colors.goldBorder,
-    backgroundColor: colors.surface,
-    padding: spacing.lg,
-    gap: spacing.sm,
+    borderRadius: 24,
+    backgroundColor: '#1C1C1E',
+    padding: 24,
+    gap: 8,
   },
   title: {
-    fontFamily: fonts.display,
-    fontSize: 22,
-    color: colors.white,
+    fontFamily: inter.bold,
+    fontSize: 24,
+    letterSpacing: -0.4,
+    color: '#FFFFFF',
+    marginBottom: 4,
   },
   body: {
-    fontFamily: fonts.ui,
+    fontFamily: inter.regular,
     fontSize: 14,
-    lineHeight: 20,
-    color: colors.muted,
-    marginBottom: spacing.sm,
+    lineHeight: 21,
+    color: 'rgba(255,255,255,0.55)',
+    marginBottom: 12,
   },
   label: {
-    fontFamily: fonts.uiMedium,
-    fontSize: 12,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    color: colors.muted,
-    marginTop: spacing.xs,
+    fontFamily: inter.medium,
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.55)',
+    marginTop: 4,
   },
   input: {
-    borderWidth: 1,
-    borderColor: colors.goldBorder,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontFamily: fonts.ui,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontFamily: inter.regular,
     fontSize: 16,
-    color: colors.white,
-    backgroundColor: colors.surface2,
+    color: '#FFFFFF',
+    backgroundColor: '#2C2C2E',
+  },
+  inputFocused: {
+    borderColor: 'rgba(255,255,255,0.28)',
   },
   or: {
     textAlign: 'center',
-    fontFamily: fonts.ui,
-    fontSize: 12,
-    color: colors.muted,
-    marginVertical: spacing.xs,
+    fontFamily: inter.regular,
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.4)',
+    marginVertical: 4,
   },
   error: {
-    fontFamily: fonts.ui,
+    fontFamily: inter.regular,
     fontSize: 13,
-    color: '#f87171',
-    marginTop: spacing.xs,
+    color: '#FF6B6B',
+    marginTop: 4,
   },
   btn: {
-    marginTop: spacing.md,
-    borderRadius: 12,
-    backgroundColor: colors.gold,
-    paddingVertical: 14,
+    marginTop: 16,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  btnDisabled: { opacity: 0.6 },
+  btnDisabled: { opacity: 0.55 },
   btnText: {
-    fontFamily: fonts.uiMedium,
-    fontSize: 15,
-    color: colors.black,
+    fontFamily: inter.bold,
+    fontSize: 16,
+    color: '#000000',
   },
   cancel: {
-    marginTop: spacing.sm,
+    marginTop: 4,
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 12,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   cancelText: {
-    fontFamily: fonts.ui,
-    fontSize: 14,
-    color: colors.muted,
+    fontFamily: inter.medium,
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.55)',
   },
 });

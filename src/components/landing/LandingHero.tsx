@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 export function LandingHero() {
   return (
     <View className="px-5 pb-6 pt-6">
-      <Text className="font-mono text-[10px] uppercase tracking-widest text-[#D4AF37]">
+      <Text className="font-mono text-[10px] uppercase tracking-widest text-white">
         THE SOVEREIGN INFRASTRUCTURE
       </Text>
       <Text

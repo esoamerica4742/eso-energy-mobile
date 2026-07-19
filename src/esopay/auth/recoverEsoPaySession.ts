@@ -9,6 +9,7 @@ import {
   restoreEsoPaySessionFromAuthStorage,
   restoreEsoPaySessionFromBackup,
 } from '@/esopay/auth/esoPaySessionBackup';
+import { useAuthStore } from '@/stores/authStore';
 
 const BACKUP_KEY = 'esopay_session_backup';
 
@@ -17,33 +18,61 @@ type SessionBackup = {
   refresh_token: string;
 };
 
+function adoptSession(store: ReturnType<typeof useEsoPayAuthStore.getState>, session: Session) {
+  store.lockSignedIn();
+  store.setSession(session);
+  if (session.user?.id) void persistEsoPayUserId(session.user.id);
+}
+
 /**
  * Best-effort session restore — never clears signedIn.
- * Call after SIGNED_OUT, before auth redirects, and on a timer while on billing.
+ * Also heals Pay store from a live Monitoring/unified Supabase session after product switch.
  */
 export async function recoverEsoPaySession(): Promise<Session | null> {
   if (!esoPaySupabaseConfigured) return null;
 
   try {
     const store = useEsoPayAuthStore.getState();
-    if (!store.signedIn) return store.session;
 
     const { data: live } = await esoPaySupabase.auth.getSession();
     if (live.session) {
-      store.setSession(live.session);
-      if (live.session.user?.id) await persistEsoPayUserId(live.session.user.id);
+      adoptSession(store, live.session);
       return live.session;
     }
 
+    const monitoringSession = useAuthStore.getState().session;
+    if (monitoringSession?.access_token && monitoringSession.refresh_token) {
+      const { data, error } = await esoPaySupabase.auth.setSession({
+        access_token: monitoringSession.access_token,
+        refresh_token: monitoringSession.refresh_token,
+      });
+      const active = data.session ?? monitoringSession;
+      if (!error && active) {
+        adoptSession(store, active);
+        await persistEsoPaySessionBackup(active);
+        return active;
+      }
+    }
+
     if (await rehydrateEsoPayClientFromStore()) {
-      return useEsoPayAuthStore.getState().session;
+      const next = useEsoPayAuthStore.getState();
+      if (next.session) {
+        next.lockSignedIn();
+        return next.session;
+      }
     }
 
     const fromAuthStorage = await restoreEsoPaySessionFromAuthStorage();
-    if (fromAuthStorage) return fromAuthStorage;
+    if (fromAuthStorage) {
+      adoptSession(useEsoPayAuthStore.getState(), fromAuthStorage);
+      return fromAuthStorage;
+    }
 
     const restored = await restoreEsoPaySessionFromBackup();
-    if (restored) return restored;
+    if (restored) {
+      adoptSession(useEsoPayAuthStore.getState(), restored);
+      return restored;
+    }
 
     const backup = await getSecureJson<SessionBackup>(BACKUP_KEY);
     if (backup?.refresh_token) {
@@ -51,13 +80,13 @@ export async function recoverEsoPaySession(): Promise<Session | null> {
         refresh_token: backup.refresh_token,
       });
       if (!error && data.session) {
-        store.setSession(data.session);
+        adoptSession(store, data.session);
         await persistEsoPaySessionBackup(data.session);
         return data.session;
       }
     }
 
-    return store.session;
+    return useEsoPayAuthStore.getState().session;
   } catch {
     return useEsoPayAuthStore.getState().session;
   }

@@ -7,6 +7,9 @@ export type QuickPayHistoryEntry = {
   categoryKey: QuickPayCategoryKey;
   brandId: QuickPayBrandId;
   providerName: string;
+  /** Live utility_providers.id when known — enables one-tap pay. */
+  providerId?: string;
+  accountNumber?: string;
   amountKobo?: number;
   paidAt: string;
   useCount: number;

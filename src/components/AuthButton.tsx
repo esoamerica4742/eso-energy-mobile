@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import Animated, {
   useAnimatedStyle,
@@ -103,11 +102,11 @@ export function AuthButton({
             <View style={[styles.esopayActive, goldCta && styles.esopayActiveGold]}>
               {loading ? (
                 <ActivityIndicator
-                  color={goldCta ? ESOPAY_SIGN_IN.buttonText : '#FFFFFF'}
+                  color={ESOPAY_SIGN_IN.buttonText}
                   size="small"
                 />
               ) : (
-                <Text style={[styles.esopayActiveText, goldCta && styles.esopayActiveTextGold]}>
+                <Text style={[styles.esopayActiveText, styles.esopayActiveTextGold]}>
                   {label}
                 </Text>
               )}
@@ -147,18 +146,13 @@ export function AuthButton({
             )}
           </View>
         ) : (
-          <LinearGradient
-            colors={[C.GOLD_DARK, C.GOLD_MID, C.GOLD_LIGHT]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.primary}
-          >
+          <View style={styles.primary}>
             {loading ? (
-              <ActivityIndicator color={C.DARK_1} size="small" />
+              <ActivityIndicator color="#000000" size="small" />
             ) : (
               <Text style={styles.primaryText}>{label}</Text>
             )}
-          </LinearGradient>
+          </View>
         )}
       </Animated.View>
     </MotionPressable>
@@ -168,24 +162,20 @@ export function AuthButton({
 const styles = StyleSheet.create({
   primary: {
     height: 56,
-    borderRadius: 14,
+    borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: C.GOLD_MID,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 8,
+    backgroundColor: '#FFFFFF',
   },
   primaryText: {
     fontFamily: F.sansMed,
     fontSize: 17,
-    color: C.DARK_1,
+    color: '#000000',
   },
   monitoring: {
     height: 56,
-    borderRadius: 14,
-    backgroundColor: MONITORING_AUTH.teal,
+    borderRadius: 28,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -258,7 +248,7 @@ const styles = StyleSheet.create({
   esopayActiveText: {
     fontFamily: inter.bold,
     fontSize: 17,
-    color: '#FFFFFF',
+    color: ESOPAY_SIGN_IN.buttonText,
   },
   esopayActiveTextGold: {
     fontFamily: inter.semibold,

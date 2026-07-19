@@ -2,7 +2,11 @@ import { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import type { BillHistoryRowModel } from '@/esopay/lib/billHistoryDisplay';
-import { luxury } from '@/esopay/theme/luxury';
+import {
+  ESO_PAY_TEXT_PRIMARY,
+  ESO_PAY_TEXT_SECONDARY,
+} from '@/esopay/theme/brandColors';
+import { ds } from '@/esopay/theme/designSystem';
 import { fonts } from '@/esopay/theme/typography';
 import { formatCurrency } from '@/esopay/utils/currency';
 
@@ -17,45 +21,26 @@ export const BillHistoryRow = memo(function BillHistoryRow({
   showDivider = false,
   onPress,
 }: Props) {
-  const statusStyle =
-    item.status === 'success'
-      ? styles.successBadge
-      : item.status === 'failed'
-        ? styles.failedBadge
-        : styles.pendingBadge;
-  const statusTextStyle =
-    item.status === 'success'
-      ? styles.successText
-      : item.status === 'failed'
-        ? styles.failedText
-        : styles.pendingText;
-  const statusLabel =
-    item.status === 'success' ? 'Success' : item.status === 'failed' ? 'Failed' : 'Pending';
+  const statusNote =
+    item.status === 'failed' ? 'Failed' : item.status === 'pending' ? 'Pending' : null;
 
   const content = (
-    <>
-      <View style={styles.row}>
-        <View style={[styles.icon, { backgroundColor: item.brand.logoBg }]}>
-          <Text style={[styles.iconText, { color: item.brand.logoFg }]}>{item.brand.logoText}</Text>
-        </View>
-        <View style={styles.middle}>
-          <Text style={styles.service} numberOfLines={1}>
-            {item.serviceName}
-          </Text>
-          <Text style={styles.distributor} numberOfLines={1}>
-            {item.distributor}
-          </Text>
-          <Text style={styles.dateTime}>{item.dateTime}</Text>
-        </View>
-        <View style={styles.right}>
-          <Text style={styles.amount}>{formatCurrency(item.amountKobo)}</Text>
-          <View style={statusStyle}>
-            <Text style={statusTextStyle}>{statusLabel}</Text>
-          </View>
-        </View>
+    <View style={[styles.row, showDivider && styles.rowDivider]}>
+      <View style={[styles.icon, { backgroundColor: item.brand.logoBg }]}>
+        <Text style={[styles.iconText, { color: item.brand.logoFg }]}>{item.brand.logoText}</Text>
       </View>
-      {showDivider ? <View style={styles.divider} /> : null}
-    </>
+      <View style={styles.middle}>
+        <Text style={styles.service} numberOfLines={1}>
+          {item.serviceName}
+        </Text>
+        <Text style={styles.meta} numberOfLines={1}>
+          {statusNote ? `${statusNote} · ${item.dateTime}` : item.dateTime}
+        </Text>
+      </View>
+      <Text style={[styles.amount, item.status === 'failed' && styles.amountFailed]}>
+        {formatCurrency(item.amountKobo)}
+      </Text>
+    </View>
   );
 
   if (!onPress) return content;
@@ -77,89 +62,47 @@ export const BillHistoryRow = memo(function BillHistoryRow({
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
-    paddingVertical: 10,
+    alignItems: 'center',
+    gap: 14,
+    paddingVertical: 14,
+  },
+  rowDivider: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
   },
   icon: {
-    minWidth: 32,
-    height: 32,
-    borderRadius: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 6,
-    marginTop: 2,
   },
   iconText: {
     fontFamily: fonts.uiBold,
-    fontSize: 11,
-    letterSpacing: 0.2,
+    fontSize: 12,
   },
-  middle: { flex: 1, gap: 2, minWidth: 0 },
+  middle: {
+    flex: 1,
+    minWidth: 0,
+    gap: 2,
+  },
   service: {
-    fontFamily: fonts.uiBold,
-    fontSize: 14,
-    color: luxury.textPrimary,
+    fontFamily: fonts.uiMedium,
+    fontSize: 15,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
-  distributor: {
+  meta: {
     fontFamily: fonts.ui,
     fontSize: 12,
-    color: luxury.textMuted,
+    color: ESO_PAY_TEXT_SECONDARY,
   },
-  dateTime: {
-    fontFamily: fonts.ui,
-    fontSize: 10,
-    color: luxury.textDim,
-    marginTop: 2,
-  },
-  right: { alignItems: 'flex-end', gap: 6 },
   amount: {
-    fontFamily: fonts.uiBold,
-    fontSize: 14,
-    color: luxury.textPrimary,
+    fontFamily: ds.font.amount,
+    fontSize: 15,
+    letterSpacing: -0.2,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
-  successBadge: {
-    backgroundColor: 'rgba(16,185,129,0.12)',
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderWidth: 1,
-    borderColor: 'rgba(16,185,129,0.3)',
-  },
-  successText: {
-    fontFamily: fonts.uiMedium,
-    fontSize: 10,
-    color: luxury.green,
-  },
-  pendingBadge: {
-    backgroundColor: 'rgba(245,158,11,0.12)',
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderWidth: 1,
-    borderColor: 'rgba(245,158,11,0.3)',
-  },
-  pendingText: {
-    fontFamily: fonts.uiMedium,
-    fontSize: 10,
-    color: '#F59E0B',
-  },
-  failedBadge: {
-    backgroundColor: 'rgba(239,68,68,0.12)',
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderWidth: 1,
-    borderColor: 'rgba(239,68,68,0.3)',
-  },
-  failedText: {
-    fontFamily: fonts.uiMedium,
-    fontSize: 10,
-    color: '#EF4444',
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: luxury.goldBorder,
-    marginLeft: 44,
+  amountFailed: {
+    color: ds.color.error,
   },
 });

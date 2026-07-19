@@ -1,49 +1,61 @@
-import { Platform } from 'react-native';
-import { GOLD } from '@/theme/colors';
+import { inter } from '@/theme/fonts';
+import type { PlatformCardVariant } from '@/screens/access/types';
 
+/** Quiet Revolut dialect — command center / access picker. */
 export const ACCESS_THEME = {
-  bg: '#08080D',
-  card: '#0F0F1A',
-  gold: GOLD,
-  goldDim: GOLD,
-  white: '#F7F4EE',
-  body: '#A0A0A0',
-  border: 'rgba(201,168,76,0.12)',
-  borderCardMonitoring: 'rgba(201,168,76,0.18)',
-  borderCardEsoPay: 'rgba(201,168,76,0.11)',
-  iconTintMonitoring: 'rgba(201,168,76,0.14)',
-  iconTintEsoPay: 'rgba(201,168,76,0.08)',
-  accentBar: GOLD,
-  accentBarFade: 'rgba(201,168,76,0.35)',
-  ctaPress: 'rgba(201,168,76,0.06)',
-  divider: 'rgba(201,168,76,0.08)',
+  bg: '#000000',
+  surface: '#1C1C1E',
+  text: '#FFFFFF',
+  white: '#FFFFFF',
+  muted: 'rgba(255,255,255,0.55)',
+  body: 'rgba(255,255,255,0.55)',
+  border: 'rgba(255,255,255,0.14)',
+  divider: 'rgba(255,255,255,0.1)',
+  accentBar: 'rgba(255,255,255,0.35)',
+  accentBarFade: 'rgba(255,255,255,0.08)',
+  gold: '#FFFFFF',
+  goldDim: 'rgba(255,255,255,0.35)',
+  ctaPress: 'rgba(255,255,255,0.06)',
 } as const;
 
 export const ACCESS_FONTS = {
-  display: 'Inter_700Bold',
-  headline: 'Inter_600SemiBold',
-  headlineItalic: 'Inter_500Medium',
-  ui: 'Inter_400Regular',
-  uiMedium: 'Inter_500Medium',
-  uiBold: 'Inter_700Bold',
+  title: inter.semibold,
+  body: inter.regular,
+  meta: inter.medium,
+  display: inter.semibold,
+  ui: inter.regular,
+  uiBold: inter.semibold,
 } as const;
 
 export const ACCESS_LAYOUT = {
-  maxContentWidth: 430,
-  horizontalPad: 24,
-  /** Extra space below safe-area top (SafeAreaView applies insets.top). */
-  headerTopExtra: Platform.OS === 'web' ? 16 : 8,
-  signInBottomExtra: 32,
-  signInDockTop: 28,
+  signInDockTop: 16,
 } as const;
 
-export const CARD_VARIANT_THEME = {
+export const CARD_VARIANT_THEME: Record<
+  PlatformCardVariant,
+  {
+    borderColor: string;
+    iconTint: string;
+    iconContainerBg: string;
+    iconColor: string;
+    metadataColor: string;
+    chevronColor: string;
+  }
+> = {
   monitoring: {
-    borderColor: ACCESS_THEME.borderCardMonitoring,
-    iconTint: ACCESS_THEME.iconTintMonitoring,
+    borderColor: 'rgba(255,255,255,0.14)',
+    iconTint: 'rgba(255,255,255,0.1)',
+    iconContainerBg: 'rgba(255,255,255,0.08)',
+    iconColor: '#FFFFFF',
+    metadataColor: 'rgba(255,255,255,0.55)',
+    chevronColor: 'rgba(255,255,255,0.7)',
   },
   esopay: {
-    borderColor: ACCESS_THEME.borderCardEsoPay,
-    iconTint: ACCESS_THEME.iconTintEsoPay,
+    borderColor: 'rgba(255,255,255,0.12)',
+    iconTint: 'rgba(255,255,255,0.08)',
+    iconContainerBg: 'rgba(255,255,255,0.06)',
+    iconColor: '#FFFFFF',
+    metadataColor: 'rgba(255,255,255,0.5)',
+    chevronColor: 'rgba(255,255,255,0.65)',
   },
-} as const;
+};

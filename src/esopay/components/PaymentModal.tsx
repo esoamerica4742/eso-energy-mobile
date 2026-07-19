@@ -78,6 +78,7 @@ import { GoldCTAButton } from '@/esopay/components/GoldCTAButton';
 import { PinEntry } from '@/esopay/components/PinEntry';
 
 import { Skeleton } from '@/esopay/components/Skeleton';
+import { maskAccountNumber } from '@/esopay/lib/resolveTrustedPaymentTarget';
 
 import { canInitiateEsoPayPayment } from '@/esopay/context/roles';
 
@@ -90,7 +91,12 @@ import { useTransactionPin } from '@/esopay/hooks/useTransactionPin';
 import { useBiometricPin } from '@/esopay/hooks/useBiometricPin';
 import { useEsoPayAuthStore } from '@/esopay/auth/store';
 import type { PaymentModalStep } from '@/esopay/components/paymentModal/types';
-import { getPaymentBundles, type PaymentBundle } from '@/esopay/data/bundles';
+import {
+  AIRTIME_MANUAL_MAX_KOBO,
+  AIRTIME_MANUAL_MIN_KOBO,
+  getPaymentBundles,
+  type PaymentBundle,
+} from '@/esopay/data/bundles';
 
 import { isMonnifyAccountReady } from '@/esopay/services/monnify';
 
@@ -219,6 +225,11 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const [receiptToken, setReceiptToken] = useState<string | null>(null);
+
+  const [cashbackKobo, setCashbackKobo] = useState<number | null>(null);
+
+  /** Opened straight to PIN (warm path) — keep user on PIN, hide form back-link. */
+  const [warmPinEntry, setWarmPinEntry] = useState(false);
 
   const [paymentRef, setPaymentRef] = useState<string | null>(null);
 
@@ -389,6 +400,10 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
 
     setReceiptToken(null);
 
+    setCashbackKobo(null);
+
+    setWarmPinEntry(false);
+
     setPaymentRef(null);
 
     setTransactionRef(null);
@@ -443,6 +458,8 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
 
       if (nextTarget.initialStep === 'pin') {
 
+        setWarmPinEntry(true);
+
         setStep('pin');
 
       }
@@ -477,7 +494,11 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
 
     if (!target || !isMonnifyAccountReady(accountNumber)) {
 
-      setCustomerName(null);
+      if (!(target?.accountValidated && target.customerName)) {
+
+        setCustomerName(null);
+
+      }
 
       setValidationError(null);
 
@@ -486,6 +507,10 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
     }
 
     if (target.accountValidated && target.customerName) {
+
+      setCustomerName(target.customerName);
+
+      setValidationError(null);
 
       return;
 
@@ -573,15 +598,46 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
       setTokenFormatted(polled.token_formatted ?? formatPrepaidTokenDisplay(polled.token_or_receipt));
       if (polled.meter_name) setTokenMeterName(polled.meter_name);
     }
+
+    if (typeof polled.cashback_kobo === 'number' && polled.cashback_kobo > 0) {
+      setCashbackKobo(polled.cashback_kobo);
+    }
   }, [paymentStatus, pollQuery.data, toast]);
 
 
 
-  const executePurchase = useCallback(() => {
+  const executePurchase = useCallback((transactionPin: string) => {
 
     if (!target || !canPayRole) return;
 
-    if (!customerName || amountKobo <= 0) return;
+    if (amountKobo <= 0) return;
+
+    const pin = transactionPin.replace(/\D/g, '');
+    if (pin.length < 4) {
+      toast.show('Enter your PIN to complete this payment', 'warning');
+      return;
+    }
+
+    if (target.provider.category === 'airtime') {
+      if (amountKobo < AIRTIME_MANUAL_MIN_KOBO) {
+        toast.show('Minimum airtime is ₦50', 'warning');
+        return;
+      }
+      if (amountKobo > AIRTIME_MANUAL_MAX_KOBO) {
+        toast.show('Maximum airtime is ₦1,000,000', 'warning');
+        return;
+      }
+    }
+
+    if (!customerName) {
+      toast.show(
+        validateMutation.isPending
+          ? 'Verifying account…'
+          : 'Still verifying account — try again in a moment',
+        'info',
+      );
+      return;
+    }
 
     if (target.provider.category === 'electricity') {
       const dashboard = queryClient.getQueryData<PowerShieldDashboard>(
@@ -609,6 +665,8 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
 
         bill_id: target.billId,
 
+        transaction_pin: pin,
+
       },
 
       {
@@ -622,6 +680,11 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
           setTransactionRef(response.transaction_reference);
 
           setReceiptToken(response.token_or_receipt);
+          setCashbackKobo(
+            typeof response.cashback_kobo === 'number' && response.cashback_kobo > 0
+              ? response.cashback_kobo
+              : null,
+          );
           setTokenFormatted(
             response.token_formatted ??
               (response.token_or_receipt
@@ -669,8 +732,16 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
                 host.companyId,
                 target.provider,
                 amountKobo,
+                accountNumber.trim(),
               );
             }
+
+            void queryClient.invalidateQueries({
+              queryKey: esoPayKeys.walletCashback(host.companyId),
+            });
+            void queryClient.invalidateQueries({
+              queryKey: esoPayKeys.wallet(host.companyId),
+            });
 
           } else {
 
@@ -686,7 +757,12 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
 
           toast.show(getPaymentErrorMessage(error), 'error');
 
-          setStep('form');
+          if (warmPinEntry) {
+            setPinInput('');
+            setPinError(null);
+          } else {
+            setStep('form');
+          }
 
         },
 
@@ -713,6 +789,10 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
     saveBeneficiaryEntry,
 
     target,
+
+    validateMutation.isPending,
+
+    warmPinEntry,
 
     toast,
 
@@ -801,81 +881,70 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
       setPinError(null);
 
       if (!userId) {
-        setPinError('Sign in to Eso Pay to use your transaction PIN');
+        setPinError('Sign in to Eso Pay to continue');
         return;
       }
 
       if (pinMode === 'create') {
-
         setPinInput(pin);
-
         setConfirmPinInput('');
-
         setPinMode('confirm');
-
         return;
-
       }
 
-
-
       if (pinMode === 'confirm') {
-
         if (pin !== pinInput) {
-
           setPinError('PINs do not match. Try again.');
-
           setConfirmPinInput('');
-
           return;
-
         }
 
         try {
-
           await configurePin(pin);
-
-          toast.show('Transaction PIN saved', 'success');
-
+          toast.show('PIN saved', 'success');
           setPinMode('verify');
-
-          executePurchase();
-
+          executePurchase(pin);
         } catch (error) {
-
           setPinError(error instanceof Error ? error.message : 'Could not save PIN');
-
           setConfirmPinInput('');
-
         }
-
         return;
-
       }
-
-
 
       const valid = await verifyPin(pin);
 
-      if (!valid) {
-
-        setPinError('Incorrect PIN');
-
+      if (!valid.ok) {
+        setPinError(valid.locked ? 'PIN locked. Use Forgot PIN to reset.' : 'Incorrect PIN');
         setPinInput('');
-
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-
         return;
-
       }
 
+      if (!customerName) {
+        toast.show(
+          validateMutation.isPending
+            ? 'Verifying account…'
+            : 'Still verifying account — try again in a moment',
+          'info',
+        );
+        setPinInput('');
+        return;
+      }
 
-
-      executePurchase();
-
+      executePurchase(pin);
     },
 
-    [configurePin, executePurchase, pinInput, pinMode, setPinUnlocked, toast, userId, verifyPin],
+    [
+      configurePin,
+      customerName,
+      executePurchase,
+      pinInput,
+      pinMode,
+      toast,
+      userId,
+      validateMutation.isPending,
+      verifyPin,
+    ],
 
   );
 
@@ -977,7 +1046,10 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
       const ok = await authenticateBiometric(
         `Authorize ${formatCurrency(amountKobo)} for ${providerName}`,
       );
-      if (!cancelled && ok) executePurchase();
+      if (!cancelled && ok) {
+        // Face ID confirms the device user; wallet debit still needs the main PIN.
+        toast.show('Enter your PIN to confirm payment', 'info');
+      }
     })();
 
     return () => {
@@ -988,39 +1060,36 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
     authenticateBiometric,
     biometricAvailable,
     biometricEnabled,
-    executePurchase,
     pinMode,
     providerName,
     step,
+    toast,
   ]);
 
 
 
   const pinTitle =
-
     pinMode === 'create'
-
-      ? 'Create transaction PIN'
-
+      ? 'Create your PIN'
       : pinMode === 'confirm'
+        ? 'Confirm your PIN'
+        : 'Enter your PIN'
 
-        ? 'Confirm transaction PIN'
+  const maskedAccount = accountNumber.trim()
+    ? maskAccountNumber(accountNumber)
+    : null;
 
-        : 'Enter transaction PIN';
-
-
+  const pinAmountLabel =
+    pinMode === 'verify' && amountKobo > 0 ? formatCurrency(amountKobo) : null;
 
   const pinSubtitle =
-
     pinMode === 'create'
-
-      ? 'Secure wallet debits with a 4-digit PIN stored on this device.'
-
+      ? 'Use a 6-digit PIN for wallet payments.'
       : pinMode === 'confirm'
-
-        ? 'Re-enter your PIN to confirm.'
-
-        : `Authorize ${formatCurrency(amountKobo)} for ${providerName}.`;
+        ? 'Re-enter the same PIN to confirm.'
+        : maskedAccount
+          ? `${providerName} · ${maskedAccount}`
+          : providerName;
 
 
 
@@ -1052,22 +1121,18 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
 
       <BottomSheetScrollView contentContainerStyle={styles.content}>
 
-        <View style={styles.header}>
-
-          <View style={styles.headerCopy}>
-
-            <Text style={styles.eyebrow}>Monnify · Wallet debit</Text>
-
-            <Text style={styles.title}>{providerName}</Text>
-
-          </View>
-
+        <View style={[styles.header, step === 'pin' && styles.headerPin]}>
+          {step === 'pin' ? (
+            <View style={styles.headerCopy} />
+          ) : (
+            <View style={styles.headerCopy}>
+              <Text style={styles.eyebrow}>Wallet debit</Text>
+              <Text style={styles.title}>{providerName}</Text>
+            </View>
+          )}
           <Pressable onPress={() => sheetRef.current?.dismiss()} hitSlop={12}>
-
             <X size={22} color={colors.muted} strokeWidth={2} />
-
           </Pressable>
-
         </View>
 
 
@@ -1124,6 +1189,12 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
             ) : null}
 
             <Text style={styles.successAmount}>{formatCurrency(amountKobo)}</Text>
+
+            {cashbackKobo != null && cashbackKobo > 0 && resolvedStatus === 'success' ? (
+              <Text style={styles.cashbackText}>
+                You earned {formatCurrency(cashbackKobo)} cashback
+              </Text>
+            ) : null}
 
             {paymentRef ? <Text style={styles.refText}>Ref: {paymentRef}</Text> : null}
 
@@ -1232,19 +1303,13 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
           <View>
 
             <PinEntry
-
               title={pinTitle}
-
+              amountLabel={pinAmountLabel}
               subtitle={pinSubtitle}
-
               value={pinValue}
-
               onChange={setPinValue}
-
               onComplete={(pin) => void handlePinComplete(pin)}
-
               error={pinError}
-
             />
 
             {biometricAvailable && biometricEnabled && pinMode === 'verify' ? (
@@ -1253,12 +1318,14 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
                   void authenticateBiometric(
                     `Authorize ${formatCurrency(amountKobo)} for ${providerName}`,
                   ).then((ok) => {
-                    if (ok) executePurchase();
+                    if (ok) {
+                      toast.show('Enter your PIN to confirm payment', 'info');
+                    }
                   });
                 }}
                 style={styles.biometricBtn}
               >
-                <Fingerprint size={18} color={colors.gold} strokeWidth={2} />
+                <Fingerprint size={18} color="rgba(255,255,255,0.72)" strokeWidth={2} />
                 <Text style={styles.biometricBtnText}>Use {biometricLabel}</Text>
               </Pressable>
             ) : null}
@@ -1273,11 +1340,21 @@ export const PaymentModal = forwardRef<PaymentModalRef, Props>(function PaymentM
 
               </View>
 
-            ) : (
+            ) : warmPinEntry && !customerName ? (
+
+              <View style={styles.processingRow}>
+
+                <ActivityIndicator color={colors.gold} />
+
+                <Text style={styles.processingText}>Verifying account…</Text>
+
+              </View>
+
+            ) : warmPinEntry ? null : (
 
               <Pressable onPress={() => setStep('form')} style={styles.backLink}>
 
-                <Text style={styles.backLinkText}>Back to payment details</Text>
+                <Text style={styles.backLinkText}>Cancel</Text>
 
               </Pressable>
 
@@ -1508,23 +1585,23 @@ const styles = StyleSheet.create({
 
   sheetBg: {
 
-    backgroundColor: colors.surface,
+    backgroundColor: '#0A0A0A',
 
-    borderTopLeftRadius: 24,
+    borderTopLeftRadius: 28,
 
-    borderTopRightRadius: 24,
+    borderTopRightRadius: 28,
 
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
 
-    borderColor: colors.goldBorder,
+    borderColor: 'rgba(255,255,255,0.08)',
 
   },
 
   handle: {
 
-    backgroundColor: colors.goldDim,
+    backgroundColor: 'rgba(255,255,255,0.18)',
 
-    width: 44,
+    width: 40,
 
   },
 
@@ -1550,6 +1627,11 @@ const styles = StyleSheet.create({
 
   },
 
+  headerPin: {
+    marginBottom: spacing.sm,
+    minHeight: 28,
+  },
+
   headerCopy: {
 
     flex: 1,
@@ -1566,7 +1648,7 @@ const styles = StyleSheet.create({
 
     letterSpacing: 1.5,
 
-    color: colors.gold,
+    color: 'rgba(255,255,255,0.45)',
 
     textTransform: 'uppercase',
 
@@ -1838,6 +1920,13 @@ const styles = StyleSheet.create({
 
   },
 
+  cashbackText: {
+    fontFamily: fonts.uiMedium,
+    fontSize: 14,
+    color: colors.white,
+    textAlign: 'center',
+  },
+
   refText: {
 
     fontFamily: fonts.ui,
@@ -1986,7 +2075,9 @@ const styles = StyleSheet.create({
 
     fontSize: 14,
 
-    color: colors.gold,
+    letterSpacing: -0.1,
+
+    color: 'rgba(255,255,255,0.45)',
 
   },
 
@@ -2036,17 +2127,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.sm,
     marginTop: spacing.md,
-    paddingVertical: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.goldBorder,
-    backgroundColor: colors.surface2,
+    paddingVertical: 10,
   },
 
   biometricBtnText: {
     fontFamily: fonts.uiMedium,
     fontSize: 14,
-    color: colors.gold,
+    letterSpacing: -0.1,
+    color: 'rgba(255,255,255,0.72)',
   },
 
 });

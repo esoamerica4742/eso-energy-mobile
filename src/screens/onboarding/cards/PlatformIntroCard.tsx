@@ -66,24 +66,6 @@ export function PlatformIntroCard() {
           Icon={Wallet}
         />
       </View>
-      <View
-        className="mt-4 rounded-2xl px-4 py-3"
-        style={{
-          backgroundColor: 'rgba(245,200,66,0.08)',
-          borderWidth: 1,
-          borderColor: 'rgba(245,200,66,0.22)',
-        }}
-      >
-        <Text style={{ color: C.gold, fontFamily: 'Inter_600SemiBold', fontSize: 13 }}>
-          One sign-in per module
-        </Text>
-        <Text
-          className="mt-1"
-          style={{ color: C.muted, fontFamily: 'Inter_400Regular', fontSize: 12 }}
-        >
-          Independent sessions · Separate data · Enterprise security
-        </Text>
-      </View>
     </GlassCard>
   );
 }

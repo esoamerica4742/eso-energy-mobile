@@ -95,13 +95,13 @@ export const LiveChart = memo(function LiveChart({
   const smoothLoad = useSmoothNumber(latest?.load_kw ?? 0, 350);
 
   return (
-    <LinearGradient colors={['#0F1117', '#0A0D14']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.wrap}>
+    <LinearGradient colors={['#1C1C1E', '#000000']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.wrap}>
       <View style={styles.cardInsetTop} />
-      <View style={styles.tealGlow} />
+      <View style={styles.softWash} />
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.title}>Live Telemetry</Text>
+          <Text style={styles.title}>Live telemetry</Text>
           <Text style={styles.sub}>
             {history.length > 0
               ? `${history.length} readings · last ${formatAgo(latest?.timestamp)}`
@@ -337,15 +337,11 @@ function seriesAreaOpacity(key: Series): number {
 
 const styles = StyleSheet.create({
   wrap: {
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderRadius: 24,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.12)',
     overflow: 'hidden',
-    shadowColor: '#000000',
-    shadowOpacity: 0.5,
-    shadowRadius: 48,
-    shadowOffset: { width: 0, height: 24 },
-    elevation: 7,
+    backgroundColor: '#1C1C1E',
   },
   cardInsetTop: {
     position: 'absolute',
@@ -355,14 +351,14 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: 'rgba(255,255,255,0.04)',
   },
-  tealGlow: {
+  softWash: {
     position: 'absolute',
     right: -40,
     bottom: -40,
     width: 180,
     height: 140,
     borderRadius: 100,
-    backgroundColor: 'rgba(0,229,160,0.06)',
+    backgroundColor: 'rgba(255,255,255,0.02)',
   },
   header: {
     flexDirection: 'row',
@@ -389,32 +385,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(0,229,160,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderWidth: 1,
-    borderColor: 'rgba(0,229,160,0.25)',
+    borderColor: 'rgba(255,255,255,0.18)',
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 100,
   },
   liveDot: {
     width: 6, height: 6, borderRadius: 3,
-    backgroundColor: colors.positiveText,
+    backgroundColor: '#FFFFFF',
   },
   liveText: {
     fontFamily: fonts.bold,
     fontSize: 11,
-    color: colors.positiveText,
+    color: 'rgba(255,255,255,0.7)',
     letterSpacing: 1,
   },
   chartArea: { height: 184, paddingHorizontal: spacing.md, paddingTop: spacing.sm, position: 'relative' },
   chartBgGlow: {
-    position: 'absolute',
-    bottom: 24,
-    left: '28%',
-    width: 180,
-    height: 90,
-    borderRadius: 90,
-    backgroundColor: 'rgba(201,155,58,0.03)',
+    display: 'none',
   },
   empty: {
     flex: 1, alignItems: 'center', justifyContent: 'center',
@@ -482,9 +472,6 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    shadowColor: '#FFFFFF',
-    shadowOpacity: 0.7,
-    shadowRadius: 10,
   },
   crosshair: {
     position: 'absolute',
@@ -502,9 +489,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    backgroundColor: 'rgba(10,13,20,0.95)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(0,0,0,0.92)',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.12)',
   },
   tooltipTime: {
     fontFamily: fonts.medium,
@@ -527,7 +514,7 @@ const styles = StyleSheet.create({
     right: 18,
     height: 2,
     borderRadius: 2,
-    backgroundColor: '#0F1117',
+    backgroundColor: '#1C1C1E',
     overflow: 'hidden',
   },
   skelShimmer: {
@@ -535,6 +522,6 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 140,
-    backgroundColor: '#1A2035',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
 });

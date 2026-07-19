@@ -17,10 +17,10 @@ import {
 } from '@/lib/motion/springMotion';
 import { TRANSACTION_PIN_LENGTH } from '@/esopay/storage/transactionPin';
 
-const GOLD = '#C9A84C';
+const GOLD = '#FFFFFF';
 const ERROR_RED = '#EF4444';
-const DOT_EMPTY_BG = '#1C2030';
-const DOT_EMPTY_BORDER = '#2A3040';
+const DOT_EMPTY_BG = '#1C1C1E';
+const DOT_EMPTY_BORDER = '#2C2C2E';
 
 const FILL_SPRING_OUT = SPRING_DOT_POP;
 const FILL_SPRING_SETTLE = SPRING_DOT_SETTLE;
@@ -30,9 +30,10 @@ type DotState = 'empty' | 'active' | 'filled' | 'error';
 type PinVaultDotProps = {
   state: DotState;
   reduceMotion: boolean;
+  premium?: boolean;
 };
 
-const PinVaultDot = memo(function PinVaultDot({ state, reduceMotion }: PinVaultDotProps) {
+const PinVaultDot = memo(function PinVaultDot({ state, reduceMotion, premium }: PinVaultDotProps) {
   const scale = useSharedValue(1);
   const pulseOpacity = useSharedValue(1);
   const prevStateRef = useRef<DotState>(state);
@@ -87,14 +88,22 @@ const PinVaultDot = memo(function PinVaultDot({ state, reduceMotion }: PinVaultD
 
   const dotStyle =
     state === 'error'
-      ? styles.dotError
+      ? premium
+        ? styles.dotErrorPremium
+        : styles.dotError
       : state === 'filled'
-        ? styles.dotFilled
+        ? premium
+          ? styles.dotFilledPremium
+          : styles.dotFilled
         : state === 'active'
-          ? styles.dotActive
-          : styles.dotEmpty;
+          ? premium
+            ? styles.dotActivePremium
+            : styles.dotActive
+          : premium
+            ? styles.dotEmptyPremium
+            : styles.dotEmpty;
 
-  return <Animated.View style={[styles.dot, dotStyle, animStyle]} />;
+  return <Animated.View style={[styles.dot, premium && styles.dotPremium, dotStyle, animStyle]} />;
 });
 
 type Props = {
@@ -102,6 +111,7 @@ type Props = {
   errorFlash?: boolean;
   shakeStyle?: AnimatedStyle<ViewStyle>;
   style?: StyleProp<ViewStyle>;
+  size?: 'default' | 'premium';
 };
 
 export const PinVaultDots = memo(function PinVaultDots({
@@ -109,11 +119,14 @@ export const PinVaultDots = memo(function PinVaultDots({
   errorFlash = false,
   shakeStyle,
   style,
+  size = 'default',
 }: Props) {
   const reduceMotion = useReducedMotion() ?? false;
+  const isPremium = size === 'premium';
+  const rowStyle = isPremium ? styles.rowPremium : styles.row;
 
   const row = (
-    <View style={[styles.row, style]}>
+    <View style={[rowStyle, style]}>
       {Array.from({ length: TRANSACTION_PIN_LENGTH }).map((_, index) => {
         let state: DotState = 'empty';
         if (errorFlash) {
@@ -124,7 +137,7 @@ export const PinVaultDots = memo(function PinVaultDots({
           state = 'active';
         }
 
-        return <PinVaultDot key={index} state={state} reduceMotion={reduceMotion} />;
+        return <PinVaultDot key={index} state={state} reduceMotion={reduceMotion} premium={isPremium} />;
       })}
     </View>
   );
@@ -144,15 +157,27 @@ const styles = StyleSheet.create({
     gap: 16,
     marginTop: 24,
   },
+  rowPremium: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 20,
+    marginTop: 0,
+  },
   dot: {
     width: 12,
     height: 12,
     borderRadius: 6,
   },
+  dotPremium: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+  },
   dotEmpty: {
-    backgroundColor: DOT_EMPTY_BG,
-    borderWidth: 1,
-    borderColor: DOT_EMPTY_BORDER,
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.22)',
   },
   dotFilled: {
     backgroundColor: GOLD,
@@ -161,10 +186,41 @@ const styles = StyleSheet.create({
   dotActive: {
     backgroundColor: 'transparent',
     borderWidth: 1.5,
-    borderColor: GOLD,
+    borderColor: 'rgba(255,255,255,0.55)',
   },
   dotError: {
     backgroundColor: ERROR_RED,
     borderWidth: 0,
+  },
+  dotEmptyPremium: {
+    backgroundColor: '#121722',
+    borderWidth: 1.5,
+    borderColor: '#3A4558',
+  },
+  dotFilledPremium: {
+    backgroundColor: GOLD,
+    borderWidth: 0,
+    shadowColor: GOLD,
+    shadowOpacity: 0.52,
+    shadowRadius: 9,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 6,
+  },
+  dotActivePremium: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 2,
+    borderColor: GOLD,
+    shadowColor: GOLD,
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 0 },
+  },
+  dotErrorPremium: {
+    backgroundColor: ERROR_RED,
+    borderWidth: 0,
+    shadowColor: ERROR_RED,
+    shadowOpacity: 0.45,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 0 },
   },
 });

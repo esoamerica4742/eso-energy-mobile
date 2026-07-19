@@ -55,20 +55,21 @@ function hubCard(
   };
 }
 
-/** Full billing hub — home Pay a Bill cards use the first four entries (same styling). */
+/**
+ * Full billing hub — includes Betting.
+ * Education omitted until Monnify returns EDUCATION products; water/waste not on live catalog.
+ */
 export const BILL_HUB_CARDS: BillPayHubCardConfig[] = [
   ...fromQuickPay(),
-  hubCard('education', 'Education', 'education', { text: 'WAEC', bg: '#FB923C', fg: '#1A1200' }),
   hubCard('betting', 'Betting', 'betting', { text: 'BET', bg: '#F43F5E', fg: '#FFFFFF' }),
-  hubCard('water', 'Water', 'water', { text: 'H2O', bg: '#0EA5E9', fg: '#FFFFFF' }),
-  hubCard('waste', 'Waste', 'waste', { text: 'LAWMA', bg: '#84CC16', fg: '#1A1400' }),
 ];
 
+/** Home shortcuts only — Betting stays on the Pay/Billing hub. */
 export const QUICK_PAY_HUB_CARDS = BILL_HUB_CARDS.filter((c) =>
   (['elec', 'air', 'data', 'tv'] as string[]).includes(c.key),
 );
 
-export type BillPayHubGroupId = 'essentials' | 'more';
+export type BillPayHubGroupId = 'services';
 
 export type BillPayHubGroup = {
   id: BillPayHubGroupId;
@@ -78,17 +79,15 @@ export type BillPayHubGroup = {
 
 const HUB_BY_KEY = new Map(BILL_HUB_CARDS.map((c) => [c.key, c]));
 
-/** Grouped layout for the Billing tab hub (reduces visual noise). */
+/**
+ * Pay tab hub — all live services in one grid (Opay/PalmPay style).
+ * Education + Betting sit with essentials; no buried "More" section.
+ */
 export const BILL_HUB_GROUPS: BillPayHubGroup[] = [
   {
-    id: 'essentials',
+    id: 'services',
     title: 'Services',
-    cardKeys: ['elec', 'air', 'data', 'tv'],
-  },
-  {
-    id: 'more',
-    title: 'More services',
-    cardKeys: ['education', 'betting', 'water', 'waste'],
+    cardKeys: ['elec', 'air', 'data', 'tv', 'betting'],
   },
 ];
 

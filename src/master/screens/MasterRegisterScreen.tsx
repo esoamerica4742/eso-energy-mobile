@@ -1,75 +1,79 @@
 import { useCallback, useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
-  ScrollView,
-  StatusBar,
+  StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { ArrowLeft } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { sendEmailOtp } from '@/lib/authOtp';
 import { setOnboardingComplete } from '@/lib/onboardingStorage';
-import { ACCESS_ROUTE } from '@/lib/navigation/productRoutes';
-import {
-  CountryPickerModal,
-  CountrySelectField,
-} from '@/master/components/CountryPickerModal';
+import { MASTER_PIN_SETUP_ROUTE, MASTER_SIGN_IN_ROUTE } from '@/lib/navigation/productRoutes';
 import { MasterOtpOverlay } from '@/master/components/MasterOtpOverlay';
-import { MASTER_COUNTRIES, MASTER_PIN_LENGTH } from '@/master/constants';
-import { setMasterPin } from '@/master/masterPin';
-import { useEsoPayApiClient } from '@/esopay/api/useEsoPayApiClient';
-import { useEsoPayEnabled } from '@/esopay/api/hooks/useEsoPayApiEnabled';
-import { useMasterSessionStore } from '@/master/masterSessionStore';
+import {
+  AUTH,
+  MasterAuthActions,
+  MasterAuthShell,
+  authType,
+} from '@/master/components/MasterAuthChrome';
+import { MASTER_COUNTRIES, type MasterCountry } from '@/master/constants';
 import { useEsoPayAuthStore } from '@/esopay/auth/store';
+import { inter } from '@/theme/fonts';
 
-function isValidPhone(dialCode: string, local: string): boolean {
-  const digits = local.replace(/\D/g, '');
-  if (dialCode === '+234') return digits.length >= 10 && digits.length <= 11;
-  if (dialCode === '+233') return digits.length >= 9 && digits.length <= 10;
-  if (dialCode === '+254') return digits.length >= 9 && digits.length <= 10;
-  if (dialCode === '+27') return digits.length >= 9 && digits.length <= 10;
-  return digits.length >= 8;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function phoneDigitsOf(local: string): string {
+  return local.replace(/\D/g, '').replace(/^0/, '');
+}
+
+function isValidPhone(local: string): boolean {
+  const digits = phoneDigitsOf(local);
+  return digits.length >= 9 && digits.length <= 11;
 }
 
 export default function MasterRegisterScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const api = useEsoPayApiClient();
-  const apiEnabled = useEsoPayEnabled();
 
+  const [country, setCountry] = useState<MasterCountry>(MASTER_COUNTRIES[0]!);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  const [country, setCountry] = useState(MASTER_COUNTRIES[0]);
   const [phoneLocal, setPhoneLocal] = useState('');
-  const [pin, setPin] = useState('');
-  const [confirmPin, setConfirmPin] = useState('');
-  const [countryOpen, setCountryOpen] = useState(false);
+  const [nameFocused, setNameFocused] = useState(false);
+  const [phoneFocused, setPhoneFocused] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
   const [otpOpen, setOtpOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const phoneE164 = `${country.dialCode}${phoneLocal.replace(/\D/g, '')}`;
+  const phoneDigits = phoneDigitsOf(phoneLocal);
+  const phoneE164 = `${country.dialCode}${phoneDigits}`;
+  const canContinue =
+    fullName.trim().length > 1 &&
+    isValidPhone(phoneLocal) &&
+    EMAIL_RE.test(email.trim()) &&
+    !busy;
 
-  const validate = useCallback(() => {
-    if (!fullName.trim()) return 'Enter your full name or company name.';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return 'Enter a valid email address.';
-    if (!isValidPhone(country.dialCode, phoneLocal)) return 'Enter a valid phone number.';
-    if (pin.length !== MASTER_PIN_LENGTH) return `Create a ${MASTER_PIN_LENGTH}-digit PIN.`;
-    if (pin !== confirmPin) return 'PINs do not match.';
-    return null;
-  }, [confirmPin, country.dialCode, email, fullName, phoneLocal, pin]);
+  const cycleCountry = useCallback(() => {
+    const idx = MASTER_COUNTRIES.findIndex((c) => c.code === country.code);
+    const next = MASTER_COUNTRIES[(idx + 1) % MASTER_COUNTRIES.length]!;
+    setCountry(next);
+    void Haptics.selectionAsync();
+  }, [country.code]);
 
   const submit = useCallback(async () => {
-    const validationError = validate();
-    if (validationError) {
-      setError(validationError);
+    if (fullName.trim().length < 2) {
+      setError('Enter your full name');
+      return;
+    }
+    if (!isValidPhone(phoneLocal)) {
+      setError('Enter a valid phone number');
+      return;
+    }
+    if (!EMAIL_RE.test(email.trim())) {
+      setError('Enter a valid email');
       return;
     }
 
@@ -83,7 +87,7 @@ export default function MasterRegisterScreen() {
     }
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setOtpOpen(true);
-  }, [email, validate]);
+  }, [email, fullName, phoneLocal]);
 
   const finalizeRegistration = useCallback(async () => {
     const userId = useEsoPayAuthStore.getState().user?.id;
@@ -99,122 +103,113 @@ export default function MasterRegisterScreen() {
           full_name: fullName.trim(),
           phone: phoneE164,
           country_code: country.code,
-          company_name: fullName.trim(),
         },
       });
 
-      await setMasterPin(userId, pin);
-      if (apiEnabled) {
-        try {
-          await api.security.setTransactionPin({ pin });
-        } catch {
-          // Local PIN still works offline.
-        }
-      }
-
-      useMasterSessionStore.getState().setPinUnlocked(true);
-      useEsoPayAuthStore.getState().setPinSessionUnlocked(true);
       await setOnboardingComplete();
-      router.replace(ACCESS_ROUTE);
+      setOtpOpen(false);
+      router.replace(MASTER_PIN_SETUP_ROUTE);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not finish registration.');
     } finally {
       setBusy(false);
-      setOtpOpen(false);
     }
-  }, [api, apiEnabled, country.code, fullName, phoneE164, pin, router]);
+  }, [country.code, fullName, phoneE164, router]);
 
   return (
-    <View className="flex-1 bg-[#080A0F]" style={{ paddingTop: insets.top }}>
-      <StatusBar barStyle="light-content" />
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView
-          className="flex-1 px-6"
-          contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          <Pressable onPress={() => router.back()} className="mb-6 mt-2 flex-row items-center gap-2">
-            <ArrowLeft size={20} color="#8A94A6" />
-            <Text className="text-sm text-[#8A94A6]">Back</Text>
-          </Pressable>
+    <>
+      <MasterAuthShell>
+        <Text style={authType.title}>Create your Eso Energy account</Text>
+        <Text style={authType.subtitle}>
+          Enter your details. We will send a confirmation code to your email.
+        </Text>
 
-          <Text className="mb-2 text-3xl font-bold text-white">Create account</Text>
-          <Text className="mb-8 text-sm leading-5 text-[#8A94A6]">
-            One secure Eso Energy account for monitoring and Eso Pay.
-          </Text>
+        <View style={authType.fieldStack}>
+          <View style={[authType.pill, nameFocused && authType.pillFocused]}>
+            <TextInput
+              value={fullName}
+              onChangeText={(v) => {
+                setFullName(v);
+                if (error) setError(null);
+              }}
+              placeholder="Full name"
+              placeholderTextColor={AUTH.placeholder}
+              autoCapitalize="words"
+              autoComplete="name"
+              autoFocus
+              onFocus={() => setNameFocused(true)}
+              onBlur={() => setNameFocused(false)}
+              style={authType.input}
+              returnKeyType="next"
+              accessibilityLabel="Full name"
+            />
+          </View>
 
-          <Field label="Full name / Company name" value={fullName} onChangeText={setFullName} />
-          <Field
-            label="Email address"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+          <View style={styles.phoneRow}>
+            <Pressable
+              onPress={cycleCountry}
+              style={({ pressed }) => [styles.countryPill, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel={`Country ${country.name}`}
+            >
+              <Text style={styles.flag}>{country.flag}</Text>
+              <Text style={styles.dial}>{country.dialCode}</Text>
+            </Pressable>
 
-          <CountrySelectField
-            label="Country"
-            selected={country}
-            onPress={() => setCountryOpen(true)}
-          />
-
-          <View className="mb-4">
-            <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#8A94A6]">
-              Phone number
-            </Text>
-            <View className="flex-row items-center rounded-xl border border-[#1C2030] bg-[#0D1018]">
-              <Text className="border-r border-[#1C2030] px-4 py-3.5 text-base text-[#C9A84C]">
-                {country.dialCode}
-              </Text>
+            <View style={[styles.phonePill, phoneFocused && authType.pillFocused]}>
               <TextInput
                 value={phoneLocal}
-                onChangeText={(v) => setPhoneLocal(v.replace(/[^\d]/g, ''))}
+                onChangeText={(v) => {
+                  setPhoneLocal(v.replace(/[^\d]/g, '').slice(0, 11));
+                  if (error) setError(null);
+                }}
+                placeholder="Phone number"
+                placeholderTextColor={AUTH.placeholder}
                 keyboardType="phone-pad"
-                placeholder="8012345678"
-                placeholderTextColor="#4A5568"
-                className="flex-1 px-4 py-3.5 text-base text-white"
+                autoComplete="tel"
+                onFocus={() => setPhoneFocused(true)}
+                onBlur={() => setPhoneFocused(false)}
+                style={authType.input}
+                accessibilityLabel="Phone number"
               />
             </View>
           </View>
 
-          <Field
-            label="Create 4-digit PIN"
-            value={pin}
-            onChangeText={(v) => setPin(v.replace(/\D/g, '').slice(0, MASTER_PIN_LENGTH))}
-            secureTextEntry
-            keyboardType="number-pad"
-          />
-          <Field
-            label="Confirm 4-digit PIN"
-            value={confirmPin}
-            onChangeText={(v) => setConfirmPin(v.replace(/\D/g, '').slice(0, MASTER_PIN_LENGTH))}
-            secureTextEntry
-            keyboardType="number-pad"
-          />
+          <View style={[authType.pill, emailFocused && authType.pillFocused]}>
+            <TextInput
+              value={email}
+              onChangeText={(v) => {
+                setEmail(v);
+                if (error) setError(null);
+              }}
+              placeholder="Email"
+              placeholderTextColor={AUTH.placeholder}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              autoCorrect={false}
+              onFocus={() => setEmailFocused(true)}
+              onBlur={() => setEmailFocused(false)}
+              style={authType.input}
+              returnKeyType="go"
+              onSubmitEditing={() => {
+                if (canContinue) void submit();
+              }}
+              accessibilityLabel="Email address"
+            />
+          </View>
+        </View>
 
-          {error ? <Text className="mb-4 text-sm text-red-400">{error}</Text> : null}
+        {error ? <Text style={authType.error}>{error}</Text> : null}
 
-          <Pressable
-            onPress={() => void submit()}
-            disabled={busy}
-            className="mt-2 items-center rounded-xl bg-[#C9A84C] py-4"
-          >
-            <Text className="text-base font-bold text-[#080A0F]">
-              {busy ? 'Sending code…' : 'Continue'}
-            </Text>
-          </Pressable>
-        </ScrollView>
-      </KeyboardAvoidingView>
-
-      <CountryPickerModal
-        visible={countryOpen}
-        selected={country}
-        onSelect={setCountry}
-        onClose={() => setCountryOpen(false)}
-      />
+        <MasterAuthActions
+          linkLabel="Already have an Eso Energy account?"
+          onLinkPress={() => router.push(MASTER_SIGN_IN_ROUTE)}
+          continueDisabled={!canContinue}
+          continueBusy={busy}
+          onContinue={() => void submit()}
+        />
+      </MasterAuthShell>
 
       <MasterOtpOverlay
         visible={otpOpen}
@@ -222,39 +217,45 @@ export default function MasterRegisterScreen() {
         onClose={() => setOtpOpen(false)}
         onVerified={() => void finalizeRegistration()}
       />
-    </View>
+    </>
   );
 }
 
-function Field({
-  label,
-  value,
-  onChangeText,
-  secureTextEntry,
-  keyboardType,
-  autoCapitalize,
-}: {
-  label: string;
-  value: string;
-  onChangeText: (v: string) => void;
-  secureTextEntry?: boolean;
-  keyboardType?: 'default' | 'email-address' | 'number-pad' | 'phone-pad';
-  autoCapitalize?: 'none' | 'sentences';
-}) {
-  return (
-    <View className="mb-4">
-      <Text className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#8A94A6]">
-        {label}
-      </Text>
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry}
-        keyboardType={keyboardType}
-        autoCapitalize={autoCapitalize}
-        placeholderTextColor="#4A5568"
-        className="rounded-xl border border-[#1C2030] bg-[#0D1018] px-4 py-3.5 text-base text-white"
-      />
-    </View>
-  );
-}
+const styles = StyleSheet.create({
+  phoneRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  countryPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: AUTH.surface,
+    borderRadius: 22,
+    paddingHorizontal: 14,
+    height: 56,
+  },
+  flag: {
+    fontSize: 20,
+    lineHeight: 24,
+  },
+  dial: {
+    fontFamily: inter.medium,
+    fontSize: 16,
+    color: AUTH.text,
+  },
+  phonePill: {
+    flex: 1,
+    backgroundColor: AUTH.surface,
+    borderRadius: 22,
+    height: 56,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+  },
+  pressed: {
+    opacity: 0.75,
+  },
+});

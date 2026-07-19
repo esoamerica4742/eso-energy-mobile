@@ -1,20 +1,26 @@
 import type { Session } from '@supabase/supabase-js';
-import { getSecureItem, getSecureJson, removeSecureItem, setSecureJson, toSecureStoreKey } from '@/lib/secureStorage';
+import { getSecureItem, toSecureStoreKey } from '@/lib/secureStorage';
 import { esoPaySupabase, esoPaySupabaseConfigured } from '@/esopay/lib/supabasePay';
 import { persistEsoPayUserId } from '@/esopay/auth/esoPayUserId';
 import { useEsoPayAuthStore } from '@/esopay/auth/store';
+import {
+  persistEsoPaySessionBackup,
+  readEsoPaySessionBackup,
+} from '@/esopay/auth/esoPaySessionBackupStorage';
 
-const BACKUP_KEY = 'esopay_session_backup';
+export {
+  clearEsoPaySessionBackup,
+  persistEsoPaySessionBackup,
+  ESOPAY_SESSION_BACKUP_KEY,
+} from '@/esopay/auth/esoPaySessionBackupStorage';
+
 /** Supabase auth blob written by esoPaySupabase (`createSupabaseSecureStorage('esopay_auth')`). */
 const ESOPAY_AUTH_STORAGE_KEY = toSecureStoreKey('esopay_auth_supabase.auth.token');
 
-type SessionBackup = {
+type StoredAuthBlob = {
   access_token: string;
   refresh_token: string;
   expires_at?: number;
-};
-
-type StoredAuthBlob = SessionBackup & {
   user?: Session['user'];
 };
 
@@ -59,24 +65,11 @@ export async function restoreEsoPaySessionFromAuthStorage(): Promise<Session | n
   return data.session;
 }
 
-export async function persistEsoPaySessionBackup(session: Session): Promise<void> {
-  if (!session.access_token || !session.refresh_token) return;
-  await setSecureJson<SessionBackup>(BACKUP_KEY, {
-    access_token: session.access_token,
-    refresh_token: session.refresh_token,
-    expires_at: session.expires_at,
-  });
-}
-
-export async function clearEsoPaySessionBackup(): Promise<void> {
-  await removeSecureItem(BACKUP_KEY);
-}
-
 /** Restore Supabase client + Zustand from secure backup when client storage is empty. */
 export async function restoreEsoPaySessionFromBackup(): Promise<Session | null> {
   if (!esoPaySupabaseConfigured) return null;
 
-  const backup = await getSecureJson<SessionBackup>(BACKUP_KEY);
+  const backup = await readEsoPaySessionBackup();
   if (!backup?.access_token || !backup?.refresh_token) return null;
 
   const { data, error } = await esoPaySupabase.auth.setSession({

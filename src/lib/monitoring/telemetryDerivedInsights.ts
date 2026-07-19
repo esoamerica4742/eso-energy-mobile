@@ -1,7 +1,8 @@
 import type { BatteryLifespanSnapshot } from '@/lib/batteryLifespanGuard';
 import type { DieselFraudAuditSnapshot } from '@/lib/dieselFraudAuditData';
 import type { ThermalLoadStressSnapshot } from '@/lib/thermalLoadStressAlert';
-import { tagInsight, type FleetInsight } from '@/lib/monitoring/fleetInsights';
+import { type FleetInsight } from '@/lib/monitoring/fleetInsights';
+import { tagInsightSource } from '@/lib/monitoring/fleetInsight';
 import type { AiInsight } from '@/services/supabase/aiInsights';
 
 type Input = {
@@ -25,7 +26,7 @@ function mk(
   message: string,
   recommendation: string | null,
 ): FleetInsight {
-  return tagInsight(
+  return tagInsightSource(
     {
       id,
       device_id: deviceId,

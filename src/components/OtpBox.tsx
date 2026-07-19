@@ -1,4 +1,4 @@
-import { StyleSheet, Text } from 'react-native';
+import { Platform, StyleSheet, Text } from 'react-native';
 import Animated, { type SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import type { AuthVariant } from '@/components/auth/authTypes';
 import { ESOPAY_SIGN_IN } from '@/esopay/auth/esoPaySignInTheme';
@@ -53,6 +53,26 @@ export function OtpBox({ char, focused, filled, error, scale, variant = 'default
     );
   }
 
+  if (variant === 'master') {
+    const borderWidth = error ? 2 : focused ? 1.5 : 0;
+    const borderColor = error
+      ? '#FF6B6B'
+      : focused
+        ? 'rgba(255,255,255,0.45)'
+        : 'transparent';
+    const backgroundColor = filled || focused ? '#2C2C2E' : '#1C1C1E';
+
+    return (
+      <Animated.View
+        style={[styles.masterBox, animStyle, { borderWidth, borderColor, backgroundColor }]}
+      >
+        <Text style={styles.masterBoxText} numberOfLines={1} adjustsFontSizeToFit>
+          {char}
+        </Text>
+      </Animated.View>
+    );
+  }
+
   return (
     <Animated.View
       style={[
@@ -96,11 +116,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   boxFocused: {
-    borderColor: C.GOLD_MID,
-    shadowColor: C.GOLD_MID,
-    shadowOpacity: 0.2,
-    shadowRadius: 14,
-    elevation: 4,
+    borderColor: 'rgba(255,255,255,0.55)',
+    shadowColor: '#FFFFFF',
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 3,
   },
   boxFilled: { borderColor: C.DARK_4, backgroundColor: C.DARK_3 },
   boxError: { borderColor: C.ERROR },
@@ -117,5 +137,24 @@ const styles = StyleSheet.create({
     fontFamily: inter.semibold,
     fontSize: 24,
     color: ESOPAY_SIGN_IN.warmWhite,
+  },
+  masterBox: {
+    flex: 1,
+    minWidth: 44,
+    maxWidth: 52,
+    height: 56,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'visible',
+  },
+  masterBoxText: {
+    fontFamily: inter.semibold,
+    fontSize: 24,
+    lineHeight: 28,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    width: '100%',
+    ...(Platform.OS === 'android' ? { includeFontPadding: false } : null),
   },
 });

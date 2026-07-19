@@ -20,8 +20,8 @@ const styles = StyleSheet.create({
   wrap: {
     alignSelf: 'flex-start',
     borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.25)',
-    backgroundColor: 'rgba(201,168,76,0.06)',
+    borderColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 100,
     paddingHorizontal: 12,
     paddingVertical: 4,

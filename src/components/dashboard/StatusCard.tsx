@@ -13,7 +13,6 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { Thermometer, Zap, Battery, Activity, type LucideIcon } from 'lucide-react-native';
 import { useTelemetryStore, selectLatest } from '@/stores/telemetryStore';
@@ -32,11 +31,6 @@ export const StatusCard = memo(function StatusCard({ deviceId, deviceName }: Pro
   const tempC      = point?.temperature_c  ?? 0;
   const powerKw    = point?.power_kw       ?? 0;
   const hasData    = point !== null;
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Card entrance
   const appear = useSharedValue(0);
@@ -103,25 +97,21 @@ export const StatusCard = memo(function StatusCard({ deviceId, deviceName }: Pro
   const tempCount = useCountUp(Math.round(tempC), 1600, 300);
 
   return (
-    <Animated.View style={[appearStyle, glowStyle, { shadowColor: colors.gold }]}>
-      <LinearGradient colors={['#0F1117', '#0A0D14']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.card}>
-        <View style={styles.cardInsetTop} />
-        <View style={styles.cardBloom} />
+    <Animated.View style={appearStyle}>
+      <View style={styles.card}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.liveDotWrap}>
-          <Animated.View style={[styles.liveRing, ringA]} />
-          <Animated.View style={[styles.liveRing, ringB]} />
           <View style={[styles.liveDot, { backgroundColor: hasData ? colors.positiveText : colors.textTertiary }]} />
         </View>
         <Text style={styles.name} numberOfLines={1}>{deviceName}</Text>
         <View style={styles.liveBadge}>
-          <Text style={styles.liveBadgeText}>● LIVE</Text>
+          <Text style={styles.liveBadgeText}>LIVE</Text>
         </View>
       </View>
 
       {/* 2 × 2 metric grid */}
-      {hasData && mounted ? (
+      {hasData ? (
       <View style={styles.grid}>
         <Metric
           Icon={Battery}
@@ -144,7 +134,7 @@ export const StatusCard = memo(function StatusCard({ deviceId, deviceName }: Pro
           Icon={Activity}
           label="Power"
           value={`${powerCount.toFixed(2)} kW`}
-          valueColor={colors.gold}
+          valueColor="#FFFFFF"
           metricType="power"
           sub="Output"
         />
@@ -160,7 +150,7 @@ export const StatusCard = memo(function StatusCard({ deviceId, deviceName }: Pro
       ) : (
         <StatusSkeleton />
       )}
-      </LinearGradient>
+      </View>
     </Animated.View>
   );
 });
@@ -210,7 +200,7 @@ function Metric({
       ) : null}
       {metricType === 'power' ? (
         <Svg width="132" height="48" style={styles.wave}>
-          <Path d={wave} stroke="rgba(201,155,58,0.12)" strokeWidth={1.5} fill="none" />
+          <Path d={wave} stroke="rgba(255,255,255,0.12)" strokeWidth={StyleSheet.hairlineWidth * 2} fill="none" />
         </Svg>
       ) : null}
       <View style={styles.metricHeader}>
@@ -234,7 +224,7 @@ function Metric({
       ) : null}
       <Text style={[styles.metricValue, { color: valueColor }]}>{value}</Text>
       <Text style={[styles.metricSub, (metricType === 'battery' || metricType === 'temp') && styles.metricSubGood]}>
-        {(metricType === 'battery' || metricType === 'temp') ? `✦ ${sub}` : sub}
+        {sub}
       </Text>
     </View>
   );
@@ -302,32 +292,12 @@ function useCountUp(target: number, duration: number, delay = 0, decimals = 0): 
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderRadius: 22,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.12)',
     padding: 16,
     overflow: 'hidden',
-    shadowColor: colors.gold,
-    shadowOpacity: 0.25,
-    shadowRadius: 48,
-    shadowOffset: { width: 0, height: 24 },
-  },
-  cardInsetTop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.04)',
-  },
-  cardBloom: {
-    position: 'absolute',
-    left: -40,
-    bottom: -30,
-    width: 180,
-    height: 140,
-    borderRadius: 100,
-    backgroundColor: 'rgba(201,155,58,0.07)',
+    backgroundColor: '#1C1C1E',
   },
   header: {
     flexDirection: 'row',
@@ -367,13 +337,15 @@ const styles = StyleSheet.create({
   liveBadge: {
     borderRadius: 100,
     borderWidth: 1,
-    borderColor: 'rgba(0,229,160,0.25)',
-    backgroundColor: 'rgba(0,229,160,0.1)',
+    borderColor: 'rgba(255,255,255,0.18)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     paddingHorizontal: 10,
     paddingVertical: 4,
+    minHeight: 24,
+    justifyContent: 'center',
   },
   liveBadgeText: {
-    color: colors.positiveText,
+    color: 'rgba(255,255,255,0.7)',
     fontFamily: fonts.bold,
     fontSize: 9,
     letterSpacing: 1,
@@ -386,15 +358,11 @@ const styles = StyleSheet.create({
   },
   metric: {
     width: '47%',
-    backgroundColor: '#0F131B',
+    backgroundColor: '#2C2C2E',
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.08)',
     padding: 16,
-    shadowColor: '#000000',
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 4 },
     overflow: 'hidden',
   },
   metricHeader: {
@@ -458,19 +426,21 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     height: '40%',
-    backgroundColor: 'rgba(0,229,160,0.06)',
+    backgroundColor: 'rgba(255,255,255,0.03)',
   },
   skeleton: {
-    borderRadius: 12,
-    backgroundColor: '#0F1117',
+    borderRadius: 14,
+    backgroundColor: '#1C1C1E',
     overflow: 'hidden',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.045)',
   },
   skeletonShimmer: {
     position: 'absolute',
     top: 0,
     bottom: 0,
     width: 140,
-    backgroundColor: '#1A2035',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   skelHead: {
     width: '62%',
@@ -481,6 +451,6 @@ const styles = StyleSheet.create({
   skelMetric: {
     width: '47%',
     height: 130,
-    borderRadius: 16,
+    borderRadius: 18,
   },
 });

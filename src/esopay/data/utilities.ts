@@ -174,7 +174,11 @@ export function getBillerDisplayGroup(provider: UtilityProvider): BillerDisplayG
   if (provider.category === 'data') return 'data';
   if (provider.category === 'tv') return 'cable_tv';
   if (name.includes('waec') || name.includes('neco') || name.includes('jamb')) return 'education';
-  if (name.includes('bet9ja') || name.includes('betting') || name.includes('sporty')) {
+  if (
+    /bet9ja|betting|sporty|nairabet|1xbet|msport|ilot|betpawa|merrybet|bangbet|supabet|cloudbet|betway|betland|betking|livescore|naijabet/.test(
+      name.replace(/[\s_-]/g, ''),
+    )
+  ) {
     return 'betting';
   }
   if (provider.category === 'other') return 'others';

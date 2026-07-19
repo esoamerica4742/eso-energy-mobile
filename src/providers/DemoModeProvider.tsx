@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { appQueryClient } from '@/lib/queryClient';
 import { clearDemoCache, clearDemoSession, seedDemoSession } from '@/lib/demoFleet';
+import { persistDemoModeActive, readDemoModePersisted } from '@/lib/demoModePersistence';
 import {
   registerAuthRehydrate,
   registerDemoExitForAuth,
@@ -37,6 +38,7 @@ export function DemoModeProvider({ children }: { children: ReactNode }) {
     demoModeActiveSync = true;
     setIsDemoMode(true);
     seedDemoSession(appQueryClient);
+    void persistDemoModeActive(true);
   }, []);
 
   const exitDemoForAuth = useCallback(() => {
@@ -44,12 +46,27 @@ export function DemoModeProvider({ children }: { children: ReactNode }) {
     demoModeActiveSync = false;
     setIsDemoMode(false);
     clearDemoCache(appQueryClient);
+    void persistDemoModeActive(false);
   }, [isDemoMode]);
 
   const exitDemoMode = useCallback(() => {
     demoModeActiveSync = false;
     setIsDemoMode(false);
     clearDemoSession(appQueryClient);
+    void persistDemoModeActive(false);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void readDemoModePersisted().then((active) => {
+      if (cancelled || !active || demoModeActiveSync) return;
+      demoModeActiveSync = true;
+      setIsDemoMode(true);
+      seedDemoSession(appQueryClient);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {

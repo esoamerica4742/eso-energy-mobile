@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
 import type { BillPayCardItem } from '@/esopay/components/bills/BillPayCard';
 import { BillPayCategoryIcon } from '@/esopay/components/bills/BillPayCategoryIcon';
+import { ServiceCardIcon } from '@/esopay/components/bills/ServiceCardIcon';
 import type { BillPayHubCardConfig } from '@/esopay/data/billPayHubCatalog';
 import type { UtilityCategorySlug } from '@/esopay/data/nigeriaBillers';
 import { getBillPayCardHelper, getQuickActionHelper } from '@/esopay/lib/billPayCardHelpers';
-import { PROVIDER_ICON_BG, PROVIDER_ICON_COLOR } from '@/esopay/lib/categoryBillPayVisual';
+import { PROVIDER_ICON_COLOR } from '@/esopay/lib/categoryBillPayVisual';
 import type { HubHighlightKind } from '@/esopay/lib/billHubHighlights';
 
 function subtitleFor(card: BillPayHubCardConfig): string {
@@ -19,9 +19,9 @@ function iconFor(card: BillPayHubCardConfig): ReactNode {
     (card.key === 'tv-license' ? 'tv' : card.key === 'insurance' ? 'education' : 'electricity');
 
   return (
-    <View style={styles.iconContainer}>
-      <BillPayCategoryIcon slug={slug} color={PROVIDER_ICON_COLOR} />
-    </View>
+    <ServiceCardIcon>
+      <BillPayCategoryIcon slug={slug} color={PROVIDER_ICON_COLOR} size={22} />
+    </ServiceCardIcon>
   );
 }
 
@@ -43,18 +43,12 @@ export function buildBillPayHubCardItems(
       borderGlow: card.borderGlow,
       iconColor: PROVIDER_ICON_COLOR,
     },
-    highlightBadge: highlights?.get(card.key) ?? null,
+    highlightBadge: (() => {
+      const kind = highlights?.get(card.key);
+      return kind === 'popular' ? null : kind ?? null;
+    })(),
     index,
     onPress: () => onSelect(card),
     accessibilityLabel: card.label,
   }));
 }
-
-const styles = StyleSheet.create({
-  iconContainer: {
-    backgroundColor: PROVIDER_ICON_BG,
-    borderRadius: 12,
-    padding: 8,
-    alignSelf: 'flex-start',
-  },
-});

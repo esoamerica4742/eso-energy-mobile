@@ -1,6 +1,5 @@
 import type { ViewStyle } from 'react-native';
 import { ESO_PAY_GOLD } from '@/esopay/theme/brandColors';
-import { goldRgba } from '@/theme/colors';
 
 /**
  * Eso Pay design tokens — single source of truth (spec v1.0.0 §1.2–1.6).
@@ -23,15 +22,16 @@ type ShadowStyle = Pick<
 const EsoPayTokensRaw = {
   color: {
     bg: {
-      void: '#0A0F1E',
-      surface: '#111827',
-      elevated: '#0F172A',
-      inset: '#0B1224',
+      void: '#000000',
+      surface: '#1C1C1E',
+      elevated: '#2C2C2E',
+      inset: '#111111',
     },
     gold: {
-      primary: '#D4A017',
-      shimmer: '#E8D5A3',
-      muted: '#A8891A',
+      /** Aligned to brand ESO_PAY_GOLD — white chrome. */
+      primary: ESO_PAY_GOLD,
+      shimmer: 'rgba(255,255,255,0.85)',
+      muted: 'rgba(255,255,255,0.35)',
     },
     emerald: {
       live: '#10B981',
@@ -49,12 +49,12 @@ const EsoPayTokensRaw = {
     },
     text: {
       primary: '#FFFFFF',
-      secondary: '#94A3B8',
+      secondary: 'rgba(255, 255, 255, 0.84)',
       disabled: '#64748B',
     },
     border: {
       subtle: 'rgba(255,255,255,0.06)',
-      active: goldRgba(0.35),
+      active: 'rgba(255,255,255,0.35)',
     },
   },
 

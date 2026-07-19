@@ -21,7 +21,10 @@ import { MONITORING_HOME_ROUTE } from '@/lib/navigation/productRoutes';
 import { supabase } from '@/lib/supabase';
 import { inter } from '@/theme/fonts';
 import { AuthPressable } from '@/monitoring/auth/inverter/AuthPressable';
-import { monitoringProfileHref } from '@/monitoring/auth/inverter/monitoringAuthRoute';
+import {
+  isReturningMonitoringUser,
+  monitoringProfileHref,
+} from '@/monitoring/auth/inverter/monitoringAuthRoute';
 import { MonitoringTealButton } from '@/monitoring/auth/inverter/MonitoringAuthChrome';
 import { PinBoxes } from '@/monitoring/auth/inverter/PinBoxes';
 import { setMonitoringPinUnlocked } from '@/monitoring/auth/monitoringPinSession';

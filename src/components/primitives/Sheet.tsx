@@ -1,10 +1,9 @@
 import { type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import * as DialogPrimitive from '@rn-primitives/dialog';
-import { MotiView } from 'moti';
+import Animated, { SlideInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getPortalHostName } from '@/components/primitives/PortalRoot';
-import { motionSpring } from '@/lib/motion/presets';
 import { colors, fontSize, fonts, radius, spacing } from '@/theme/tokens';
 
 type Props = {
@@ -22,11 +21,8 @@ export function BottomSheetDialog({ open, onOpenChange, title, children, snap = 
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal hostName={getPortalHostName()}>
         <DialogPrimitive.Overlay style={styles.overlay} closeOnPress>
-          <MotiView
-            from={{ translateY: 48, opacity: 0 }}
-            animate={{ translateY: 0, opacity: 1 }}
-            exit={{ translateY: 32, opacity: 0 }}
-            transition={motionSpring.luxury}
+          <Animated.View
+            entering={SlideInDown.springify().damping(22).stiffness(220)}
             style={[
               styles.sheet,
               {
@@ -47,7 +43,7 @@ export function BottomSheetDialog({ open, onOpenChange, title, children, snap = 
                 </Pressable>
               </DialogPrimitive.Close>
             </DialogPrimitive.Content>
-          </MotiView>
+          </Animated.View>
         </DialogPrimitive.Overlay>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

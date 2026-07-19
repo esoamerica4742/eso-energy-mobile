@@ -10,4 +10,6 @@ export type CommandCenterModule = {
   description: string;
   variant: PlatformCardVariant;
   icon: LucideIcon;
+  /** Optional secondary line for legacy platform cards. */
+  metadata?: string;
 };

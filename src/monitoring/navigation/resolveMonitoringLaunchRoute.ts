@@ -1,18 +1,17 @@
 import type { User } from '@supabase/supabase-js';
 import type { Href } from 'expo-router';
 import { getCurrentUser } from '@/lib/authProfile';
-import { MONITORING_HOME_ROUTE, MONITORING_LOGIN_ROUTE } from '@/lib/navigation/productRoutes';
-import { resolveMonitoringAuthRoute } from '@/monitoring/auth/inverter/monitoringAuthRoute';
-import { isMonitoringPinUnlocked } from '@/monitoring/auth/monitoringPinSession';
+import {
+  MASTER_PIN_SETUP_ROUTE,
+  MASTER_SIGN_IN_ROUTE,
+  MONITORING_HOME_ROUTE,
+} from '@/lib/navigation/productRoutes';
+import { hasMasterPin } from '@/master/masterPin';
 
-/** First monitoring screen after access picker or app resume — unlock, onboarding, or home. */
+/** First monitoring screen after hub — home when PIN exists, else setup. */
 export async function resolveMonitoringLaunchRoute(user?: User | null): Promise<Href> {
   const activeUser = user ?? (await getCurrentUser());
-  if (!activeUser) return MONITORING_LOGIN_ROUTE;
-
-  const next = await resolveMonitoringAuthRoute(activeUser);
-  if (next === '/inverter/unlock' && isMonitoringPinUnlocked()) {
-    return MONITORING_HOME_ROUTE;
-  }
-  return next;
+  if (!activeUser?.id) return MASTER_SIGN_IN_ROUTE;
+  if (!(await hasMasterPin(activeUser.id))) return MASTER_PIN_SETUP_ROUTE;
+  return MONITORING_HOME_ROUTE;
 }

@@ -10,10 +10,21 @@ import { useEsoPayUserId } from '@/esopay/hooks/useEsoPayUserId';
 import { toEsoPayApiError } from '@/esopay/api/client';
 import { useEsoPayAuthStore } from '@/esopay/auth/store';
 
+export type VerifyPinResult = {
+  ok: boolean;
+  attemptsRemaining: number | null;
+  locked: boolean;
+};
+
 function unlockPinSession() {
   useEsoPayAuthStore.getState().setPinSessionUnlocked(true);
 }
 
+/**
+ * Eso Pay payment PIN = master app PIN (same secure storage).
+ * When the server has no transaction PIN yet, the device master PIN is accepted
+ * and synced so purchases can authorize with one PIN.
+ */
 export function useTransactionPin() {
   const api = useEsoPayApiClient();
   const apiEnabled = useEsoPayEnabled();
@@ -53,11 +64,16 @@ export function useTransactionPin() {
     }
     setIsChecking(true);
     try {
+      const localConfigured = await hasTransactionPin(userId);
       if (apiEnabled) {
         const server = await api.security.getTransactionPinStatus();
-        applyStatus(server);
+        applyStatus({
+          ...server,
+          // Main app PIN counts — do not force a second “create PIN” flow.
+          configured: server.configured || localConfigured,
+        });
       } else {
-        setPinConfigured(await hasTransactionPin(userId));
+        setPinConfigured(localConfigured);
         setLocked(false);
         setAttemptsRemaining(null);
         setLockedUntil(null);
@@ -79,7 +95,7 @@ export function useTransactionPin() {
   const configurePin = useCallback(
     async (pin: string, currentPin?: string) => {
       if (!userId) {
-        throw new Error('Sign in to Eso Pay before setting a transaction PIN');
+        throw new Error('Sign in to Eso Pay before setting a PIN');
       }
       if (apiEnabled) {
         try {
@@ -119,7 +135,7 @@ export function useTransactionPin() {
   const resetPinForRecovery = useCallback(
     async (pin: string) => {
       if (!userId) {
-        throw new Error('Sign in to Eso Pay before resetting your transaction PIN');
+        throw new Error('Sign in to Eso Pay before resetting your PIN');
       }
       if (apiEnabled) {
         try {
@@ -143,17 +159,39 @@ export function useTransactionPin() {
     [api, apiEnabled, applyStatus, userId],
   );
 
+  /** Sync device master PIN to server when payments require a server-side PIN. */
+  const syncMasterPinToServer = useCallback(
+    async (pin: string) => {
+      if (!userId || !apiEnabled) return;
+      try {
+        const result = await api.security.setTransactionPin({ pin });
+        applyStatus({ ...result, configured: true });
+      } catch (error) {
+        const apiError = toEsoPayApiError(error);
+        if (
+          apiError.status === 409 ||
+          apiError.code === 'TRANSACTION_PIN_ALREADY_CONFIGURED' ||
+          /already/i.test(apiError.message)
+        ) {
+          setPinConfigured(true);
+          return;
+        }
+        // Non-fatal for unlock; purchase may still fail until synced.
+        console.warn('[useTransactionPin] Could not sync master PIN to server', apiError.code);
+      }
+    },
+    [api, apiEnabled, applyStatus, userId],
+  );
+
   const verifyPin = useCallback(
-    async (
-      pin: string,
-    ): Promise<{ ok: boolean; attemptsRemaining: number | null; locked: boolean }> => {
+    async (pin: string): Promise<VerifyPinResult> => {
       if (!userId) return { ok: false, attemptsRemaining: null, locked: false };
 
       if (apiEnabled) {
         try {
           const result = await api.security.verifyTransactionPin({ pin });
-          applyStatus(result);
           if (result.ok) {
+            applyStatus(result);
             await setTransactionPin(userId, pin);
             unlockPinSession();
             return {
@@ -165,6 +203,7 @@ export function useTransactionPin() {
           }
 
           if (result.locked) {
+            applyStatus(result);
             return {
               ok: false,
               attemptsRemaining:
@@ -173,13 +212,25 @@ export function useTransactionPin() {
             };
           }
 
-          // Server rejected — still honor a PIN saved on this device.
-          const localOk = await verifyTransactionPin(userId, pin);
-          if (localOk) {
-            unlockPinSession();
-            return { ok: true, attemptsRemaining: null, locked: false };
+          // Server has no PIN yet — accept the main device PIN and register it.
+          if (!result.configured) {
+            const localOk = await verifyTransactionPin(userId, pin);
+            if (localOk) {
+              await syncMasterPinToServer(pin);
+              unlockPinSession();
+              setPinConfigured(true);
+              return { ok: true, attemptsRemaining: null, locked: false };
+            }
+            applyStatus(result);
+            return {
+              ok: false,
+              attemptsRemaining:
+                typeof result.attempts_remaining === 'number' ? result.attempts_remaining : null,
+              locked: false,
+            };
           }
 
+          applyStatus(result);
           return {
             ok: false,
             attemptsRemaining:
@@ -194,8 +245,10 @@ export function useTransactionPin() {
           }
           const localOk = await verifyTransactionPin(userId, pin);
           if (localOk) {
+            await syncMasterPinToServer(pin);
             unlockPinSession();
-            return { ok: localOk, attemptsRemaining: null, locked: false };
+            setPinConfigured(true);
+            return { ok: true, attemptsRemaining: null, locked: false };
           }
           void refresh();
           return { ok: false, attemptsRemaining: null, locked: false };
@@ -206,7 +259,7 @@ export function useTransactionPin() {
       if (localOk) unlockPinSession();
       return { ok: localOk, attemptsRemaining: null, locked: false };
     },
-    [api, apiEnabled, applyStatus, refresh, userId],
+    [api, apiEnabled, applyStatus, refresh, syncMasterPinToServer, userId],
   );
 
   return {

@@ -105,6 +105,9 @@ export type UtilityProvider = {
   name: string;
   category: 'electricity' | 'airtime' | 'water' | 'tv' | 'data' | 'other';
   monnify_biller_code: string;
+  /** Present on live Monnify sync — used to lock fixed data/TV plan prices. */
+  minimum_amount_kobo?: number | null;
+  maximum_amount_kobo?: number | null;
 };
 
 export type ValidateUtilityAccountRequest = {
@@ -138,9 +141,21 @@ export type PurchaseUtilityResponse = {
   /** XXXX-XXXX-XXXX-XXXX-XXXX display form */
   token_formatted?: string | null;
   meter_name?: string | null;
+  /** Wallet cashback credited on successful vend (kobo). */
+  cashback_kobo?: number | null;
   /** Shown when DisCo is temporarily down but wallet debit succeeded. */
   user_message?: string | null;
   code?: 'PENDING_FULFILLMENT' | string | null;
+};
+
+export type WalletCashbackSummary = {
+  lifetime_kobo: number;
+  recent: Array<{
+    purchase_ref: string;
+    amount_kobo: number;
+    category: string;
+    created_at: string;
+  }>;
 };
 
 export type PayBillFromWalletRequest = {

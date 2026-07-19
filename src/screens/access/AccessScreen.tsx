@@ -1,68 +1,67 @@
 import { useCallback } from 'react';
 import {
-  Platform,
   Pressable,
   StatusBar,
+  StyleSheet,
   Text,
   useWindowDimensions,
   View,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Activity, Wallet } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SpringEntrance } from '@/lib/motion/SpringEntrance';
-import { SPRING_CARD } from '@/lib/motion/springMotion';
 import { useCommandCenterNavigation } from '@/screens/access/useCommandCenterNavigation';
 import type { AppProduct } from '@/lib/navigation/productRoutes';
+import { inter } from '@/theme/fonts';
+
+const BG = '#000000';
+const SURFACE = '#1C1C1E';
+const TEXT = '#FFFFFF';
+const MUTED = 'rgba(255,255,255,0.55)';
+const PRESS_SPRING = { stiffness: 320, damping: 22 };
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-type HubCardProps = {
+function ProductCard({
+  title,
+  body,
+  Icon,
+  onPress,
+}: {
   title: string;
   body: string;
-  accent: string;
-  iconBg: string;
   Icon: typeof Activity;
   onPress: () => void;
-};
-
-function HubCard({ title, body, accent, iconBg, Icon, onPress }: HubCardProps) {
+}) {
   const scale = useSharedValue(1);
-  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const style = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
   return (
     <AnimatedPressable
+      onPress={onPress}
       onPressIn={() => {
-        scale.value = withSpring(0.96, SPRING_CARD);
+        scale.value = withSpring(0.97, PRESS_SPRING);
       }}
       onPressOut={() => {
-        scale.value = withSpring(1, SPRING_CARD);
+        scale.value = withSpring(1, PRESS_SPRING);
       }}
-      onPress={() => void onPress()}
+      style={[styles.card, style]}
       accessibilityRole="button"
       accessibilityLabel={title}
-      className="flex-1"
-      android_ripple={{ color: 'rgba(255,255,255,0.08)' }}
     >
-      <Animated.View
-        style={animStyle}
-        className="aspect-square rounded-2xl border border-[#242B3D] bg-[#0D1018] p-4"
-      >
-        <View className="absolute bottom-0 left-0 top-0 w-[3px] rounded-full" style={{ backgroundColor: accent }} />
-        <View
-          className="mb-4 h-12 w-12 items-center justify-center rounded-xl"
-          style={{ backgroundColor: iconBg }}
-        >
-          <Icon size={24} color={accent} />
-        </View>
-        <Text className="text-base font-bold text-white">{title}</Text>
-        <Text className="mt-2 text-[13px] leading-[18px] text-[#6B7280]">{body}</Text>
-      </Animated.View>
+      <View style={styles.cardIcon}>
+        <Icon size={22} color={TEXT} strokeWidth={2} />
+      </View>
+      <Text style={styles.cardTitle}>{title}</Text>
+      <Text style={styles.cardBody}>{body}</Text>
     </AnimatedPressable>
   );
 }
@@ -71,7 +70,7 @@ export default function AccessScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { navigateToProduct } = useCommandCenterNavigation();
-  const compact = width <= 360;
+  const stackCards = width <= 360;
 
   const openProduct = useCallback(
     async (product: AppProduct) => {
@@ -86,52 +85,41 @@ export default function AccessScreen() {
   );
 
   return (
-    <View className="flex-1 bg-[#080A0F]">
-      <StatusBar barStyle="light-content" backgroundColor="#080A0F" />
-      <View
-        className="pointer-events-none absolute left-0 right-0 self-center rounded-full bg-[#00C48C] opacity-[0.04]"
-        style={{ top: insets.top + 40, width: 300, height: 180 }}
-      />
+    <View style={styles.screen}>
+      <StatusBar barStyle="light-content" backgroundColor={BG} />
 
-      <View className="flex-1 px-5" style={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 20 }}>
-        <SpringEntrance delay={0}>
-          <View className="flex-row items-center px-1">
-            <View className="h-px flex-1 bg-[#00C48C]/50" />
-            <Text className="mx-3 text-[11px] font-bold tracking-[3.5px] text-[#00C48C]">
-              ⚡ ESO ENERGY
-            </Text>
-            <View className="h-px flex-1 bg-[#00C48C]/50" />
-          </View>
+      <View
+        style={[
+          styles.content,
+          {
+            paddingTop: Math.max(insets.top, 16) + 24,
+            paddingBottom: Math.max(insets.bottom, 16) + 16,
+          },
+        ]}
+      >
+        <SpringEntrance delay={40}>
+          <Text style={styles.brand}>ESO ENERGY</Text>
         </SpringEntrance>
 
-        <SpringEntrance delay={80}>
-          <Text
-            className="mt-7 text-center font-extrabold text-white"
-            style={{
-              fontSize: compact ? 32 : 36,
-              lineHeight: compact ? 40 : 44,
-              fontFamily: Platform.OS === 'android' ? 'Inter_700Bold' : 'Inter_800ExtraBold',
-            }}
-          >
-            Choose your{'\n'}command center
-          </Text>
+        <SpringEntrance delay={100}>
+          <Text style={styles.headline}>Where to?</Text>
         </SpringEntrance>
 
         <SpringEntrance delay={160}>
-          <View className="mt-8 flex-row gap-3">
-            <HubCard
-              title="ESO Inverter Monitoring"
-              body="Fleet telemetry and alerts."
-              accent="#00C48C"
-              iconBg="#00C48C12"
+          <Text style={styles.lead}>Pick a product. Switch anytime in Settings.</Text>
+        </SpringEntrance>
+
+        <SpringEntrance delay={220}>
+          <View style={[styles.cards, stackCards && styles.cardsStack]}>
+            <ProductCard
+              title="Monitoring"
+              body="Fleet telemetry and site intelligence"
               Icon={Activity}
               onPress={() => void openProduct('monitoring')}
             />
-            <HubCard
+            <ProductCard
               title="Eso Pay"
-              body="Wallet and utility bills."
-              accent="#C9A84C"
-              iconBg="#C9A84C12"
+              body="Wallet, utilities, and bill payments"
               Icon={Wallet}
               onPress={() => void openProduct('esopay')}
             />
@@ -141,3 +129,78 @@ export default function AccessScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: BG,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    justifyContent: 'center',
+  },
+  brand: {
+    fontFamily: inter.bold,
+    fontSize: 12,
+    letterSpacing: 3.2,
+    color: MUTED,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  headline: {
+    fontFamily: inter.bold,
+    fontSize: 34,
+    lineHeight: 40,
+    letterSpacing: -0.6,
+    color: TEXT,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  lead: {
+    fontFamily: inter.regular,
+    fontSize: 15,
+    lineHeight: 22,
+    color: MUTED,
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  cards: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    gap: 12,
+  },
+  cardsStack: {
+    flexDirection: 'column',
+  },
+  card: {
+    flex: 1,
+    backgroundColor: SURFACE,
+    borderRadius: 22,
+    paddingHorizontal: 18,
+    paddingVertical: 22,
+    minHeight: 168,
+  },
+  cardIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#2C2C2E',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 18,
+  },
+  cardTitle: {
+    fontFamily: inter.bold,
+    fontSize: 18,
+    lineHeight: 24,
+    color: TEXT,
+    marginBottom: 6,
+  },
+  cardBody: {
+    fontFamily: inter.regular,
+    fontSize: 13,
+    lineHeight: 18,
+    color: MUTED,
+  },
+});

@@ -38,6 +38,7 @@ import type {
   UtilityProvider,
   ValidateUtilityAccountRequest,
   ValidateUtilityAccountResponse,
+  WalletCashbackSummary,
   VerifyTransactionPinResult,
   WalletTransactionCategory,
   InverterOffset,
@@ -164,6 +165,12 @@ function createEsoPayHttpClient(): AxiosInstance {
         config.headers.Authorization = `Bearer ${newToken}`;
         return client.request(config);
       } catch (refreshError) {
+        // Session is unrecoverable — notify the host so it can redirect to sign-in.
+        try {
+          credentialRef.onSessionExpired();
+        } catch {
+          // Never let this crash a request handler.
+        }
         return Promise.reject(toEsoPayApiError(refreshError));
       }
     },
@@ -222,6 +229,11 @@ export const esoPayApi = {
           ...withIdempotency(body.idempotency_key),
         })
         .then((r) => r.data),
+
+    getCashback: () =>
+      esopayApiClient
+        .get<WalletCashbackSummary>(ESO_PAY_ROUTES.wallet.cashback)
+        .then((r) => r.data),
   },
 
   bills: {
@@ -256,9 +268,11 @@ export const esoPayApi = {
   },
 
   utilities: {
-    listProviders: () =>
+    listProviders: (opts?: { sync?: boolean }) =>
       esopayApiClient
-        .get<UtilityProvider[]>(ESO_PAY_ROUTES.utilities.providers)
+        .get<UtilityProvider[]>(ESO_PAY_ROUTES.utilities.providers, {
+          params: opts?.sync ? { sync: true } : undefined,
+        })
         .then((r) => r.data),
 
     validateAccount: (body: ValidateUtilityAccountRequest) =>

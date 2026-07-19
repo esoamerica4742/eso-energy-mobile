@@ -54,7 +54,7 @@ export function EsoPayTransactionPinGate({ onUnlockSuccess }: Props) {
   if (!userIdReady || isChecking || !pinConfigured) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator size="large" color="#C9A84C" />
+        <ActivityIndicator size="large" color="#FFFFFF" />
       </View>
     );
   }

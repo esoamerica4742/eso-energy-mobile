@@ -1,6 +1,6 @@
 import type { BillHistoryRowModel } from '@/esopay/lib/billHistoryDisplay';
 
-export const PAY_AGAIN_STRIP_MAX = 3;
+export const PAY_AGAIN_STRIP_MAX = 5;
 
 /** Stable key for deduping repeat-pay targets. */
 export function paymentRepeatKey(row: BillHistoryRowModel): string {
@@ -24,24 +24,22 @@ export function pickPayAgainRows(
 }
 
 /**
- * Hide the pay-again strip when it only repeats what's already visible at the top of history.
+ * @deprecated Pay-again always shows when there are candidates (habit-first hub).
+ * Kept for tests / callers; always returns true when strip is non-empty.
  */
 export function shouldShowPayAgainStrip(
   strip: BillHistoryRowModel[],
-  history: BillHistoryRowModel[],
-  overlapRows = 2,
+  _history: BillHistoryRowModel[],
+  _overlapRows = 2,
 ): boolean {
-  if (strip.length === 0) return false;
-  const topKeys = new Set(history.slice(0, overlapRows).map(paymentRepeatKey));
-  return strip.some((row) => !topKeys.has(paymentRepeatKey(row)));
+  return strip.length > 0;
 }
 
+/** Identity filter — strip is never suppressed against history. */
 export function filterPayAgainStrip(
   strip: BillHistoryRowModel[],
-  history: BillHistoryRowModel[],
-  overlapRows = 2,
+  _history: BillHistoryRowModel[],
+  _overlapRows = 2,
 ): BillHistoryRowModel[] {
-  if (!shouldShowPayAgainStrip(strip, history, overlapRows)) return [];
-  const topKeys = new Set(history.slice(0, overlapRows).map(paymentRepeatKey));
-  return strip.filter((row) => !topKeys.has(paymentRepeatKey(row)));
+  return strip;
 }

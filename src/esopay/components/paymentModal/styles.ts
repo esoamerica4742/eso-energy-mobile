@@ -1,20 +1,27 @@
 import { StyleSheet } from 'react-native';
 
-import { colors } from '@/esopay/theme/colors';
 import { spacing } from '@/esopay/theme/spacing';
 import { fonts } from '@/esopay/theme/typography';
 
+const BG = '#1C1C1E';
+const SURFACE = '#2C2C2E';
+const TEXT = '#FFFFFF';
+const MUTED = 'rgba(255,255,255,0.55)';
+const BORDER = 'rgba(255,255,255,0.12)';
+const DANGER = '#FF6B6B';
+const WARNING = '#F59E0B';
+
 export const paymentModalStyles = StyleSheet.create({
   sheetBg: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    borderWidth: 1,
-    borderColor: colors.goldBorder,
+    backgroundColor: BG,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: BORDER,
   },
   handle: {
-    backgroundColor: colors.goldDim,
-    width: 44,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    width: 36,
   },
   content: {
     paddingHorizontal: spacing.screen,
@@ -33,35 +40,36 @@ export const paymentModalStyles = StyleSheet.create({
   },
   eyebrow: {
     fontFamily: fonts.uiMedium,
-    fontSize: 10,
-    letterSpacing: 1.5,
-    color: colors.gold,
-    textTransform: 'uppercase',
+    fontSize: 12,
+    letterSpacing: 0.2,
+    color: MUTED,
+    textTransform: 'none',
   },
   title: {
     fontFamily: fonts.display,
     fontSize: 26,
-    color: colors.white,
+    letterSpacing: -0.4,
+    color: TEXT,
   },
   fieldLabel: {
     fontFamily: fonts.uiMedium,
     fontSize: 12,
-    color: colors.muted,
+    color: MUTED,
     marginBottom: spacing.sm,
   },
   fieldGap: {
     marginTop: spacing.lg,
   },
   input: {
-    backgroundColor: colors.surface2,
-    borderRadius: 14,
+    backgroundColor: SURFACE,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.goldBorder,
+    borderColor: 'transparent',
     paddingHorizontal: spacing.lg,
     paddingVertical: 14,
     fontFamily: fonts.ui,
     fontSize: 16,
-    color: colors.white,
+    color: TEXT,
   },
   lookupRow: {
     flexDirection: 'row',
@@ -73,27 +81,27 @@ export const paymentModalStyles = StyleSheet.create({
     marginTop: spacing.sm,
     fontFamily: fonts.uiMedium,
     fontSize: 14,
-    color: colors.gold,
+    color: TEXT,
   },
   validationError: {
     marginTop: spacing.sm,
     fontFamily: fonts.ui,
     fontSize: 13,
-    color: colors.danger,
+    color: DANGER,
   },
   amountRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface2,
-    borderRadius: 14,
+    backgroundColor: SURFACE,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.goldBorder,
+    borderColor: 'transparent',
     paddingHorizontal: spacing.lg,
   },
   nairaPrefix: {
     fontFamily: fonts.display,
     fontSize: 22,
-    color: colors.gold,
+    color: MUTED,
     marginRight: spacing.sm,
   },
   amountInput: {
@@ -101,23 +109,23 @@ export const paymentModalStyles = StyleSheet.create({
     paddingVertical: 14,
     fontFamily: fonts.display,
     fontSize: 28,
-    color: colors.white,
+    color: TEXT,
   },
   walletHint: {
     marginTop: spacing.sm,
     fontFamily: fonts.ui,
     fontSize: 13,
-    color: colors.muted,
+    color: MUTED,
   },
   walletHintWarn: {
-    color: colors.warning,
+    color: WARNING,
   },
   walletWarn: {
     marginTop: spacing.sm,
     fontFamily: fonts.ui,
     fontSize: 13,
     lineHeight: 18,
-    color: colors.warning,
+    color: WARNING,
   },
   addFundsBtn: {
     marginTop: spacing.md,
@@ -131,13 +139,13 @@ export const paymentModalStyles = StyleSheet.create({
   toggleLabel: {
     fontFamily: fonts.ui,
     fontSize: 14,
-    color: colors.white,
+    color: TEXT,
   },
   rbacHint: {
     marginTop: spacing.md,
     fontFamily: fonts.ui,
     fontSize: 13,
-    color: colors.warning,
+    color: WARNING,
   },
   payBtn: {
     marginTop: spacing.xl,
@@ -147,7 +155,7 @@ export const paymentModalStyles = StyleSheet.create({
     fontFamily: fonts.ui,
     fontSize: 12,
     lineHeight: 18,
-    color: colors.muted,
+    color: MUTED,
     textAlign: 'center',
   },
   successBlock: {
@@ -158,14 +166,14 @@ export const paymentModalStyles = StyleSheet.create({
   successTitle: {
     fontFamily: fonts.display,
     fontSize: 28,
-    color: colors.white,
+    color: TEXT,
     textAlign: 'center',
   },
   fulfillmentMessage: {
     fontFamily: fonts.ui,
     fontSize: 15,
     lineHeight: 23,
-    color: colors.white,
+    color: TEXT,
     textAlign: 'center',
     paddingHorizontal: 8,
     marginTop: 4,
@@ -173,25 +181,25 @@ export const paymentModalStyles = StyleSheet.create({
   successAmount: {
     fontFamily: fonts.display,
     fontSize: 36,
-    color: colors.gold,
+    color: TEXT,
   },
   refText: {
     fontFamily: fonts.ui,
     fontSize: 13,
-    color: colors.muted,
+    color: MUTED,
   },
   statusPill: {
     fontFamily: fonts.uiMedium,
     fontSize: 12,
-    color: colors.gold,
+    color: MUTED,
     textTransform: 'capitalize',
   },
   tokenBox: {
     width: '100%',
-    backgroundColor: colors.surface2,
-    borderRadius: 14,
+    backgroundColor: SURFACE,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.goldBorder,
+    borderColor: BORDER,
     padding: spacing.lg,
     gap: spacing.sm,
   },
@@ -199,13 +207,13 @@ export const paymentModalStyles = StyleSheet.create({
     fontFamily: fonts.uiMedium,
     fontSize: 11,
     letterSpacing: 1,
-    color: colors.gold,
+    color: MUTED,
     textTransform: 'uppercase',
   },
   tokenValue: {
     fontFamily: fonts.ui,
     fontSize: 16,
-    color: colors.white,
+    color: TEXT,
     lineHeight: 24,
   },
   receiptActions: {
@@ -216,10 +224,10 @@ export const paymentModalStyles = StyleSheet.create({
   secondaryBtn: {
     flex: 1,
     minHeight: 44,
-    borderRadius: 12,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: colors.goldBorder,
-    backgroundColor: colors.surface2,
+    borderColor: BORDER,
+    backgroundColor: SURFACE,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -228,7 +236,7 @@ export const paymentModalStyles = StyleSheet.create({
   secondaryBtnText: {
     fontFamily: fonts.uiMedium,
     fontSize: 14,
-    color: colors.gold,
+    color: TEXT,
   },
   processingRow: {
     flexDirection: 'row',
@@ -240,7 +248,7 @@ export const paymentModalStyles = StyleSheet.create({
   processingText: {
     fontFamily: fonts.ui,
     fontSize: 14,
-    color: colors.muted,
+    color: MUTED,
   },
   backLink: {
     alignItems: 'center',
@@ -249,7 +257,7 @@ export const paymentModalStyles = StyleSheet.create({
   backLinkText: {
     fontFamily: fonts.uiMedium,
     fontSize: 14,
-    color: colors.gold,
+    color: '#4DA3FF',
   },
   bundleGrid: {
     flexDirection: 'row',
@@ -261,28 +269,28 @@ export const paymentModalStyles = StyleSheet.create({
     minWidth: 72,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: colors.goldBorder,
-    backgroundColor: colors.surface2,
+    borderColor: BORDER,
+    backgroundColor: SURFACE,
     alignItems: 'center',
     gap: 2,
   },
   bundleChipActive: {
-    borderColor: colors.gold,
-    backgroundColor: colors.goldGlow,
+    borderColor: 'rgba(255,255,255,0.35)',
+    backgroundColor: 'rgba(255,255,255,0.1)',
   },
   bundleLabel: {
     fontFamily: fonts.uiMedium,
     fontSize: 13,
-    color: colors.white,
+    color: TEXT,
   },
   bundleLabelActive: {
-    color: colors.gold,
+    color: TEXT,
   },
   bundleSub: {
     fontFamily: fonts.ui,
     fontSize: 10,
-    color: colors.muted,
+    color: MUTED,
   },
 });

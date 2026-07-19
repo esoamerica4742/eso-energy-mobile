@@ -77,7 +77,7 @@ export default function EsoPayPinSetupScreen() {
     <View style={styles.root}>
       {isChecking ? (
         <View style={styles.loading}>
-          <ActivityIndicator size="large" color="#C9A84C" />
+          <ActivityIndicator size="large" color="#FFFFFF" />
         </View>
       ) : null}
 

@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useEsoPayBack } from '@/esopay/navigation/useEsoPayBack';
 import * as Haptics from 'expo-haptics';
 import {
   getPaymentErrorMessage,
@@ -17,6 +18,7 @@ import { GoldCTAButton } from '@/esopay/components/GoldCTAButton';
 import { NumberTicker } from '@/esopay/components/NumberTicker';
 import { esopayFonts } from '@/esopay/theme/fonts';
 import { EsoPayTokens as T } from '@/esopay/theme/tokens';
+import { ESO_PAY_TEXT_PRIMARY } from '@/esopay/theme/brandColors';
 import { formatBillPeriod } from '@/esopay/utils/billUi';
 import { formatCurrency } from '@/esopay/utils/currency';
 import {
@@ -67,7 +69,7 @@ export function PaymentConfirmScreen({ billId }: Props) {
     return Math.max(0, walletBalance - bill.net_amount_kobo);
   }, [bill, walletBalance]);
 
-  const goBack = useCallback(() => router.back(), [router]);
+  const goBack = useEsoPayBack();
 
   const handleConfirm = useCallback(() => {
     if (payMutation.isPending || submittingRef.current || !bill) return;
@@ -152,7 +154,6 @@ export function PaymentConfirmScreen({ billId }: Props) {
             label="After payment"
             amountKobo={balanceAfterKobo}
             currency={bill.currency}
-            variant="emphasis"
             loading={walletQuery.isLoading}
           />
         </View>
@@ -225,7 +226,7 @@ const styles = StyleSheet.create({
     fontSize: T.type.hero.size,
     lineHeight: T.type.hero.lineHeight,
     letterSpacing: T.type.hero.letterSpacing,
-    color: T.color.gold.shimmer,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   heroCaption: {
     marginTop: T.spacing.xs,
@@ -239,10 +240,10 @@ const styles = StyleSheet.create({
     marginBottom: T.spacing.xxl,
   },
   savingsCard: {
-    backgroundColor: T.color.bg.surface,
-    borderRadius: T.radius.sm,
-    borderWidth: 1,
-    borderColor: `${T.color.gold.primary}33`,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: 16,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
     padding: T.spacing.xl,
     marginBottom: T.spacing.xxl,
   },
@@ -250,14 +251,13 @@ const styles = StyleSheet.create({
     fontFamily: esopayFonts.body,
     fontSize: T.type.label.size,
     color: T.color.text.secondary,
-    textTransform: 'uppercase',
-    letterSpacing: T.type.label.letterSpacing,
+    letterSpacing: 0.2,
     marginBottom: T.spacing.sm,
   },
   savingsValue: {
     fontFamily: esopayFonts.display,
     fontSize: T.type.display.size,
-    color: T.color.gold.shimmer,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   failureBox: {
     gap: T.spacing.md,

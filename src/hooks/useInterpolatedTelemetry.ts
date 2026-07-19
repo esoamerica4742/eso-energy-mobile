@@ -108,7 +108,7 @@ export function useInterpolatedTelemetry(
       clearInterval(interpId);
       clearInterval(microId);
     };
-  }, [smooth, streaming, anchorKeyValue]);
+  }, [smooth, streaming, anchorKey(anchor)]);
 
   return display;
 }

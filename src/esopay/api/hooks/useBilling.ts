@@ -29,6 +29,7 @@ import {
   parseRecentUtilityPayments,
   parseUtilityProviders,
   parseValidateUtilityAccountResponse,
+  parseWalletCashbackSummary,
 } from '@/esopay/api/schemas';
 import type {
   BillListFilters,
@@ -45,6 +46,7 @@ import type {
   PurchaseUtilityResponse,
   RecentUtilityPayment,
   ValidateUtilityAccountRequest,
+  WalletCashbackSummary,
   WalletTransactionCategory,
 } from '@/esopay/api/types';
 import { useEsoPayApiClient } from '@/esopay/api/useEsoPayApiClient';
@@ -192,6 +194,20 @@ export function useWallet(options?: { pollIntervalMs?: number; retry?: boolean }
     gcTime: CacheTier.dashboard.gcTime,
     refetchInterval: enabled && pollIntervalMs ? pollIntervalMs : false,
     retry: options?.retry ?? 1,
+    placeholderData: defaultQueryOptions.placeholderData,
+  });
+}
+
+export function useWalletCashback(): UseQueryResult<WalletCashbackSummary> {
+  const host = useEsoPayHost();
+  const api = useEsoPayApiClient();
+  const enabled = useEsoPayEnabled();
+
+  return useQuery({
+    queryKey: esoPayKeys.walletCashback(host.companyId),
+    queryFn: async () => parseWalletCashbackSummary(await api.wallet.getCashback()),
+    enabled,
+    staleTime: WALLET_STALE_MS,
     placeholderData: defaultQueryOptions.placeholderData,
   });
 }
@@ -427,16 +443,18 @@ export function usePaymentHistory(billId: string) {
   });
 }
 
-export function useUtilityProviders() {
+export function useUtilityProviders(options?: { forceSync?: boolean }) {
   const host = useEsoPayHost();
   const api = useEsoPayApiClient();
   const enabled = useEsoPayEnabled();
+  const forceSync = options?.forceSync === true;
 
   return useQuery({
     queryKey: esoPayKeys.utilityProviders(host.companyId),
-    queryFn: async () => parseUtilityProviders(await api.utilities.listProviders()),
+    queryFn: async () =>
+      parseUtilityProviders(await api.utilities.listProviders({ sync: forceSync })),
     enabled,
-    staleTime: CacheTier.structural.staleTime,
+    staleTime: forceSync ? 0 : CacheTier.structural.staleTime,
     retry: 2,
     refetchOnWindowFocus: defaultQueryOptions.refetchOnWindowFocus,
     placeholderData: defaultQueryOptions.placeholderData,

@@ -1,6 +1,13 @@
+import { useEffect } from 'react';
 import { View, ScrollView, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
-import Animated, { useAnimatedStyle } from 'react-native-reanimated';
-import { MotiView } from 'moti';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+  cancelAnimation,
+} from 'react-native-reanimated';
 import { CARD_WIDTH } from '@/components/cards/KpiCard';
 import { SkeletonShimmerProvider, useSkeletonShimmer } from '@/components/atoms/SkeletonShimmerProvider';
 import { colors, radius, spacing } from '@/theme/tokens';
@@ -11,6 +18,27 @@ type BlockProps = {
   borderRadius?: number;
   style?: StyleProp<ViewStyle>;
 };
+
+/** Local Reanimated shimmer — Moti loops crash on Reanimated 4 worklets. */
+function LocalShimmer() {
+  const translateX = useSharedValue(-140);
+
+  useEffect(() => {
+    translateX.value = withRepeat(
+      withTiming(260, { duration: 1050, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      false,
+    );
+    return () => cancelAnimation(translateX);
+  }, [translateX]);
+
+  const shimmerStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+    opacity: 0.45,
+  }));
+
+  return <Animated.View style={[styles.shimmer, shimmerStyle]} />;
+}
 
 function SkeletonBlockShared({
   width = '100%',
@@ -42,12 +70,7 @@ export function SkeletonBlock(props: BlockProps) {
         props.style,
       ]}
     >
-      <MotiView
-        from={{ translateX: -140, opacity: 0.28 }}
-        animate={{ translateX: 260, opacity: 0.6 }}
-        transition={{ type: 'timing', duration: 1050, loop: true }}
-        style={styles.shimmer}
-      />
+      <LocalShimmer />
     </View>
   );
 }
@@ -229,17 +252,19 @@ export function SkeletonCreditBalance() {
 
 export function SkeletonAuthSplash() {
   return (
-    <View style={styles.splash}>
-      <View style={styles.splashHeader}>
-        <SkeletonBlock width={120} height={22} borderRadius={6} />
-        <SkeletonBlock width={180} height={12} borderRadius={4} style={{ marginTop: spacing.sm }} />
-        <SkeletonBlock width={80} height={10} borderRadius={4} style={{ marginTop: spacing.md }} />
+    <SkeletonShimmerProvider>
+      <View style={styles.splash}>
+        <View style={styles.splashHeader}>
+          <SkeletonBlock width={120} height={22} borderRadius={6} />
+          <SkeletonBlock width={180} height={12} borderRadius={4} style={{ marginTop: spacing.sm }} />
+          <SkeletonBlock width={80} height={10} borderRadius={4} style={{ marginTop: spacing.md }} />
+        </View>
+        <SkeletonKpiRow count={2} />
+        <SkeletonPowerNetwork />
+        <SkeletonSectionLabel />
+        <SkeletonEnodeDeviceCard />
       </View>
-      <SkeletonKpiRow count={2} />
-      <SkeletonPowerNetwork />
-      <SkeletonSectionLabel />
-      <SkeletonEnodeDeviceCard />
-    </View>
+    </SkeletonShimmerProvider>
   );
 }
 

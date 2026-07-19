@@ -1,10 +1,10 @@
 import type { BillPayCardVisual } from '@/esopay/components/bills/BillPayCard';
 import type { UtilityCategorySlug } from '@/esopay/data/nigeriaBillers';
-import { ESO_PAY_GOLD, ESO_PAY_GOLD_MUTED, ESO_PAY_BORDER } from '@/esopay/theme/brandColors';
+import { BILL_CARD_BORDER_GOLD, ESO_PAY_GOLD, ESO_PAY_GOLD_MUTED } from '@/esopay/theme/brandColors';
 
 const GOLD_VISUAL: BillPayCardVisual = {
-  tint: 'transparent',
-  borderGlow: ESO_PAY_BORDER,
+  tint: 'rgba(255, 255, 255, 0.08)',
+  borderGlow: BILL_CARD_BORDER_GOLD,
   iconColor: ESO_PAY_GOLD,
 };
 

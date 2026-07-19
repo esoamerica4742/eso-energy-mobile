@@ -3,7 +3,7 @@ import { GOLD } from '@/theme/colors';
 
 export const stripe = {
   purple: '#635BFF',
-  teal: '#00C896',
+  teal: '#FFFFFF',
   gold: GOLD,
   bg: '#F6F9FC',
   navy: '#0A2540',

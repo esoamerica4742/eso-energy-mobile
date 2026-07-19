@@ -16,6 +16,12 @@ export default function AuthStackLayout() {
       <Stack.Screen name="verify" />
       <Stack.Screen name="register" />
       <Stack.Screen
+        name="pin-setup"
+        options={{
+          gestureEnabled: false,
+        }}
+      />
+      <Stack.Screen
         name="welcome"
         options={{
           animation: 'fade',

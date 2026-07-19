@@ -28,7 +28,7 @@ export function useTenantContext() {
     staleTime: CacheTier.structural.staleTime,
     gcTime: CacheTier.structural.gcTime,
     placeholderData: defaultQueryOptions.placeholderData,
-    refetchOnMount: 'always',
+    refetchOnMount: false,
   });
 
   const companyId = profileQuery.data?.company_id;
@@ -68,7 +68,7 @@ export function useTenantContext() {
       return;
     }
 
-    if (profileQuery.isPending) return;
+    if (profileQuery.isPending && !profileQuery.data) return;
 
     const profile = profileQuery.data;
     if (!profile) {
@@ -78,7 +78,7 @@ export function useTenantContext() {
       return;
     }
 
-    if (companyId && companyQuery.isPending) return;
+    if (companyId && companyQuery.isPending && !companyQuery.data) return;
 
     const company = companyQuery.data;
     if (companyId && !company) {
@@ -88,7 +88,7 @@ export function useTenantContext() {
       return;
     }
 
-    if (companyId && sitesQuery.isPending) return;
+    if (companyId && sitesQuery.isPending && !sitesQuery.data) return;
 
     const sites = sitesQuery.data ?? [];
 
@@ -131,8 +131,10 @@ export function useTenantContext() {
 
   return {
     loading:
-      profileQuery.isLoading ||
-      (Boolean(companyId) && (companyQuery.isLoading || sitesQuery.isLoading)),
+      (profileQuery.isPending && !profileQuery.data) ||
+      (Boolean(companyId) &&
+        ((companyQuery.isPending && !companyQuery.data) ||
+          (sitesQuery.isPending && !sitesQuery.data))),
     companyName: companyQuery.data?.name ?? null,
   };
 }

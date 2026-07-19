@@ -49,16 +49,16 @@ export function SubscriptionBillingModal({ open, onClose, userName }: Props) {
           </View>
 
           {loading ? (
-            <ActivityIndicator color="#C9A84C" className="my-8" />
+            <ActivityIndicator color="#FFFFFF" className="my-8" />
           ) : (
             <>
               <View className="mb-6 flex-row items-center justify-between rounded-xl border border-[#1C2030] bg-[#080A0F] p-4">
                 <Text className="text-sm text-[#8A94A6]">Subscription status</Text>
                 <View
-                  className={`rounded-full px-3 py-1 ${isActive ? 'bg-[#00C48C22]' : 'bg-[#EF444422]'}`}
+                  className={`rounded-full px-3 py-1 ${isActive ? 'bg-[#FFFFFF22]' : 'bg-[#EF444422]'}`}
                 >
                   <Text
-                    className={`text-xs font-bold ${isActive ? 'text-[#00C48C]' : 'text-[#EF4444]'}`}
+                    className={`text-xs font-bold ${isActive ? 'text-white' : 'text-[#EF4444]'}`}
                   >
                     {isActive ? 'Active' : 'Expired / Paused'}
                   </Text>
@@ -68,7 +68,7 @@ export function SubscriptionBillingModal({ open, onClose, userName }: Props) {
               <Text className="mb-1 text-xs uppercase tracking-wider text-[#8A94A6]">
                 Wallet balance
               </Text>
-              <Text className="mb-6 text-3xl font-bold text-[#C9A84C]">
+              <Text className="mb-6 text-3xl font-bold text-white">
                 {formatNaira(balanceKobo)}
               </Text>
 
@@ -82,7 +82,7 @@ export function SubscriptionBillingModal({ open, onClose, userName }: Props) {
                     trailing={
                       reserved.account_number ? (
                         <Pressable onPress={() => void copyAccount()} className="p-1">
-                          <Copy size={18} color="#C9A84C" />
+                          <Copy size={18} color="#FFFFFF" />
                         </Pressable>
                       ) : null
                     }

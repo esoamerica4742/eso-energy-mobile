@@ -10,9 +10,9 @@ import { fonts } from '@/esopay/theme/typography';
 import { sendEsoPayEmailOtp } from '@/lib/authOtp';
 import { ESOPAY_SETTINGS_HREF } from '@/esopay/navigation/routes';
 
-/** Design-system canvas — never pure black on the PIN gate screen. */
-export const LOGIN_PIN_SCREEN_BG = '#080A0F';
-const GOLD = '#C9A84C';
+/** Design-system canvas — quiet black dialect. */
+export const LOGIN_PIN_SCREEN_BG = '#000000';
+const GOLD = '#FFFFFF';
 
 /** Single transaction PIN gate — unlocks Eso Pay and matches payment PIN. */
 export function EsoPayLoginPinGate() {
@@ -36,20 +36,20 @@ export function EsoPayLoginPinGate() {
     if (!userIdReady) return 'Loading your account…';
     if (isChecking) return 'Checking your PIN…';
     if (locked) return 'Too many attempts. Reset your PIN with your email or try again later.';
-    if (!pinConfigured) return 'Set a transaction PIN in Settings to secure Eso Pay.';
+    if (!pinConfigured) return 'Set your PIN in Settings to secure Eso Pay.';
     if (attemptsRemaining != null && attemptsRemaining <= 2) {
       return `${attemptsRemaining} attempt${attemptsRemaining === 1 ? '' : 's'} remaining before lockout.`;
     }
-    return 'Enter your 4-digit transaction PIN to open Eso Pay.';
+    return 'Enter your 6-digit PIN to open Eso Pay.';
   }, [attemptsRemaining, isChecking, locked, pinConfigured, userIdReady]);
 
   const handleComplete = useCallback(
     async (value: string) => {
       if (locked) return;
       setError(null);
-      const ok = await verifyPin(value);
-      if (!ok) {
-        setError(locked ? 'PIN locked. Use Forgot PIN to reset.' : 'Incorrect PIN');
+      const result = await verifyPin(value);
+      if (!result.ok) {
+        setError(result.locked ? 'PIN locked. Use Forgot PIN to reset.' : 'Incorrect PIN');
         setPin('');
         return;
       }
@@ -90,7 +90,7 @@ export function EsoPayLoginPinGate() {
         <Text style={styles.brand}>Eso Pay</Text>
         <PinEntry
           variant="login"
-          title="Transaction PIN"
+          title="Enter your PIN"
           subtitle={subtitle}
           value={pin}
           onChange={setPin}

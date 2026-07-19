@@ -79,7 +79,7 @@ export function EsoPayTransactionPinModal({ open, onOpenChange, pinConfigured, o
 
   const subtitle =
     mode === 'create'
-      ? '4-digit PIN required for wallet payments on this device.'
+      ? '6-digit PIN required for wallet payments on this device.'
       : 'Enter the same PIN again to confirm.';
 
   return (
@@ -123,16 +123,16 @@ const styles = StyleSheet.create({
   card: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    backgroundColor: '#0F1520',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(232, 160, 32, 0.2)',
+    backgroundColor: '#1C1C1E',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(255,255,255,0.16)',
     paddingBottom: spacing.xxl,
   },
   dragHandle: {
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: 'rgba(245, 240, 232, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     marginTop: 12,
     marginBottom: 8,
     alignSelf: 'center',
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     fontFamily: inter.semibold,
     fontSize: 17,
     fontWeight: '600',
-    color: '#F5F0E8',
+    color: '#FFFFFF',
   },
   closeButton: {
     position: 'absolute',

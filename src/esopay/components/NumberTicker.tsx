@@ -17,6 +17,7 @@ import {
 import { esopayFonts } from '@/esopay/theme/fonts';
 import { fonts } from '@/esopay/theme/typography';
 import { EsoPayTokens as T } from '@/esopay/theme/tokens';
+import { ESO_PAY_TEXT_PRIMARY } from '@/esopay/theme/brandColors';
 import {
   formatCurrency,
   formatCurrencyAmount,
@@ -120,7 +121,7 @@ const styles = StyleSheet.create({
     fontSize: T.type.display.size,
     lineHeight: T.type.display.lineHeight,
     letterSpacing: 0,
-    color: T.color.gold.primary,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
   amount: {
     padding: 0,
@@ -129,6 +130,6 @@ const styles = StyleSheet.create({
     fontSize: T.type.display.size,
     lineHeight: T.type.display.lineHeight,
     letterSpacing: T.type.display.letterSpacing,
-    color: T.color.gold.primary,
+    color: ESO_PAY_TEXT_PRIMARY,
   },
 });

@@ -8,11 +8,15 @@ import {
 import { CheckCircle, Circle, ShieldCheck, Wallet } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { inter } from '@/theme/fonts';
-import { GOLD } from '@/theme/colors';
+import {
+  ESO_PAY_BG,
+  ESO_PAY_GOLD,
+  ESO_PAY_SURFACE,
+  ESO_PAY_TEXT_PRIMARY,
+  ESO_PAY_TEXT_SECONDARY,
+} from '@/esopay/theme/brandColors';
 
-const BG = '#080A0F';
-const TEAL = '#00C48C';
-const WARM_WHITE = '#F5F0E8';
+const CHROME = ESO_PAY_GOLD;
 
 const SETUP_CHECKLIST = [
   { label: 'Email verified', complete: true },
@@ -30,12 +34,12 @@ export function EsoPayFinishSetup({ onFundWallet, onSkip }: Props) {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 32 }]}>
-      <StatusBar barStyle="light-content" backgroundColor={BG} />
+      <StatusBar barStyle="light-content" backgroundColor={ESO_PAY_BG} />
 
       <View style={styles.topContent}>
         <View style={styles.brandRow}>
           <View style={styles.brandCircle}>
-            <Wallet color={GOLD} size={20} />
+            <Wallet color={CHROME} size={20} />
           </View>
           <Text style={styles.brandLabel}>ESO PAY</Text>
         </View>
@@ -43,7 +47,7 @@ export function EsoPayFinishSetup({ onFundWallet, onSkip }: Props) {
         <Text style={styles.activateLabel}>ACTIVATE ESO PAY · 2 OF 2</Text>
 
         <View style={styles.walletCircle}>
-          <Wallet color={GOLD} size={32} />
+          <Wallet color={CHROME} size={32} />
         </View>
 
         <Text style={styles.headline}>Finish setting up</Text>
@@ -56,7 +60,7 @@ export function EsoPayFinishSetup({ onFundWallet, onSkip }: Props) {
         </Text>
 
         <View style={styles.pinBadge}>
-          <ShieldCheck color={GOLD} size={16} />
+          <ShieldCheck color={CHROME} size={16} />
           <Text style={styles.pinBadgeText}>Transaction PIN configured</Text>
         </View>
 
@@ -64,9 +68,9 @@ export function EsoPayFinishSetup({ onFundWallet, onSkip }: Props) {
           {SETUP_CHECKLIST.map((item) => (
             <View key={item.label} style={styles.checklistRow}>
               {item.complete ? (
-                <CheckCircle color={TEAL} size={18} strokeWidth={2} />
+                <CheckCircle color={CHROME} size={18} strokeWidth={2} />
               ) : (
-                <Circle color="rgba(245, 240, 232, 0.3)" size={18} strokeWidth={2} />
+                <Circle color="rgba(255, 255, 255, 0.28)" size={18} strokeWidth={2} />
               )}
               <Text
                 style={[
@@ -107,7 +111,7 @@ export function EsoPayFinishSetup({ onFundWallet, onSkip }: Props) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: BG,
+    backgroundColor: ESO_PAY_BG,
     paddingHorizontal: 24,
   },
   topContent: {
@@ -124,21 +128,21 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    borderWidth: 2,
-    borderColor: GOLD,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.35)',
     backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
   brandLabel: {
     fontFamily: inter.semibold,
-    color: GOLD,
+    color: 'rgba(255,255,255,0.55)',
     fontSize: 12,
     letterSpacing: 2,
   },
   activateLabel: {
     fontFamily: inter.semibold,
-    color: GOLD,
+    color: 'rgba(255,255,255,0.45)',
     fontSize: 11,
     letterSpacing: 1.5,
     marginBottom: 48,
@@ -148,23 +152,23 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    borderWidth: 2,
-    borderColor: GOLD,
-    backgroundColor: 'rgba(201, 168, 76, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.35)',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
   },
   headline: {
     fontFamily: inter.bold,
-    color: WARM_WHITE,
+    color: ESO_PAY_TEXT_PRIMARY,
     fontSize: 28,
     textAlign: 'center',
     marginBottom: 12,
   },
   bodyText: {
     fontFamily: inter.regular,
-    color: 'rgba(245, 240, 232, 0.5)',
+    color: ESO_PAY_TEXT_SECONDARY,
     fontSize: 15,
     textAlign: 'center',
     lineHeight: 22,
@@ -174,21 +178,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: 'rgba(201, 168, 76, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
     borderWidth: 1,
-    borderColor: 'rgba(201, 168, 76, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.16)',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
   pinBadgeText: {
     fontFamily: inter.semibold,
-    color: GOLD,
+    color: ESO_PAY_TEXT_PRIMARY,
     fontSize: 14,
   },
   checklistCard: {
     alignSelf: 'stretch',
-    backgroundColor: '#0F1520',
+    backgroundColor: ESO_PAY_SURFACE,
     borderRadius: 12,
     padding: 16,
     marginTop: 24,
@@ -204,17 +208,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   checklistTextComplete: {
-    color: 'rgba(245, 240, 232, 0.7)',
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   checklistTextPending: {
-    color: 'rgba(245, 240, 232, 0.35)',
+    color: 'rgba(255, 255, 255, 0.35)',
   },
   actions: {
     width: '100%',
     marginTop: 24,
   },
   fundButton: {
-    backgroundColor: GOLD,
+    backgroundColor: CHROME,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
@@ -235,7 +239,7 @@ const styles = StyleSheet.create({
   },
   skipButtonText: {
     fontFamily: inter.medium,
-    color: 'rgba(245, 240, 232, 0.5)',
+    color: ESO_PAY_TEXT_SECONDARY,
     fontSize: 16,
   },
 });

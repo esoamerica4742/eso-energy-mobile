@@ -21,13 +21,12 @@ import {
 } from '@/esopay/auth/EsoPayOnboardingProgress';
 import { SIGN_IN_EMAIL_INPUT } from '@/esopay/auth/esoPaySignInTheme';
 import { ds } from '@/esopay/theme/designSystem';
+import { ESO_PAY_GOLD, ESO_PAY_TEXT_SECONDARY } from '@/esopay/theme/brandColors';
 import { EMAIL_RE } from '@/theme/authTheme';
 import { inter } from '@/theme/fonts';
-import { GOLD } from '@/theme/colors';
 
-const EMAIL_BORDER_IDLE = '#2C2410';
-const EMAIL_BORDER_FOCUS = '#C9A84C';
-const EMAIL_INPUT_BG = '#0D0F18';
+const EMAIL_INPUT_BG = '#1C1C1E';
+const CHROME = ESO_PAY_GOLD;
 
 export default function EsoPaySignIn() {
   const router = useRouter();
@@ -63,7 +62,7 @@ export default function EsoPaySignIn() {
       <View style={[styles.container, { paddingBottom: insets.bottom + 24 }]}>
         <View style={[styles.headerRow, { paddingTop: insets.top + 16 }]}>
           <TouchableOpacity onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Go back">
-            <ArrowLeft color={GOLD} size={22} />
+            <ArrowLeft color={CHROME} size={22} />
           </TouchableOpacity>
           <Text style={styles.stepText}>1 of 3</Text>
         </View>
@@ -75,7 +74,7 @@ export default function EsoPaySignIn() {
         </View>
 
         <View style={styles.brandBadge}>
-          <Wallet color={GOLD} size={22} />
+          <Wallet color={CHROME} size={22} />
         </View>
 
         <Text style={styles.esoPayLabel}>ESO PAY</Text>
@@ -126,11 +125,11 @@ export default function EsoPaySignIn() {
 
         <View style={styles.securityCard}>
           <View style={styles.securityRow}>
-            <Lock color={GOLD} size={16} />
+            <Lock color={CHROME} size={16} />
             <Text style={styles.securityText}>Encrypted sign-in and wallet data on this device.</Text>
           </View>
           <View style={styles.securityRow}>
-            <ShieldCheck color={GOLD} size={16} />
+            <ShieldCheck color={CHROME} size={16} />
             <Text style={styles.securityText}>Transaction PIN required before every payment.</Text>
           </View>
         </View>
@@ -155,7 +154,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   stepText: {
-    color: 'rgba(255,255,255,0.5)',
+    color: ESO_PAY_TEXT_SECONDARY,
     fontSize: 13,
   },
   progressBar: {
@@ -167,7 +166,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 3,
     borderRadius: 2,
-    backgroundColor: GOLD,
+    backgroundColor: CHROME,
   },
   progressUnfilled: {
     flex: 1,
@@ -179,15 +178,15 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    borderWidth: 2,
-    borderColor: GOLD,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.35)',
     backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
   },
   esoPayLabel: {
-    color: GOLD,
+    color: 'rgba(255,255,255,0.55)',
     fontSize: 12,
     fontWeight: '600',
     letterSpacing: 2,
@@ -201,13 +200,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   subtext: {
-    color: 'rgba(255,255,255,0.5)',
+    color: ESO_PAY_TEXT_SECONDARY,
     fontSize: 15,
     lineHeight: 22,
     marginBottom: 24,
   },
   emailLabel: {
-    color: 'rgba(255,255,255,0.5)',
+    color: ESO_PAY_TEXT_SECONDARY,
     fontSize: 13,
     marginBottom: 8,
   },
@@ -223,7 +222,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   sendCodeButton: {
-    backgroundColor: GOLD,
+    backgroundColor: CHROME,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',

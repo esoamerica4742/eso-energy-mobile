@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import type { PowerShieldMeter } from '@/esopay/api/types';
 import { countdownProgress, formatCapacityPct } from '@/esopay/lib/powerShieldUi';
+import { ESO_PAY_TEXT_SECONDARY } from '@/esopay/theme/brandColors';
 import { fonts } from '@/esopay/theme/typography';
 
 type Props = {
@@ -73,6 +74,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 1,
     textTransform: 'uppercase',
-    color: 'rgba(255,255,255,0.55)',
+    color: ESO_PAY_TEXT_SECONDARY,
   },
 });

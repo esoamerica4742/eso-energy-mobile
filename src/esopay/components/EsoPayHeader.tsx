@@ -1,26 +1,32 @@
-import { memo } from 'react';
+import { memo, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
 import { EsoPayWordmark } from '@/esopay/components/EsoPayWordmark';
-import { esopayFonts } from '@/esopay/theme/fonts';
-import { EsoPayTokens as T } from '@/esopay/theme/tokens';
+import {
+  ESO_PAY_BG,
+  ESO_PAY_TEXT_PRIMARY,
+} from '@/esopay/theme/brandColors';
+import { inter } from '@/theme/fonts';
 
 type Props = {
   title: string;
   canGoBack?: boolean;
   onBack?: () => void;
+  /** Optional trailing control (e.g. History). */
+  rightAction?: ReactNode;
 };
 
 export const EsoPayHeader = memo(function EsoPayHeader({
   title,
   canGoBack = false,
   onBack,
+  rightAction,
 }: Props) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.shell, { paddingTop: insets.top + T.spacing.sm }]}>
+    <View style={[styles.shell, { paddingTop: insets.top + 8 }]}>
       <View style={styles.row}>
         {canGoBack ? (
           <Pressable
@@ -30,7 +36,7 @@ export const EsoPayHeader = memo(function EsoPayHeader({
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
-            <ChevronLeft size={24} color={T.color.gold.primary} strokeWidth={2.2} />
+            <ChevronLeft size={24} color={ESO_PAY_TEXT_PRIMARY} strokeWidth={2} />
           </Pressable>
         ) : (
           <EsoPayWordmark />
@@ -40,7 +46,11 @@ export const EsoPayHeader = memo(function EsoPayHeader({
           {title}
         </Text>
 
-        <View style={{ width: canGoBack ? 32 : 132 }} />
+        {rightAction ? (
+          <View style={styles.rightSlot}>{rightAction}</View>
+        ) : (
+          <View style={{ width: canGoBack ? 32 : 132 }} />
+        )}
       </View>
     </View>
   );
@@ -48,11 +58,11 @@ export const EsoPayHeader = memo(function EsoPayHeader({
 
 const styles = StyleSheet.create({
   shell: {
-    backgroundColor: T.color.bg.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: T.color.border.subtle,
-    paddingHorizontal: T.layout.screenMargin,
-    paddingBottom: T.spacing.md,
+    backgroundColor: ESO_PAY_BG,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
+    paddingHorizontal: 16,
+    paddingBottom: 12,
   },
   row: {
     flexDirection: 'row',
@@ -60,15 +70,20 @@ const styles = StyleSheet.create({
     minHeight: 40,
   },
   backBtn: {
-    marginRight: T.spacing.sm,
+    marginRight: 8,
   },
   title: {
     flex: 1,
     textAlign: 'center',
-    fontFamily: esopayFonts.subheading,
-    fontSize: T.type.h3.size,
-    lineHeight: T.type.h3.lineHeight,
-    color: T.color.text.primary,
-    letterSpacing: 0.5,
+    fontFamily: inter.semibold,
+    fontSize: 16,
+    lineHeight: 22,
+    color: ESO_PAY_TEXT_PRIMARY,
+    letterSpacing: -0.2,
+  },
+  rightSlot: {
+    minWidth: 32,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
 });

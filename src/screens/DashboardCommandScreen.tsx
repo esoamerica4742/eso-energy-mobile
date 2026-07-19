@@ -1,5 +1,5 @@
 /**
- * Main Dashboard — gold-standard command scroll (monitoring only).
+ * Main Dashboard — quiet black/white monitoring scroll.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
@@ -12,14 +12,12 @@ import {
   DashboardGuardSection,
 } from '@/components/dashboard/command/DashboardLiveSections';
 import { DashboardIntelligenceSection } from '@/components/dashboard/command/DashboardIntelligenceSection';
-import { DashboardCommandHeader } from '@/components/dashboard/command/DashboardCommandHeader';
 import { useFleetIntelligence } from '@/hooks/useFleetIntelligence';
 import { InverterChipRow } from '@/components/dashboard/command/InverterChipRow';
 import { DashboardKpiStrip } from '@/components/dashboard/command/DashboardKpiStrip';
 import { DashboardSection } from '@/components/dashboard/command/DashboardSection';
 import { EmptyDashboard, type EmptyDashboardVariant } from '@/components/dashboard/EmptyDashboard';
 import { MonitorFleetHeader, type MonitorConnectionTone } from '@/components/dashboard/MonitorFleetHeader';
-import { SovereignTopNav } from '@/components/dashboard/SovereignTopNav';
 import { useEnodeLink } from '@/hooks/useEnodeLink';
 import { useEnodeToast } from '@/providers/EnodeToastProvider';
 import {
@@ -46,7 +44,7 @@ import { buildInverterData } from '@/lib/mapInverterData';
 import { useDemoModeActive } from '@/providers/DemoModeProvider';
 import { buildTelemetryData } from '@/lib/mapTelemetryData';
 import { enodeClient } from '@/services/enode';
-import { canCreateSites, canLinkDevice } from '@/lib/monitoring/rbac';
+import { canLinkDevice } from '@/lib/monitoring/rbac';
 import { selectRole, selectTenantId, useAuthStore } from '@/stores/authStore';
 import { useMotionPrefsStore } from '@/stores/motionPrefsStore';
 import { useSiteStore, selectActiveSite } from '@/stores/siteStore';
@@ -488,7 +486,7 @@ export function DashboardCommandScreen() {
         >
           <DashboardKpiStrip snapshot={snapshot} />
 
-          <DashboardSection title="ENERGY CORE" meta={snapshot.statusLabel}>
+          <DashboardSection title="Energy" meta={snapshot.statusLabel}>
             <GoldStandardDashboard data={displayDashboardData} isDemoMode={isDemoMode} showBottomNav={false} embedded />
           </DashboardSection>
 
@@ -501,12 +499,14 @@ export function DashboardCommandScreen() {
               smooth={!reducedMotion}
               telemetryMeta="OFFLINE"
             />
-            <DashboardIntelligenceSection
-              insights={fleetIntelligence.insights}
-              isLoading={fleetIntelligence.isLoading}
-              sourceMix={fleetIntelligence.sourceMix}
-              streamingLive={false}
-            />
+            {!isDemoMode ? (
+              <DashboardIntelligenceSection
+                insights={fleetIntelligence.insights}
+                isLoading={fleetIntelligence.isLoading}
+                sourceMix={fleetIntelligence.sourceMix}
+                streamingLive={false}
+              />
+            ) : null}
             <EmptyDashboard
               variant={noInvertersVariant}
               siteName={activeSite?.name}
@@ -542,14 +542,18 @@ export function DashboardCommandScreen() {
         }
       >
         <DashboardKpiStrip snapshot={snapshot} liveMetrics={liveKpiMetrics} />
-        <InverterChipRow
-          devices={devices}
-          selectedId={selectedDeviceId ?? primaryDevice?.id ?? null}
-          onSelect={setSelectedDeviceId}
-        />
-        <OperationalInsightStrip insight={activeInsight} streaming={streamingLive} />
+        {!isDemoMode ? (
+          <InverterChipRow
+            devices={devices}
+            selectedId={selectedDeviceId ?? primaryDevice?.id ?? null}
+            onSelect={setSelectedDeviceId}
+          />
+        ) : null}
+        {streamingLive ? (
+          <OperationalInsightStrip insight={activeInsight} streaming={streamingLive} />
+        ) : null}
 
-        <DashboardSection title="ENERGY CORE" meta={snapshot.statusLabel}>
+        <DashboardSection title="Energy" meta={snapshot.statusLabel}>
           <GoldStandardDashboard data={displayDashboardData} isDemoMode={isDemoMode} showBottomNav={false} embedded />
         </DashboardSection>
 
@@ -567,12 +571,14 @@ export function DashboardCommandScreen() {
           />
         ) : null}
 
-        <DashboardIntelligenceSection
-          insights={fleetIntelligence.insights}
-          isLoading={fleetIntelligence.isLoading}
-          sourceMix={fleetIntelligence.sourceMix}
-          streamingLive={streamingLive}
-        />
+        {!isDemoMode ? (
+          <DashboardIntelligenceSection
+            insights={fleetIntelligence.insights}
+            isLoading={fleetIntelligence.isLoading}
+            sourceMix={fleetIntelligence.sourceMix}
+            streamingLive={streamingLive}
+          />
+        ) : null}
 
         <DashboardGuardSection
           batteryGuard={batteryGuard}
@@ -598,8 +604,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bg,
   },
   scrollContent: {
-    paddingTop: Spacing.xs,
-    gap: MonitoringLayout.scrollGap,
+    paddingTop: 0,
+    gap: MonitoringLayout.sectionGap,
   },
   emptyScrollContent: {
     flexGrow: 1,

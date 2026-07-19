@@ -1,19 +1,19 @@
 export const C = {
-  DARK_1: '#060809',
-  DARK_2: '#0C1015',
-  DARK_3: '#131920',
-  DARK_4: '#1A2330',
-  GOLD_LIGHT: '#F5D483',
-  GOLD_MID: '#D4AF37',
-  GOLD_DARK: '#8B6914',
-  GOLD_TINT: 'rgba(201,168,76,0.12)',
-  GOLD_BORDER: 'rgba(201,168,76,0.35)',
-  TEAL: '#00E5CC',
-  TEAL_DIM: 'rgba(0,229,204,0.09)',
+  DARK_1: '#000000',
+  DARK_2: '#0C0C0E',
+  DARK_3: '#1C1C1E',
+  DARK_4: '#2C2C2E',
+  GOLD_LIGHT: '#FFFFFF',
+  GOLD_MID: '#FFFFFF',
+  GOLD_DARK: 'rgba(255,255,255,0.72)',
+  GOLD_TINT: 'rgba(255,255,255,0.08)',
+  GOLD_BORDER: 'rgba(255,255,255,0.22)',
+  TEAL: '#FFFFFF',
+  TEAL_DIM: 'rgba(255,255,255,0.08)',
   WHITE: '#FFFFFF',
-  OFF_WHITE: '#E8E8E0',
-  ERROR: '#FF4444',
-  SUCCESS: '#00E5CC',
+  OFF_WHITE: 'rgba(255,255,255,0.72)',
+  ERROR: '#FF6B6B',
+  SUCCESS: '#FFFFFF',
 };
 
 export const F = {
@@ -37,17 +37,17 @@ export const COUNTRIES = [
 export function modulePillConfig(module = 'inverter') {
   if (module === 'esopay') {
     return {
-      label: '💳 Eso Pay Bills',
-      borderColor: C.TEAL,
-      bg: C.TEAL_DIM,
-      textColor: C.TEAL,
+      label: '💳 Eso Pay',
+      borderColor: 'rgba(255,255,255,0.22)',
+      bg: 'rgba(255,255,255,0.08)',
+      textColor: C.WHITE,
     };
   }
   return {
     label: '⚡ Eso Inverter Monitoring',
-    borderColor: C.GOLD_MID,
-    bg: C.GOLD_TINT,
-    textColor: C.GOLD_LIGHT,
+    borderColor: 'rgba(255,255,255,0.22)',
+    bg: 'rgba(255,255,255,0.08)',
+    textColor: C.WHITE,
   };
 }
 

@@ -1,33 +1,45 @@
-import { useCallback, useState } from 'react';
-import { Modal, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { Modal, Pressable, StatusBar, StyleSheet, Text } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { PinKeypad } from '@/esopay/components/pin/PinKeypad';
-import { PinVaultDots } from '@/esopay/components/pin/PinVaultDots';
-import { MASTER_PIN_LENGTH } from '@/master/constants';
-import { verifyMasterPin } from '@/master/masterPin';
-import { useMasterSessionStore } from '@/master/masterSessionStore';
 import { useEsoPayAuthStore } from '@/esopay/auth/store';
+import { MASTER_PIN_LENGTH } from '@/master/constants';
+import { clearMasterPin, verifyMasterPin } from '@/master/masterPin';
+import { useMasterSessionStore } from '@/master/masterSessionStore';
+import { useMasterBiometricUnlock } from '@/master/hooks/useMasterBiometricUnlock';
+import { MasterOtpOverlay } from '@/master/components/MasterOtpOverlay';
+import { MasterPinShell } from '@/master/components/MasterPinShell';
+import { beginEsoPayPinRecovery } from '@/esopay/lib/pinRecovery';
+import { MASTER_PIN_SETUP_ROUTE } from '@/lib/navigation/productRoutes';
 import { useTransactionPin } from '@/esopay/hooks/useTransactionPin';
 
 type Props = {
   visible: boolean;
   userId: string;
+  userEmail?: string | null;
   onUnlocked: () => void;
 };
 
-export function MasterPinLockOverlay({ visible, userId, onUnlocked }: Props) {
+export function MasterPinLockOverlay({ visible, userId, userEmail, onUnlocked }: Props) {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const [pin, setPin] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [otpOpen, setOtpOpen] = useState(false);
   const { verifyPin } = useTransactionPin();
+  const biometrics = useMasterBiometricUnlock(userId);
 
-  const reset = useCallback(() => {
+  const unlock = useCallback(() => {
+    useMasterSessionStore.getState().setPinUnlocked(true);
+    useEsoPayAuthStore.getState().setPinSessionUnlocked(true);
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setPin('');
     setError(null);
-    setBusy(false);
-  }, []);
+    onUnlocked();
+  }, [onUnlocked]);
 
   const tryUnlock = useCallback(
     async (value: string) => {
@@ -53,14 +65,22 @@ export function MasterPinLockOverlay({ visible, userId, onUnlocked }: Props) {
         return;
       }
 
-      useMasterSessionStore.getState().setPinUnlocked(true);
-      useEsoPayAuthStore.getState().setPinSessionUnlocked(true);
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      reset();
-      onUnlocked();
+      setBusy(false);
+      unlock();
     },
-    [busy, onUnlocked, reset, userId, verifyPin],
+    [busy, unlock, userId, verifyPin],
   );
+
+  const tryBiometric = useCallback(async () => {
+    if (busy) return;
+    const ok = await biometrics.authenticate();
+    if (ok) unlock();
+  }, [biometrics, busy, unlock]);
+
+  useEffect(() => {
+    if (!visible || !biometrics.enabled || busy) return;
+    void tryBiometric();
+  }, [biometrics.enabled, busy, tryBiometric, visible]);
 
   const onDigit = useCallback(
     (digit: string) => {
@@ -79,40 +99,93 @@ export function MasterPinLockOverlay({ visible, userId, onUnlocked }: Props) {
     setError(null);
   }, [busy]);
 
+  const onForgotPin = useCallback(() => {
+    if (!userEmail) {
+      setError('Add an email to your account to reset your PIN.');
+      return;
+    }
+    setOtpOpen(true);
+  }, [userEmail]);
+
+  const onRecoveryVerified = useCallback(async () => {
+    setOtpOpen(false);
+    setBusy(true);
+    try {
+      await beginEsoPayPinRecovery();
+      await clearMasterPin(userId);
+      useMasterSessionStore.getState().setPinUnlocked(false);
+      router.replace(MASTER_PIN_SETUP_ROUTE);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not start PIN recovery.');
+    } finally {
+      setBusy(false);
+    }
+  }, [router, userId]);
+
   return (
-    <Modal visible={visible} animationType="fade" transparent={false}>
-      <View
-        className="flex-1 bg-[#080A0F]"
-        style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
-      >
-        <View className="flex-1 items-center justify-center px-6">
-          <Text className="mb-2 text-center text-2xl font-bold text-white">
-            Welcome back
-          </Text>
-          <Text className="mb-10 text-center text-sm text-[#8A94A6]">
-            Please enter your 4-digit PIN to continue
-          </Text>
-
-          <PinVaultDots filledCount={pin.length} errorFlash={Boolean(error)} />
-
-          {error ? (
-            <Text className="mt-4 text-center text-sm text-red-400">{error}</Text>
-          ) : (
-            <Text className="mt-4 text-center text-xs text-[#4A5568]">
-              Secure Access · PIN-protected
-            </Text>
-          )}
-        </View>
-
-        <PinKeypad
-          onDigit={onDigit}
-          onBackspace={onBackspace}
-          disabled={busy}
-          backspaceDisabled={!pin.length || busy}
-          variant="welcomeBack"
-          horizontalPadding={24}
+    <>
+      <Modal visible={visible} animationType="fade" transparent={false}>
+        <StatusBar barStyle="light-content" />
+        <MasterPinShell
+          mode="unlock"
+          step="unlock"
+          title="Welcome back"
+          subtitle="Enter your PIN to unlock Eso Energy."
+          filledCount={pin.length}
+          error={error}
+          paddingTop={insets.top + 8}
+          paddingBottom={insets.bottom}
+          footer={
+            <Pressable
+              onPress={onForgotPin}
+              style={({ pressed }) => [styles.forgotPinBtn, pressed && styles.forgotPinBtnPressed]}
+              hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel="Forgot PIN"
+            >
+              <Text style={styles.forgotPinText}>Forgot PIN?</Text>
+            </Pressable>
+          }
+          keypad={
+            <PinKeypad
+              onDigit={onDigit}
+              onBackspace={onBackspace}
+              disabled={busy}
+              backspaceDisabled={!pin.length || busy}
+              variant="quiet"
+              horizontalPadding={24}
+              showBiometric={biometrics.available && biometrics.enabled}
+              onBiometricPress={() => void tryBiometric()}
+            />
+          }
         />
-      </View>
-    </Modal>
+      </Modal>
+
+      {userEmail ? (
+        <MasterOtpOverlay
+          visible={otpOpen}
+          email={userEmail}
+          onClose={() => setOtpOpen(false)}
+          onVerified={() => void onRecoveryVerified()}
+        />
+      ) : null}
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  forgotPinBtn: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  forgotPinBtnPressed: {
+    opacity: 0.7,
+  },
+  forgotPinText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: 'rgba(255,255,255,0.55)',
+  },
+});

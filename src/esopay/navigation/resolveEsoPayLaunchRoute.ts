@@ -1,22 +1,14 @@
 import type { Href } from 'expo-router';
 import {
-  ESOPAY_LOGIN_ROUTE,
-  ESOPAY_PIN_GATE_ROUTE,
-  ESOPAY_PIN_SETUP_ROUTE,
+  ESOPAY_HOME_ROUTE,
+  MASTER_PIN_SETUP_ROUTE,
+  MASTER_SIGN_IN_ROUTE,
 } from '@/lib/navigation/productRoutes';
-import { isTransactionPinConfigured } from '@/esopay/lib/transactionPinStatus';
+import { hasMasterPin } from '@/master/masterPin';
 
-/** First screen after boot / sign-in — PIN gate, setup, or login. */
+/** First Eso Pay screen after hub — home when PIN exists, else setup. */
 export async function resolveEsoPayLaunchRoute(userId: string | undefined): Promise<Href> {
-  if (!userId) return ESOPAY_LOGIN_ROUTE;
-
-  const pinReady = await isTransactionPinConfigured(userId);
-  if (!pinReady) {
-    return {
-      pathname: ESOPAY_PIN_SETUP_ROUTE.pathname,
-      params: { ...ESOPAY_PIN_SETUP_ROUTE.params, returning: '1' },
-    } as Href;
-  }
-
-  return ESOPAY_PIN_GATE_ROUTE;
+  if (!userId) return MASTER_SIGN_IN_ROUTE;
+  if (!(await hasMasterPin(userId))) return MASTER_PIN_SETUP_ROUTE;
+  return ESOPAY_HOME_ROUTE;
 }

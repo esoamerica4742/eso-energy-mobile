@@ -127,6 +127,8 @@ export const utilityProviderSchema = z.object({
     z.enum(['electricity', 'airtime', 'water', 'tv', 'data', 'other']),
   ),
   monnify_biller_code: z.string(),
+  minimum_amount_kobo: z.number().nullable().optional(),
+  maximum_amount_kobo: z.number().nullable().optional(),
 });
 
 export const paginatedBillsSchema = z.object({
@@ -172,6 +174,7 @@ export const purchaseUtilityResponseSchema = z.object({
   ]),
   wallet_transaction_id: z.string().nullable(),
   token_or_receipt: z.string().nullable(),
+  cashback_kobo: z.number().nullable().optional(),
   token_formatted: z.string().nullable().optional(),
   meter_name: z.string().nullable().optional(),
   user_message: z.string().nullable().optional(),
@@ -209,8 +212,23 @@ function parseWithSchema<T>(
   throw new EsoPayApiError(`${label} response invalid`, 0, 'VALIDATION_ERROR');
 }
 
+export const walletCashbackSummarySchema = z.object({
+  lifetime_kobo: z.number(),
+  recent: z.array(
+    z.object({
+      purchase_ref: z.string(),
+      amount_kobo: z.number(),
+      category: z.string(),
+      created_at: z.string(),
+    }),
+  ),
+});
+
 export const parseEsoPayWallet = (data: unknown) =>
   parseWithSchema(esoPayWalletSchema, data, 'wallet');
+
+export const parseWalletCashbackSummary = (data: unknown) =>
+  parseWithSchema(walletCashbackSummarySchema, data, 'wallet cashback');
 
 export const parseEsoPayReservedAccount = (data: unknown) =>
   parseWithSchema(esoPayReservedAccountSchema, data, 'reserved account');
@@ -324,10 +342,10 @@ export const parseRecentUtilityPayments = (data: unknown) =>
     .data as import('@/esopay/api/types').RecentUtilityPayment[];
 
 export const parsePowerShieldDashboard = (data: unknown) =>
-  parseWithSchema(powerShieldDashboardSchema, data, 'power shield dashboard');
+  parseWithSchema(powerShieldDashboardSchema, data, 'power shield dashboard') as import('@/esopay/api/types').PowerShieldDashboard;
 
 export const parsePowerShieldMeter = (data: unknown) =>
-  parseWithSchema(powerShieldMeterSchema, data, 'power shield meter');
+  parseWithSchema(powerShieldMeterSchema, data, 'power shield meter') as import('@/esopay/api/types').PowerShieldMeter;
 
 export const parsePowerShieldFeedbackResponse = (data: unknown) =>
   parseWithSchema(powerShieldFeedbackResponseSchema, data, 'power shield feedback');

@@ -1,23 +1,6 @@
-import { exitDemoModeFully } from '@/lib/demoModeBridge';
-import { supabase, supabaseConfigured } from '@/lib/supabase';
-import { useAuthStore } from '@/stores/authStore';
-import { useSiteStore } from '@/stores/siteStore';
+import { signOutUnified } from '@/master/signOutUnified';
 
-/**
- * Sign-out for ESO Inverter Monitoring only — does not touch Eso Pay Bills session.
- */
+/** @deprecated Use signOutUnified */
 export async function signOutMonitoring(): Promise<void> {
-  clearMonitoringPinSession();
-  exitDemoModeFully();
-
-  if (supabaseConfigured) {
-    try {
-      await supabase.auth.signOut();
-    } catch {
-      // Session may already be cleared.
-    }
-  }
-
-  useAuthStore.getState().reset();
-  useSiteStore.getState().setSites([]);
+  await signOutUnified();
 }

@@ -38,7 +38,7 @@ export function CountryPickerModal({ visible, selected, onSelect, onClose }: Pro
               <Text className="text-sm text-[#8A94A6]">{item.dialCode}</Text>
             </View>
           </View>
-          {active ? <Check size={20} color="#C9A84C" /> : null}
+          {active ? <Check size={20} color="#FFFFFF" /> : null}
         </Pressable>
       );
     },

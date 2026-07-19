@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     width: 22,
   },
   stepText: {
-    color: INVERTER_AUTH.TEAL,
+    color: INVERTER_AUTH.TEXT_SECONDARY,
     fontFamily: inter.medium,
     fontSize: 13,
     fontWeight: '500',
@@ -258,19 +258,19 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: INVERTER_AUTH.TEAL,
-    backgroundColor: INVERTER_AUTH.TEAL_GLOW,
+    borderColor: 'rgba(255,255,255,0.22)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     marginBottom: 16,
   },
   moduleBadgeText: {
-    color: INVERTER_AUTH.TEAL,
+    color: INVERTER_AUTH.TEXT_SECONDARY,
     fontSize: 12,
     fontWeight: '600',
     letterSpacing: 0.4,
   },
   lightning: {
-    color: INVERTER_AUTH.GOLD,
+    color: INVERTER_AUTH.TEXT_PRIMARY,
   },
 });

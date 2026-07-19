@@ -21,9 +21,9 @@ import { setOnboardingComplete } from '@/lib/onboardingStorage';
 import { ESOPAY_PIN_SETUP_ROUTE } from '@/lib/navigation/productRoutes';
 import { resolveEsoPayLaunchRoute } from '@/esopay/navigation/resolveEsoPayLaunchRoute';
 import { ds } from '@/esopay/theme/designSystem';
+import { ESO_PAY_TEXT_SECONDARY } from '@/esopay/theme/brandColors';
 import {
   completeEsoPayEmailSignIn,
-  detachMonitoringSessionAfterEsoPayLogin,
   establishEsoPaySession,
 } from '@/esopay/auth/syncEsoPaySession';
 import { useEsoPayAuthStore } from '@/esopay/auth/store';
@@ -146,7 +146,6 @@ export default function EsoPayOtpVerification() {
 
     try {
       await establishEsoPaySession(result.session);
-      await detachMonitoringSessionAfterEsoPayLogin();
     } catch (syncErr) {
       setErrorMsg(
         syncErr instanceof Error ? syncErr.message : 'Could not start your Eso Pay session.',
@@ -329,7 +328,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   stepText: {
-    color: 'rgba(255,255,255,0.5)',
+    color: ESO_PAY_TEXT_SECONDARY,
     fontSize: 13,
   },
   progressBar: {
@@ -379,7 +378,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   instructionPrimary: {
-    color: 'rgba(255,255,255,0.5)',
+    color: ESO_PAY_TEXT_SECONDARY,
     fontSize: 15,
     marginBottom: 6,
   },
@@ -408,7 +407,7 @@ const styles = StyleSheet.create({
   },
   otpBoxActive: {
     borderWidth: 1.5,
-    borderColor: '#E8A020',
+    borderColor: GOLD,
   },
   otpBoxFilled: {
     borderWidth: 1.5,

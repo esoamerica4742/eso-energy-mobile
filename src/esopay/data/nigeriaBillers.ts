@@ -22,27 +22,29 @@ export type NigeriaBillerMeta = {
   providerCategory: UtilityProvider['category'];
 };
 
+/**
+ * Categories shown in Pay hubs.
+ * Education stays in the hub but has no live Monnify products yet.
+ * Water/waste are not on Monnify live.
+ */
 export const UTILITY_CATEGORY_SLUGS: UtilityCategorySlug[] = [
   'electricity',
   'airtime',
   'data',
   'tv',
-  'education',
   'betting',
-  'water',
-  'waste',
 ];
 
 /** Top quick-pick billers per category (catalog meta ids). */
 export const POPULAR_BILLER_IDS: Record<UtilityCategorySlug, string[]> = {
-  electricity: ['ie', 'ekedc', 'aedc'],
+  electricity: ['ikedc-pre', 'ekedc-pre', 'aedc-pre'],
   airtime: ['mtn-air', 'airtel-air', 'glo-air'],
   data: ['mtn-data', 'airtel-data', 'glo-data'],
-  tv: ['dstv', 'gotv', 'startimes'],
-  education: ['waec', 'jamb', 'neco'],
+  tv: ['dstv', 'gotv', 'showmax'],
+  education: [],
   betting: ['bet9ja', 'sportybet', 'betking'],
-  water: ['lagos-water', 'fct-water', 'rivers-water'],
-  waste: ['lawma', 'revenue-plus', 'environ-waste'],
+  water: [],
+  waste: [],
 };
 
 export const UTILITY_CATEGORY_META: Record<
@@ -107,16 +109,29 @@ export const UTILITY_CATEGORY_META: Record<
   },
 };
 
-/** Nigeria DISCOs + networks + TV + education + betting — offline catalog. */
+/**
+ * Offline / match catalog — Monnify LIVE VAS codes only (products that vend).
+ * Billers listed by Monnify without products (EEDC, KNEDC/Kaduna, StarTimes,
+ * WAEC/JAMB) are omitted until Monnify returns payable product codes.
+ */
 export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
-  // Electricity — all major DISCOs with coverage states
+  // Electricity — prepaid preferred; postpaid kept as separate live billers
   {
-    id: 'aedc',
-    name: 'Abuja Electricity (AEDC)',
+    id: 'aedc-pre',
+    name: 'Abuja Electricity Prepaid',
     shortLabel: 'AEDC',
     category: 'electricity',
     stateLabel: 'FCT · Niger · Kogi · Nasarawa',
-    monnify_biller_code: 'AEDC',
+    monnify_biller_code: 'biller-aedc-pre',
+    providerCategory: 'electricity',
+  },
+  {
+    id: 'aedc-post',
+    name: 'Abuja Electricity Postpaid',
+    shortLabel: 'AEDC Post',
+    category: 'electricity',
+    stateLabel: 'FCT · Niger · Kogi · Nasarawa',
+    monnify_biller_code: 'biller-aedc-post',
     providerCategory: 'electricity',
   },
   {
@@ -125,90 +140,136 @@ export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
     shortLabel: 'BEDC',
     category: 'electricity',
     stateLabel: 'Edo · Delta · Ondo · Ekiti',
-    monnify_biller_code: 'BEDC',
+    monnify_biller_code: 'bedc',
     providerCategory: 'electricity',
   },
   {
-    id: 'ekedc',
-    name: 'Eko Electricity (EKEDC)',
+    id: 'ekedc-pre',
+    name: 'Eko Electricity Prepaid',
     shortLabel: 'EKEDC',
     category: 'electricity',
     stateLabel: 'Lagos South',
-    monnify_biller_code: 'EKEDC',
+    monnify_biller_code: 'biller-ekedc-pre',
     providerCategory: 'electricity',
   },
   {
-    id: 'eedc',
-    name: 'Enugu Electricity (EEDC)',
-    shortLabel: 'EEDC',
+    id: 'ekedc-post',
+    name: 'Eko Electricity Postpaid',
+    shortLabel: 'EKEDC Post',
     category: 'electricity',
-    stateLabel: 'Enugu · Anambra · Ebonyi · Imo · Abia',
-    monnify_biller_code: 'EEDC',
+    stateLabel: 'Lagos South',
+    monnify_biller_code: 'biller-ekedc-post',
     providerCategory: 'electricity',
   },
   {
-    id: 'ibedc',
-    name: 'Ibadan Electricity (IBEDC)',
+    id: 'ibedc-pre',
+    name: 'Ibadan Electricity Prepaid',
     shortLabel: 'IBEDC',
     category: 'electricity',
     stateLabel: 'Oyo · Ogun · Osun · Kwara',
-    monnify_biller_code: 'IBEDC',
+    monnify_biller_code: 'biller-ibedc-pre',
     providerCategory: 'electricity',
   },
   {
-    id: 'ie',
-    name: 'Ikeja Electric (IE)',
+    id: 'ikedc-pre',
+    name: 'Ikeja Electric Prepaid',
     shortLabel: 'IE',
     category: 'electricity',
     stateLabel: 'Lagos North',
-    monnify_biller_code: 'IE',
+    monnify_biller_code: 'biller-ikedc-pre',
     providerCategory: 'electricity',
   },
   {
-    id: 'jed',
-    name: 'Jos Electricity (JED)',
+    id: 'ikedc-post',
+    name: 'Ikeja Electric Postpaid',
+    shortLabel: 'IE Post',
+    category: 'electricity',
+    stateLabel: 'Lagos North',
+    monnify_biller_code: 'biller-ikedc-post',
+    providerCategory: 'electricity',
+  },
+  {
+    id: 'jedc-pre',
+    name: 'Jos Electricity Prepaid',
     shortLabel: 'JED',
     category: 'electricity',
     stateLabel: 'Plateau · Benue · Gombe · Bauchi',
-    monnify_biller_code: 'JED',
+    monnify_biller_code: 'biller-jedc-pre',
     providerCategory: 'electricity',
   },
   {
-    id: 'kaedco',
-    name: 'Kaduna Electric (KAEDCO)',
-    shortLabel: 'KAEDCO',
+    id: 'jedc-post',
+    name: 'Jos Electricity Postpaid',
+    shortLabel: 'JED Post',
     category: 'electricity',
-    stateLabel: 'Kaduna · Sokoto · Kebbi · Zamfara',
-    monnify_biller_code: 'KAEDCO',
+    stateLabel: 'Plateau · Benue · Gombe · Bauchi',
+    monnify_biller_code: 'biller-jedc-post',
     providerCategory: 'electricity',
   },
   {
-    id: 'kedco',
-    name: 'Kano Electricity (KEDCO)',
+    id: 'kedc-pre',
+    name: 'Kano Electricity Prepaid',
     shortLabel: 'KEDCO',
     category: 'electricity',
     stateLabel: 'Kano · Katsina · Jigawa',
-    monnify_biller_code: 'KEDCO',
+    monnify_biller_code: 'biller-kedc-pre',
     providerCategory: 'electricity',
   },
   {
-    id: 'phed',
-    name: 'Port Harcourt Electric (PHED)',
+    id: 'phedc-pre',
+    name: 'Port Harcourt Electric Prepaid',
     shortLabel: 'PHED',
     category: 'electricity',
     stateLabel: 'Rivers · Bayelsa · Cross River · Akwa Ibom',
-    monnify_biller_code: 'PHED',
+    monnify_biller_code: 'biller-phedc-pre',
     providerCategory: 'electricity',
   },
   {
-    id: 'yedc',
-    name: 'Yola Electricity (YEDC)',
+    id: 'phedc-post',
+    name: 'Port Harcourt Electric Postpaid',
+    shortLabel: 'PHED Post',
+    category: 'electricity',
+    stateLabel: 'Rivers · Bayelsa · Cross River · Akwa Ibom',
+    monnify_biller_code: 'biller-phedc-post',
+    providerCategory: 'electricity',
+  },
+  {
+    id: 'yola-pre',
+    name: 'Yola Electricity Prepaid',
     shortLabel: 'YEDC',
     category: 'electricity',
     stateLabel: 'Adamawa · Taraba · Borno · Yobe',
-    monnify_biller_code: 'YEDC',
+    monnify_biller_code: 'biller-yola-pre',
     providerCategory: 'electricity',
   },
+  {
+    id: 'yola-post',
+    name: 'Yola Electricity Postpaid',
+    shortLabel: 'YEDC Post',
+    category: 'electricity',
+    stateLabel: 'Adamawa · Taraba · Borno · Yobe',
+    monnify_biller_code: 'biller-yola-post',
+    providerCategory: 'electricity',
+  },
+  {
+    id: 'aba-pre',
+    name: 'Aba Electricity Prepaid',
+    shortLabel: 'ABA',
+    category: 'electricity',
+    stateLabel: 'Abia',
+    monnify_biller_code: 'biller-aba-pre',
+    providerCategory: 'electricity',
+  },
+  {
+    id: 'aba-post',
+    name: 'Aba Electricity Postpaid',
+    shortLabel: 'ABA Post',
+    category: 'electricity',
+    stateLabel: 'Abia',
+    monnify_biller_code: 'biller-aba-post',
+    providerCategory: 'electricity',
+  },
+
   // Airtime
   {
     id: 'mtn-air',
@@ -225,7 +286,7 @@ export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
     shortLabel: 'Airtel',
     category: 'airtime',
     stateLabel: 'Nigeria',
-    monnify_biller_code: 'Airtel',
+    monnify_biller_code: 'AIRTEL',
     providerCategory: 'airtime',
   },
   {
@@ -234,7 +295,7 @@ export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
     shortLabel: 'Glo',
     category: 'airtime',
     stateLabel: 'Nigeria',
-    monnify_biller_code: 'Glo',
+    monnify_biller_code: 'GLO',
     providerCategory: 'airtime',
   },
   {
@@ -243,10 +304,11 @@ export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
     shortLabel: '9mobile',
     category: 'airtime',
     stateLabel: 'Nigeria',
-    monnify_biller_code: '9mobile',
+    monnify_biller_code: '9MOBILE',
     providerCategory: 'airtime',
   },
-  // Data
+
+  // Data (same networks — live product rows attach after sync)
   {
     id: 'mtn-data',
     name: 'MTN Data',
@@ -262,7 +324,7 @@ export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
     shortLabel: 'Airtel',
     category: 'data',
     stateLabel: 'Nigeria',
-    monnify_biller_code: 'Airtel',
+    monnify_biller_code: 'AIRTEL',
     providerCategory: 'data',
   },
   {
@@ -271,7 +333,7 @@ export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
     shortLabel: 'Glo',
     category: 'data',
     stateLabel: 'Nigeria',
-    monnify_biller_code: 'Glo',
+    monnify_biller_code: 'GLO',
     providerCategory: 'data',
   },
   {
@@ -280,18 +342,10 @@ export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
     shortLabel: '9mobile',
     category: 'data',
     stateLabel: 'Nigeria',
-    monnify_biller_code: '9mobile',
+    monnify_biller_code: '9MOBILE',
     providerCategory: 'data',
   },
-  {
-    id: 'smile-data',
-    name: 'Smile Data',
-    shortLabel: 'Smile',
-    category: 'data',
-    stateLabel: 'Nigeria',
-    monnify_biller_code: 'Smile',
-    providerCategory: 'data',
-  },
+
   // Cable TV
   {
     id: 'dstv',
@@ -299,7 +353,7 @@ export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
     shortLabel: 'DStv',
     category: 'tv',
     stateLabel: 'Multichoice',
-    monnify_biller_code: 'DSTV',
+    monnify_biller_code: 'biller-dstv',
     providerCategory: 'tv',
   },
   {
@@ -308,16 +362,7 @@ export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
     shortLabel: 'GOtv',
     category: 'tv',
     stateLabel: 'Multichoice',
-    monnify_biller_code: 'GOTV',
-    providerCategory: 'tv',
-  },
-  {
-    id: 'startimes',
-    name: 'Startimes',
-    shortLabel: 'Startimes',
-    category: 'tv',
-    stateLabel: 'Nigeria',
-    monnify_biller_code: 'STARTIMES',
+    monnify_biller_code: 'biller-gotv',
     providerCategory: 'tv',
   },
   {
@@ -326,47 +371,11 @@ export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
     shortLabel: 'Showmax',
     category: 'tv',
     stateLabel: 'Streaming',
-    monnify_biller_code: 'SHOWMAX',
+    monnify_biller_code: 'biller-showmax',
     providerCategory: 'tv',
   },
-  // Education
-  {
-    id: 'waec',
-    name: 'WAEC Result Checker',
-    shortLabel: 'WAEC',
-    category: 'education',
-    stateLabel: 'West Africa',
-    monnify_biller_code: 'WAEC',
-    providerCategory: 'other',
-  },
-  {
-    id: 'neco',
-    name: 'NECO Result Checker',
-    shortLabel: 'NECO',
-    category: 'education',
-    stateLabel: 'Nigeria',
-    monnify_biller_code: 'NECO',
-    providerCategory: 'other',
-  },
-  {
-    id: 'jamb',
-    name: 'JAMB ePIN',
-    shortLabel: 'JAMB',
-    category: 'education',
-    stateLabel: 'Nigeria',
-    monnify_biller_code: 'JAMB',
-    providerCategory: 'other',
-  },
-  {
-    id: 'nabteb',
-    name: 'NABTEB',
-    shortLabel: 'NABTEB',
-    category: 'education',
-    stateLabel: 'Nigeria',
-    monnify_biller_code: 'NABTEB',
-    providerCategory: 'other',
-  },
-  // Betting
+
+  // Betting — live Monnify product billers only
   {
     id: 'bet9ja',
     name: 'Bet9ja',
@@ -382,7 +391,7 @@ export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
     shortLabel: 'SportyBet',
     category: 'betting',
     stateLabel: 'Nigeria',
-    monnify_biller_code: 'SPORTYBET',
+    monnify_biller_code: 'biller-sporty-bet',
     providerCategory: 'other',
   },
   {
@@ -391,7 +400,7 @@ export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
     shortLabel: 'BetKing',
     category: 'betting',
     stateLabel: 'Nigeria',
-    monnify_biller_code: 'BETKING',
+    monnify_biller_code: 'biller-bet-king',
     providerCategory: 'other',
   },
   {
@@ -400,7 +409,7 @@ export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
     shortLabel: '1xBet',
     category: 'betting',
     stateLabel: 'Nigeria',
-    monnify_biller_code: '1XBET',
+    monnify_biller_code: 'biller-1x-bet',
     providerCategory: 'other',
   },
   {
@@ -409,7 +418,7 @@ export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
     shortLabel: 'NairaBet',
     category: 'betting',
     stateLabel: 'Nigeria',
-    monnify_biller_code: 'NAIRABET',
+    monnify_biller_code: 'biller-nairabet',
     providerCategory: 'other',
   },
   {
@@ -418,63 +427,97 @@ export const NIGERIA_BILLER_CATALOG: NigeriaBillerMeta[] = [
     shortLabel: 'MSport',
     category: 'betting',
     stateLabel: 'Nigeria',
-    monnify_biller_code: 'MSPORT',
-    providerCategory: 'other',
-  },
-  // Water
-  {
-    id: 'lagos-water',
-    name: 'Lagos Water Corporation',
-    shortLabel: 'LWC',
-    category: 'water',
-    stateLabel: 'Lagos State',
-    monnify_biller_code: 'LWC',
-    providerCategory: 'water',
-  },
-  {
-    id: 'fct-water',
-    name: 'FCT Water Board',
-    shortLabel: 'FCT',
-    category: 'water',
-    stateLabel: 'Abuja FCT',
-    monnify_biller_code: 'FCTWATER',
-    providerCategory: 'water',
-  },
-  {
-    id: 'rivers-water',
-    name: 'Rivers State Water',
-    shortLabel: 'RSWB',
-    category: 'water',
-    stateLabel: 'Rivers State',
-    monnify_biller_code: 'RSWATER',
-    providerCategory: 'water',
-  },
-  // Waste
-  {
-    id: 'lawma',
-    name: 'LAWMA',
-    shortLabel: 'LAWMA',
-    category: 'waste',
-    stateLabel: 'Lagos State',
-    monnify_biller_code: 'LAWMA',
+    monnify_biller_code: 'biller-m-sport',
     providerCategory: 'other',
   },
   {
-    id: 'revenue-plus',
-    name: 'Revenue Plus (PSP)',
-    shortLabel: 'Rev+',
-    category: 'waste',
-    stateLabel: 'Lagos PSP',
-    monnify_biller_code: 'REVPLUS',
-    providerCategory: 'other',
-  },
-  {
-    id: 'environ-waste',
-    name: 'Environmental Waste Mgmt',
-    shortLabel: 'EWM',
-    category: 'waste',
+    id: 'betway',
+    name: 'BetWay',
+    shortLabel: 'BetWay',
+    category: 'betting',
     stateLabel: 'Nigeria',
-    monnify_biller_code: 'EWM',
+    monnify_biller_code: 'biller-bet-way',
+    providerCategory: 'other',
+  },
+  {
+    id: 'betpawa',
+    name: 'BetPawa',
+    shortLabel: 'BetPawa',
+    category: 'betting',
+    stateLabel: 'Nigeria',
+    monnify_biller_code: 'biller-betpawa',
+    providerCategory: 'other',
+  },
+  {
+    id: 'merrybet',
+    name: 'MerryBet',
+    shortLabel: 'MerryBet',
+    category: 'betting',
+    stateLabel: 'Nigeria',
+    monnify_biller_code: 'biller-merry-bet',
+    providerCategory: 'other',
+  },
+  {
+    id: 'bangbet',
+    name: 'BangBet',
+    shortLabel: 'BangBet',
+    category: 'betting',
+    stateLabel: 'Nigeria',
+    monnify_biller_code: 'biller-bang-bet',
+    providerCategory: 'other',
+  },
+  {
+    id: 'supabet',
+    name: 'SupaBet',
+    shortLabel: 'SupaBet',
+    category: 'betting',
+    stateLabel: 'Nigeria',
+    monnify_biller_code: 'biller-supa-bet',
+    providerCategory: 'other',
+  },
+  {
+    id: 'cloudbet',
+    name: 'CloudBet',
+    shortLabel: 'CloudBet',
+    category: 'betting',
+    stateLabel: 'Nigeria',
+    monnify_biller_code: 'biller-cloud-bet',
+    providerCategory: 'other',
+  },
+  {
+    id: 'betland',
+    name: 'BetLand',
+    shortLabel: 'BetLand',
+    category: 'betting',
+    stateLabel: 'Nigeria',
+    monnify_biller_code: 'biller-bet-land',
+    providerCategory: 'other',
+  },
+  {
+    id: 'livescorebet',
+    name: 'LiveScoreBet',
+    shortLabel: 'LiveScore',
+    category: 'betting',
+    stateLabel: 'Nigeria',
+    monnify_biller_code: 'biller-livescore-bet',
+    providerCategory: 'other',
+  },
+  {
+    id: 'naijabet',
+    name: 'NaijaBet',
+    shortLabel: 'NaijaBet',
+    category: 'betting',
+    stateLabel: 'Nigeria',
+    monnify_biller_code: 'biller-naija-bet',
+    providerCategory: 'other',
+  },
+  {
+    id: 'ilotbet',
+    name: 'IlotBet',
+    shortLabel: 'IlotBet',
+    category: 'betting',
+    stateLabel: 'Nigeria',
+    monnify_biller_code: 'biller-ilotbet',
     providerCategory: 'other',
   },
 ];
@@ -532,29 +575,78 @@ export function resolveCategoryBillers(
   const usedLive = new Set<string>();
   const billers: Array<{ provider: UtilityProvider; meta: NigeriaBillerMeta }> = [];
 
+  /** Data/TV: every live product row is a selectable plan. Other categories: one row per biller. */
+  const expandProducts = slug === 'data' || slug === 'tv';
+
   for (const meta of catalog) {
     const codeKey = normalizeKey(meta.monnify_biller_code);
     const nameKey = normalizeKey(meta.shortLabel);
-    const live = liveProviders.find((p) => {
+    const liveMatches = liveProviders.filter((p) => {
+      if (slug === 'airtime' && p.category !== 'airtime') return false;
+      if (slug === 'data' && p.category !== 'data') return false;
+      if (slug === 'tv' && p.category !== 'tv') return false;
+      if (slug === 'electricity' && p.category !== 'electricity') return false;
       const pCode = normalizeKey(p.monnify_biller_code);
       const pName = normalizeKey(p.name);
-      return pCode.includes(codeKey) || pName.includes(nameKey) || nameKey.includes(pCode);
+      return (
+        pCode === codeKey ||
+        pCode.includes(codeKey) ||
+        codeKey.includes(pCode) ||
+        pName.includes(nameKey)
+      );
     });
+
+    if (expandProducts) {
+      for (const live of liveMatches) {
+        if (usedLive.has(live.id)) continue;
+        usedLive.add(live.id);
+        billers.push({
+          meta: {
+            ...meta,
+            id: `${meta.id}-${live.id}`,
+            name: live.name,
+            shortLabel: meta.shortLabel,
+          },
+          provider: live,
+        });
+      }
+      continue;
+    }
+
+    const live =
+      liveMatches.find((p) => normalizeKey(p.monnify_biller_code) === codeKey) ?? liveMatches[0];
     if (live) {
       usedLive.add(live.id);
       billers.push({ meta, provider: live });
-    } else {
-      billers.push({ meta, provider: metaToStaticProvider(meta) });
     }
   }
 
   // Append any extra live billers for this category not in catalog
   for (const live of liveProviders) {
     if (usedLive.has(live.id)) continue;
+    if (slug === 'airtime' && live.category !== 'airtime') continue;
+    if (slug === 'data' && live.category !== 'data') continue;
+    if (slug === 'tv' && live.category !== 'tv') continue;
+    if (slug === 'electricity' && live.category !== 'electricity') continue;
+    if (slug === 'water' && live.category !== 'water') continue;
+    if (slug === 'betting') {
+      const n = normalizeKey(live.name + live.monnify_biller_code);
+      if (
+        live.category !== 'other' ||
+        !/bet|sporty|naira|1x|msport|ilot|pawa|merry|bang|supa|cloud|livescore|naija/.test(n)
+      ) {
+        continue;
+      }
+    }
+    if (slug === 'education') {
+      const n = normalizeKey(live.name);
+      if (live.category !== 'other' || !/waec|jamb|neco|education/.test(n)) continue;
+    }
+
     const meta: NigeriaBillerMeta = {
       id: live.id,
       name: live.name,
-      shortLabel: live.name.split(' ')[0] ?? live.name,
+      shortLabel: (live.name.split(/[\s—-]+/)[0] ?? live.name).trim(),
       category: slug,
       stateLabel: 'Nigeria',
       monnify_biller_code: live.monnify_biller_code,
@@ -574,13 +666,14 @@ export function slugFromFilterTab(tab: BillFilterTab): UtilityCategorySlug | nul
 export function normalizeUtilityCategorySlug(raw?: string): UtilityCategorySlug | null {
   if (!raw) return null;
   const key = raw.toLowerCase().replace(/\s+/g, '') as UtilityCategorySlug;
-  if (UTILITY_CATEGORY_SLUGS.includes(key)) return key;
+  if (UTILITY_CATEGORY_SLUGS.includes(key) || key === 'education') return key;
   const aliases: Record<string, UtilityCategorySlug> = {
     elec: 'electricity',
     electric: 'electricity',
     cabletv: 'tv',
     tv: 'tv',
     edu: 'education',
+    education: 'education',
     bet: 'betting',
     waterbills: 'water',
     wastebill: 'waste',

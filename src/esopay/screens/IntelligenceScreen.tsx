@@ -12,10 +12,8 @@ import { SpringEntrance } from '@/lib/motion/SpringEntrance';
 import { SPRING_PRIMARY } from '@/lib/motion/springMotion';
 import { PowerShieldDailySpendSetup } from '@/esopay/components/PowerShieldDailySpendSetup';
 import { PowerShieldMeterCard } from '@/esopay/components/PowerShieldMeterCard';
-import { PowerShieldFeatureCards } from '@/esopay/components/power-shield/PowerShieldFeatureCards';
 import { PowerShieldHeader } from '@/esopay/components/power-shield/PowerShieldHeader';
 import { PowerShieldHeroCard } from '@/esopay/components/power-shield/PowerShieldHeroCard';
-import { PowerShieldHowItWorksSection } from '@/esopay/components/power-shield/PowerShieldHowItWorks';
 import { EsoPayInlineError } from '@/esopay/components/EsoPayInlineError';
 import { PS } from '@/esopay/components/power-shield/powerShieldTheme';
 import { usePowerShield, useSyncPowerShield } from '@/esopay/hooks/usePowerShield';
@@ -97,7 +95,7 @@ export function IntelligenceScreen() {
 
         {dashboardQuery.isLoading ? (
           <View style={styles.loading}>
-            <ActivityIndicator color={PS.gold} size="large" />
+            <ActivityIndicator color={PS.textSecondary} size="large" />
           </View>
         ) : dashboardQuery.isError ? (
           <EsoPayInlineError
@@ -119,16 +117,16 @@ export function IntelligenceScreen() {
               onActivate={() => void handleHeroAction()}
               activating={activating || syncMutation.isPending}
             />
-            <PowerShieldFeatureCards />
           </SpringEntrance>
         )}
 
-        {isActivated && primaryMeter?.needs_daily_spend_setup ? (
-          <PowerShieldDailySpendSetup meter={primaryMeter} />
-        ) : null}
-
-        {isActivated && meters.length > 1 ? (
+        {isActivated && primaryMeter ? (
           <View style={styles.metersSection}>
+            {primaryMeter.needs_daily_spend_setup ? (
+              <PowerShieldDailySpendSetup meter={primaryMeter} />
+            ) : (
+              <PowerShieldMeterCard meter={primaryMeter} />
+            )}
             {meters.slice(1).map((meter) => (
               <View key={meter.id} style={styles.meterBlock}>
                 {meter.needs_daily_spend_setup ? (
@@ -139,8 +137,6 @@ export function IntelligenceScreen() {
             ))}
           </View>
         ) : null}
-
-        <PowerShieldHowItWorksSection />
       </ScrollView>
     </View>
   );

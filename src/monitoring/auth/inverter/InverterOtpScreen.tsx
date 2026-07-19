@@ -20,7 +20,7 @@ import { sendEmailOtp, verifyEmailOtp } from '@/lib/authOtp';
 import { paramString } from '@/lib/authRouteParams';
 import { hasOperatorPin } from '@/lib/monitoring/operatorPin';
 import { setLastProduct } from '@/lib/navigation/lastProduct';
-import { signOutEsoPay } from '@/esopay/auth/signOutEsoPay';
+import { establishUnifiedSession } from '@/master/unifiedSession';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { inter } from '@/theme/fonts';
@@ -122,8 +122,8 @@ export default function InverterOtpScreen() {
     try {
       clearMonitoringPinSession();
       await setLastProduct('monitoring');
-      await signOutEsoPay();
       const session = await establishMonitoringSession(result.session);
+      await establishUnifiedSession(session ?? result.session);
 
       if (session) {
         const hasPinMeta = session.user.user_metadata?.hasPin === true;

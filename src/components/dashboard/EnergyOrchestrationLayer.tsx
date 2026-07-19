@@ -60,7 +60,7 @@ export function EnergyOrchestrationLayer({ batterySoc, reducedMotion = false }: 
   }, [glow, shimmer, reducedMotion]);
 
   const centerGlow = useAnimatedStyle(() => ({
-    shadowOpacity: interpolate(glow.value, [0, 1], [0.2, 0.44]),
+    shadowOpacity: interpolate(glow.value, [0, 1], [0.04, 0.1]),
   }));
 
   const shimmerStyle = useAnimatedStyle(() => ({
@@ -77,47 +77,47 @@ export function EnergyOrchestrationLayer({ batterySoc, reducedMotion = false }: 
   }));
 
   return (
-    <LinearGradient colors={['#0F1117', '#0A0D14']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.card}>
+    <LinearGradient colors={['#1C1C1E', '#000000']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.card}>
       <View style={styles.cardTopInset} />
-      <View style={styles.goldBloom} pointerEvents="none" />
+      <View style={styles.softWash} pointerEvents="none" />
       {bootLoading ? (
         <SkeletonLayer />
       ) : (
         <Animated.View style={contentReveal}>
-          <Text style={styles.subtitle}>SOVEREIGN TRANSFER TOPOLOGY</Text>
+          <Text style={styles.subtitle}>Energy path</Text>
 
           <View style={styles.nodesShell}>
-            <LinearGradient pointerEvents="none" colors={['#0A0D14', 'transparent']} style={styles.fadeLeft} />
-            <LinearGradient pointerEvents="none" colors={['transparent', '#0A0D14']} style={styles.fadeRight} />
+            <LinearGradient pointerEvents="none" colors={['#000000', 'transparent']} style={styles.fadeLeft} />
+            <LinearGradient pointerEvents="none" colors={['transparent', '#000000']} style={styles.fadeRight} />
             <ScrollView
               horizontal
               bounces={false}
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.row}
             >
-              <Node icon={<SunMedium size={16} color={colors.gold} strokeWidth={2.1} />} label="Solar Capture Fields" />
+              <Node icon={<SunMedium size={16} color="#FFFFFF" strokeWidth={2.1} />} label="Solar" />
               <FlowWire reducedMotion={reducedMotion} />
               <Node
-                icon={<BrainCircuit size={16} color={colors.gold} strokeWidth={2.1} />}
-                label="ESO Inverter Intelligence"
+                icon={<BrainCircuit size={16} color="#FFFFFF" strokeWidth={2.1} />}
+                label="Inverter"
                 center
                 centerGlowStyle={centerGlow}
               />
               <FlowWire reducedMotion={reducedMotion} />
-              <Node icon={<Building2 size={16} color={colors.gold} strokeWidth={2.1} />} label="Facility Grid Load" />
+              <Node icon={<Building2 size={16} color="#FFFFFF" strokeWidth={2.1} />} label="Load" />
             </ScrollView>
           </View>
 
           <View style={styles.storageRow}>
             <View style={styles.storageIconGlow}>
-              <BatteryCharging size={12} color={colors.solarDot} strokeWidth={2.2} />
+              <BatteryCharging size={12} color="rgba(255,255,255,0.85)" strokeWidth={2.2} />
             </View>
-            <Text style={styles.storageLabel}>Metallic Lithium Reserve</Text>
+            <Text style={styles.storageLabel}>Battery reserve</Text>
             <Text style={styles.storageValue}>{`${Math.round(batterySoc)}% SoC`}</Text>
           </View>
           <View style={styles.storageTrack}>
             <Animated.View style={[styles.storageFill, fillStyle]}>
-              <LinearGradient colors={['#059669', '#10B981', '#34D399']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.storageGradient} />
+              <LinearGradient colors={['#2C2C2E', '#FFFFFF', '#FFFFFF']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.storageGradient} />
             </Animated.View>
             <Animated.View style={[styles.storageShimmer, shimmerStyle]} />
           </View>
@@ -173,8 +173,8 @@ function FlowWire({ reducedMotion = false }: { reducedMotion?: boolean }) {
       <Svg width={36} height={8}>
         <AnimatedPath
           d="M0 4 H36"
-          stroke="rgba(201,155,58,0.25)"
-          strokeWidth={1}
+          stroke="rgba(255,255,255,0.22)"
+          strokeWidth={StyleSheet.hairlineWidth}
           fill="none"
           strokeDasharray="5 4"
           animatedProps={dash}
@@ -243,15 +243,15 @@ const styles = StyleSheet.create({
   card: {
     marginTop: spacing.md,
     marginHorizontal: spacing.xl,
-    borderRadius: 20,
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
+    borderColor: 'rgba(255,255,255,0.085)',
     padding: 24,
     overflow: 'hidden',
     shadowColor: '#000000',
-    shadowOpacity: 0.4,
-    shadowRadius: 48,
-    shadowOffset: { width: 0, height: 24 },
+    shadowOpacity: 0.26,
+    shadowRadius: 26,
+    shadowOffset: { width: 0, height: 14 },
     elevation: 7,
   },
   cardTopInset: {
@@ -262,23 +262,21 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: 'rgba(255,255,255,0.04)',
   },
-  goldBloom: {
+  softWash: {
     position: 'absolute',
     width: 220,
     height: 160,
     top: -50,
     right: -70,
     borderRadius: 120,
-    backgroundColor: 'rgba(201,155,58,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.03)',
   },
   subtitle: {
     marginTop: 2,
-    color: colors.textSecondary,
+    color: 'rgba(255,255,255,0.45)',
     fontFamily: fonts.regular,
-    fontSize: 9,
-    textTransform: 'uppercase',
-    letterSpacing: 1.26,
-    opacity: 0.4,
+    fontSize: 10,
+    letterSpacing: 0.4,
   },
   nodesShell: {
     marginTop: spacing.lg,
@@ -317,25 +315,25 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#111625',
+    backgroundColor: '#2C2C2E',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(255,255,255,0.12)',
     shadowColor: '#000000',
     shadowOpacity: 0.4,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 8 },
   },
   nodeIconGlow: {
-    shadowColor: 'rgba(201,155,58,1)',
-    shadowOpacity: 0.5,
+    shadowColor: '#FFFFFF',
+    shadowOpacity: 0.2,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 0 },
   },
   nodeCenter: {
-    borderColor: 'rgba(201,155,58,0.7)',
-    shadowColor: 'rgba(201,155,58,1)',
-    shadowOpacity: 0.25,
-    shadowRadius: 32,
+    borderColor: 'rgba(255,255,255,0.35)',
+    shadowColor: '#FFFFFF',
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
     elevation: 4,
   },
   nodeLabel: {
@@ -361,10 +359,7 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 999,
-    backgroundColor: colors.gold,
-    shadowColor: colors.gold,
-    shadowOpacity: 0.9,
-    shadowRadius: 4,
+    backgroundColor: '#FFFFFF',
   },
   storageRow: {
     marginTop: spacing.lg,
@@ -380,13 +375,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   storageIconGlow: {
-    shadowColor: 'rgba(0,229,160,1)',
-    shadowOpacity: 0.6,
-    shadowRadius: 6,
+    shadowColor: '#FFFFFF',
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
     shadowOffset: { width: 0, height: 0 },
   },
   storageValue: {
-    color: colors.solarDot,
+    color: '#FFFFFF',
     fontFamily: fonts.bold,
     fontSize: fontSize.badge,
     fontWeight: '700',
@@ -403,10 +398,6 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 999,
     overflow: 'hidden',
-    shadowColor: 'rgba(0,229,160,1)',
-    shadowOpacity: 0.45,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 0 },
   },
   storageGradient: {
     width: '100%',
@@ -420,7 +411,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.15)',
   },
   skeletonBlock: {
-    backgroundColor: '#0F1117',
+    backgroundColor: '#1C1C1E',
     borderRadius: radius.badge,
     overflow: 'hidden',
   },
@@ -429,7 +420,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 120,
-    backgroundColor: '#1A2035',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   skeletonTitle: {
     height: 14,

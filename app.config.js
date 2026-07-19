@@ -66,6 +66,7 @@ module.exports = ({ config }) => {
         env.EXPO_PUBLIC_ESO_PAY_API_URL ??
         (apiBase ? `${apiBase}/functions/v1/eso-pay-api` : ''),
       easProjectId,
+      googleMapsApiKey: (env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? '').trim(),
       eas: {
         projectId: easProjectId,
       },

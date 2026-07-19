@@ -3,9 +3,14 @@
  * Used by Home (Pay a Bill), Bills hub (See all), category grids, and skeletons.
  */
 export const BILL_CATEGORY_CARD_HEIGHT = 140;
-/** Home services grid — ~10% shorter than billing hub cards. */
+/** Home services grid — compact category shortcuts. */
 export const HOME_BILL_CATEGORY_CARD_HEIGHT = 96;
+/** Provider picker (e.g. electricity DISCOs) — room for name + coverage states. */
+export const PROVIDER_BILL_CARD_HEIGHT = 168;
 export const HOME_BILL_GRID_INNER_PADDING = 10;
+/** Home services grid — symmetric column / row rhythm. */
+export const HOME_BILL_GRID_COLUMN_GAP = 16;
+export const HOME_BILL_GRID_ROW_GAP = 18;
 /** Reference width for carousel layouts; grid columns derive width from screen. */
 export const BILL_CATEGORY_CARD_WIDTH = 160;
 export const BILL_CATEGORY_CARD_ASPECT_RATIO =

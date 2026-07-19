@@ -31,11 +31,11 @@ import {
 import { useEsoPayAuthStore } from '@/esopay/auth/store';
 import { ds } from '@/esopay/theme/designSystem';
 import { inter } from '@/theme/fonts';
-const SURFACE = '#0D1018';
-const GOLD = '#C9A84C';
-const TEXT_PRIMARY = '#F5F0E8';
-const TEXT_SECONDARY = '#6B7280';
-const EMAIL_COLOR = '#4A5568';
+const SURFACE = '#1C1C1E';
+const GOLD = '#FFFFFF';
+const TEXT_PRIMARY = '#FFFFFF';
+const TEXT_SECONDARY = 'rgba(255,255,255,0.55)';
+const EMAIL_COLOR = 'rgba(255,255,255,0.34)';
 const ERROR = '#EF4444';
 const SHAKE_MS = 400;
 const AVATAR_SUCCESS_SPRING = { damping: 14, stiffness: 200, mass: 0.9 };
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
     width: 280,
     height: 280,
     borderRadius: 140,
-    backgroundColor: 'rgba(201, 168, 76, 0.03)',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
   },
   content: {
     flex: 1,
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
     marginTop: 64,
     backgroundColor: SURFACE,
     borderWidth: 1.5,
-    borderColor: 'rgba(201, 168, 76, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.22)',
     alignItems: 'center',
     justifyContent: 'center',
     ...Platform.select({

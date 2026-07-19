@@ -22,7 +22,7 @@ export function PayBillsHeader({ onBack }: Props) {
               <ChevronLeft size={20} color={PayBills.textPrimary} strokeWidth={2.2} />
             </Pressable>
           ) : null}
-          <Text style={styles.wordmark}>ESO PAY BILLS</Text>
+          <Text style={styles.wordmark}>ESO PAY</Text>
         </View>
         <View style={styles.trust}>
           <Lock size={10} color={PayBills.gold} strokeWidth={2.2} />

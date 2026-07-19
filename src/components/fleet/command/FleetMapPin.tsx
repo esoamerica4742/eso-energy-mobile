@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { Colors, Shadow } from '@/tokens/design';
+import { Colors } from '@/tokens/design';
 import { FleetStatusPulse } from '@/components/fleet/command/FleetStatusPulse';
 import type { FleetSite } from '@/types/fleet';
 
@@ -9,8 +9,8 @@ type Props = {
 };
 
 const RING = {
-  live: Colors.mintBorderStrong,
-  degraded: Colors.goldBorderStrong,
+  live: 'rgba(255,255,255,0.35)',
+  degraded: 'rgba(255,255,255,0.22)',
   offline: Colors.alertBorder,
 } as const;
 
@@ -27,14 +27,14 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    borderWidth: 2,
+    borderWidth: StyleSheet.hairlineWidth * 2,
     backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
-    ...Shadow.mintGlow,
   },
   selected: {
     transform: [{ scale: 1.12 }],
-    borderWidth: 2.5,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.55)',
   },
 });

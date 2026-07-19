@@ -30,7 +30,7 @@ function Shimmer() {
   return <Animated.View style={[styles.shimmer, shimmerStyle]} />;
 }
 
-/** Gold shimmer skeleton block (spec global loading). */
+/** Neutral shimmer skeleton block. */
 export const Skeleton = memo(function Skeleton({
   width = '100%',
   height = 16,
@@ -62,20 +62,20 @@ export function SkeletonCard({ style }: { style?: ViewStyle }) {
 
 const styles = StyleSheet.create({
   base: {
-    backgroundColor: colors.surface,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 0,
   },
   shimmer: {
     position: 'absolute',
     top: 0,
     bottom: 0,
-    width: 96,
-    backgroundColor: 'rgba(232,160,32,0.1)',
+    width: 88,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
   },
   card: {
     padding: spacing.lg,
-    borderRadius: 16,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 0,
   },
 });

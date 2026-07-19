@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { ESO_PAY_TEXT_PRIMARY } from '@/esopay/theme/brandColors';
+import { ESO_PAY_TEXT_SECONDARY } from '@/esopay/theme/brandColors';
 import { inter } from '@/theme/fonts';
 
 type Props = {
@@ -10,7 +10,12 @@ type Props = {
 export const EsoPayHomeHero = memo(function EsoPayHomeHero({ greeting }: Props) {
   return (
     <View style={styles.root}>
-      <Text style={styles.greeting} accessibilityRole="header">
+      <Text
+        style={styles.greeting}
+        accessibilityRole="header"
+        numberOfLines={1}
+        ellipsizeMode="tail"
+      >
         {greeting}
       </Text>
     </View>
@@ -24,12 +29,13 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   greeting: {
-    fontFamily: inter.bold,
-    fontSize: 22,
-    lineHeight: 26,
-    fontWeight: '700',
-    color: ESO_PAY_TEXT_PRIMARY,
-    letterSpacing: -0.35,
+    fontFamily: inter.medium,
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: '500',
+    color: ESO_PAY_TEXT_SECONDARY,
+    letterSpacing: -0.1,
     textAlign: 'left',
+    flexShrink: 1,
   },
 });

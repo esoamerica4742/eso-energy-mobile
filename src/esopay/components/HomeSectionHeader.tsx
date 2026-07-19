@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { ESO_PAY_GOLD, ESO_PAY_TEXT_PRIMARY } from '@/esopay/theme/brandColors';
+import { ESO_PAY_TEXT_PRIMARY } from '@/esopay/theme/brandColors';
 import { grid } from '@/esopay/theme/homeGrid';
 import { inter } from '@/theme/fonts';
 
@@ -12,7 +12,7 @@ type Props = {
   accessibilityLabel?: string;
 };
 
-/** Home section title (28px) + gold action link. */
+/** Home section title + quiet action link. */
 export const HomeSectionHeader = memo(function HomeSectionHeader({
   title,
   actionLabel,
@@ -61,6 +61,6 @@ const styles = StyleSheet.create({
     fontFamily: inter.semibold,
     fontSize: 16,
     fontWeight: '600',
-    color: ESO_PAY_GOLD,
+    color: 'rgba(255,255,255,0.55)',
   },
 });

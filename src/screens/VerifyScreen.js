@@ -27,16 +27,15 @@ import { AuthTopBar } from '../components/AuthTopBar';
 import { OtpBox } from '../components/OtpBox';
 import { MotionPressable, MotionView } from '@/lib/motion';
 import {
-  establishMonitoringSession,
   isEsoPayProfileComplete,
   isMonitoringProfileComplete,
 } from '../lib/authProfile';
 import { sendEmailOtp, sendEsoPayEmailOtp, verifyEmailOtp, verifyEsoPayEmailOtp } from '../lib/authOtp';
 import {
-  clearEsoPaySession,
   completeEsoPayEmailSignIn,
   establishEsoPaySession,
 } from '@/esopay/auth/syncEsoPaySession';
+import { establishUnifiedSession } from '@/master/unifiedSession';
 import { setLastProduct } from '@/lib/navigation/lastProduct';
 import { ESOPAY_HOME_ROUTE, MONITORING_HOME_ROUTE } from '@/lib/navigation/productRoutes';
 import { EsoPayVerifyEmailChip } from '@/esopay/auth/components/EsoPayVerifyEmailChip';
@@ -182,10 +181,9 @@ export default function VerifyScreen() {
     }
 
     await setLastProduct('monitoring');
-    clearEsoPaySession();
 
     try {
-      await establishMonitoringSession(result.session);
+      await establishUnifiedSession(result.session);
     } catch (syncErr) {
       setErrorMsg(
         syncErr instanceof Error ? syncErr.message : 'Could not start your monitoring session.',

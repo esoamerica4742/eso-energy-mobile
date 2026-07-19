@@ -23,7 +23,7 @@ import { EsoPaySectionLabel } from '@/esopay/components/EsoPaySectionLabel';
 import { ESO_PAY_GOLD, ESO_PAY_GOLD_MUTED } from '@/esopay/theme/brandColors';
 import { fonts } from '@/esopay/theme/typography';
 
-const BRAND = '#00C48C';
+const BRAND = '#FFFFFF';
 const GRID_GAP = 8;
 const ASPECT = 1.15;
 
@@ -207,7 +207,7 @@ export const QuickActionGrid = memo(function QuickActionGrid({ items }: Props) {
 
   return (
     <View style={styles.section}>
-      <EsoPaySectionLabel style={styles.sectionLabelTracking}>Pay a Bill</EsoPaySectionLabel>
+      <EsoPaySectionLabel>Pay a Bill</EsoPaySectionLabel>
       <View style={styles.grid}>
         {items.map((item, index) => (
           <QuickActionCard

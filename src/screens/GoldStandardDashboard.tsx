@@ -22,6 +22,7 @@ import type { DashboardData } from '@/types/dashboard';
 
 type Props = {
   data?: DashboardData;
+  isDemoMode?: boolean;
   showBottomNav?: boolean;
   alertCount?: number;
   onSitePress?: () => void;
@@ -53,6 +54,7 @@ function Block({
 
 export function GoldStandardDashboard({
   data,
+  isDemoMode = false,
   showBottomNav = false,
   alertCount = 0,
   onSitePress,
@@ -61,7 +63,7 @@ export function GoldStandardDashboard({
   embedded = false,
 }: Props) {
   const base = data ?? createDashboardShell();
-  const simulateLive = shouldRunGridIntelligenceSimulation(base, { isDemoMode });
+  const simulateLive = isDemoMode || shouldRunGridIntelligenceSimulation(base);
   const simKw = useGridIntelligenceSimulation(simulateLive);
   const resolved = useMemo(
     () => (simulateLive ? applyGridIntelligenceDemoOverlay(base, simKw) : base),

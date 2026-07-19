@@ -46,15 +46,18 @@ describe('billHubHighlights', () => {
     expect(map.size).toBeLessThanOrEqual(2);
   });
 
-  it('falls back to popular defaults without history', () => {
+  it('returns no badges without payment history', () => {
     const map = buildHubHighlightMap([]);
-    expect(map.get('elec')).toBe('popular');
-    expect(map.get('air')).toBe('popular');
+    expect(map.size).toBe(0);
   });
 
   it('filters hub cards by label and slug', () => {
-    const filtered = filterHubCards(BILL_HUB_CARDS, 'water');
-    expect(filtered.some((c) => c.key === 'water')).toBe(true);
-    expect(filtered.length).toBe(1);
+    const filtered = filterHubCards(BILL_HUB_CARDS, 'electric');
+    expect(filtered.some((c) => c.key === 'elec')).toBe(true);
+    expect(filtered.every((c) => c.key !== 'water' && c.key !== 'waste')).toBe(true);
+  });
+
+  it('excludes water and waste from the live hub catalog', () => {
+    expect(BILL_HUB_CARDS.some((c) => c.key === 'water' || c.key === 'waste')).toBe(false);
   });
 });

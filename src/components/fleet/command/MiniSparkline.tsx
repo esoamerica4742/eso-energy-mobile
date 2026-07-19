@@ -12,7 +12,7 @@ type Props = {
 };
 
 const STROKE = {
-  live: Colors.mint,
+  live: '#FFFFFF',
   degraded: Colors.gold,
   offline: Colors.textMuted,
 } as const;

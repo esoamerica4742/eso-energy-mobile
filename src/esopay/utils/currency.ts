@@ -21,6 +21,18 @@ export function formatCurrency(amountKobo: number, currency = 'NGN'): string {
   return `${symbol}${formatted}`;
 }
 
+/** Compact amounts for premium tiles — ₦1,000 not ₦1,000.00 */
+export function formatCurrencyCompact(amountKobo: number, currency = 'NGN'): string {
+  const symbol = CURRENCY_SYMBOL[currency.toUpperCase()] ?? `${currency} `;
+  const major = amountKobo / 100;
+  const whole = Number.isInteger(major);
+  const formatted = major.toLocaleString('en-NG', {
+    minimumFractionDigits: whole ? 0 : 2,
+    maximumFractionDigits: whole ? 0 : 2,
+  });
+  return `${symbol}${formatted}`;
+}
+
 /** Parse user-entered naira string to integer kobo. */
 export function parseNairaInputToKobo(input: string): number {
   const normalized = input.replace(/[₦,\s]/g, '');
@@ -54,16 +66,4 @@ export function formatCurrencyAmount(
     minimumFractionDigits: alwaysDecimals ? 2 : isWhole ? 0 : 2,
     maximumFractionDigits: alwaysDecimals ? 2 : isWhole ? 0 : 2,
   });
-}
-
-/** Compact hero figures — drops decimals when whole naira. */
-export function formatCurrencyCompact(amountKobo: number, currency = 'NGN'): string {
-  const symbol = CURRENCY_SYMBOL[currency.toUpperCase()] ?? `${currency} `;
-  const major = amountKobo / 100;
-  const isWhole = amountKobo % 100 === 0;
-  const formatted = major.toLocaleString('en-NG', {
-    minimumFractionDigits: isWhole ? 0 : 2,
-    maximumFractionDigits: isWhole ? 0 : 2,
-  });
-  return `${symbol}${formatted}`;
 }

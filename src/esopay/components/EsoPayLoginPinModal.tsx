@@ -81,7 +81,7 @@ export function EsoPayLoginPinModal({ open, onOpenChange, pinConfigured, onSave,
 
   const subtitle =
     mode === 'create'
-      ? 'Adds a device-local PIN gate when opening Eso Pay Bills.'
+      ? 'Your 6-digit PIN unlocks the app and authorizes payments.'
       : 'Enter the same PIN again to confirm.';
 
   return (

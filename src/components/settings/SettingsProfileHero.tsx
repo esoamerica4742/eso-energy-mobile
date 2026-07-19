@@ -18,7 +18,7 @@ export function SettingsProfileHero({ snapshot }: Props) {
         : 'offline';
 
   return (
-    <CardShell glowColor="gold" borderVariant="gold" style={styles.shell}>
+    <CardShell glowColor="none" borderVariant="muted" style={styles.shell}>
       <View style={styles.row}>
         <View style={styles.avatar}>
           <Text style={styles.initials}>{snapshot.initials}</Text>
@@ -118,14 +118,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: Radius.pill,
-    borderWidth: 1,
-    borderColor: Colors.mintBorder,
-    backgroundColor: Colors.mintGlow,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.22)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
   demoText: {
     fontFamily: fonts.bold,
     fontSize: FontSize.label,
-    color: Colors.mint,
+    color: '#FFFFFF',
     letterSpacing: 1,
   },
   statusCol: {

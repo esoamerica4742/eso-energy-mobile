@@ -1,39 +1,53 @@
 /**
  * ESO Energy enterprise design tokens — semantic energy dashboard palette.
- * Metallic gold #C9A84C · Grid #3B82F6 · Battery #10B981 · Fault #EF4444 · Warning #F97316
+ * Monitoring accent · Teal #00C896 · Grid #3B82F6 · Battery #10B981 · Fault #EF4444 · Warning #F97316
  */
 
-import { GOLD, GOLD_RGB } from '@/theme/colors';
+import { GOLD } from '@/theme/colors';
 
-/** Enterprise signature — metallic gold (solar, accents, active chrome). */
+/** Polished monitoring teal — primary accent across inverter monitoring UI. */
+export const MONITORING_TEAL = '#00C896';
+export const MONITORING_TEAL_RGB = '0, 200, 150';
+export const MONITORING_TEAL_SOFT = '#5EEAD4';
+export const MONITORING_TEAL_DIM = '#0F9B7A';
+
+export const monitoringTealAlpha = (alpha: number) => `rgba(${MONITORING_TEAL_RGB},${alpha})`;
+
+/** Landing / legacy gold — not used for monitoring chrome (see Colors.gold → teal). */
 export const METALLIC_GOLD = GOLD;
 
-const SOLAR = METALLIC_GOLD;
+const ACCENT = MONITORING_TEAL;
+const ACCENT_RGB = MONITORING_TEAL_RGB;
 const GRID = '#3B82F6';
 const BATTERY = '#10B981';
 const FAULT = '#EF4444';
 const WARNING = '#F97316';
 
 export const Colors = {
-  // Canvas (85% — deep charcoal + elevated panels)
-  bg: '#020617',
-  surface: '#0f172a',
-  surfaceRaised: '#111827',
-  surfaceNode: '#1e293b',
-  surfaceCell: '#0f172a',
+  // Canvas — quiet black dialect (aligned with auth / Eso Pay)
+  bg: '#000000',
+  surface: '#1C1C1E',
+  surfaceRaised: '#2C2C2E',
+  surfaceNode: '#2C2C2E',
+  surfaceCell: '#1C1C1E',
 
-  // Solar generation (gold/amber) — also legacy `gold` alias
-  solar: SOLAR,
-  gold: SOLAR,
-  metallicGold: METALLIC_GOLD,
-  goldSoft: GOLD,
-  goldMuted: GOLD,
-  goldDim: GOLD,
-  goldWhisper: `rgba(${GOLD_RGB},0.10)`,
-  goldBorderStrong: `rgba(${GOLD_RGB},0.28)`,
-  goldGlow: `rgba(${GOLD_RGB},0.06)`,
-  goldBorder: `rgba(${GOLD_RGB},0.18)`,
-  borderGold: `rgba(${GOLD_RGB},0.18)`,
+  // Chrome accent — white (operational teal kept for telemetry semantics below)
+  solar: '#FFFFFF',
+  gold: '#FFFFFF',
+  teal: ACCENT,
+  metallicGold: '#FFFFFF',
+  goldSoft: 'rgba(255,255,255,0.72)',
+  goldMuted: 'rgba(255,255,255,0.45)',
+  goldDim: 'rgba(255,255,255,0.35)',
+  goldWhisper: 'rgba(255,255,255,0.08)',
+  goldBorderStrong: 'rgba(255,255,255,0.28)',
+  goldGlow: 'rgba(255,255,255,0.04)',
+  goldBorder: 'rgba(255,255,255,0.12)',
+  borderGold: 'rgba(255,255,255,0.12)',
+  tealWhisper: 'rgba(255,255,255,0.06)',
+  tealBorder: 'rgba(255,255,255,0.12)',
+  tealBorderStrong: 'rgba(255,255,255,0.22)',
+  tealGlow: 'rgba(255,255,255,0.04)',
 
   // Grid / home load (electric blue)
   grid: GRID,
@@ -66,18 +80,18 @@ export const Colors = {
   warningWhisper: 'rgba(249,115,22,0.10)',
 
   // Pending / awaiting telemetry placeholders
-  pendingValue: '#8B5E2A',
+  pendingValue: '#3D6B62',
 
   // Typography
   textPrimary: '#FFFFFF',
-  textSecondary: '#94A3B8',
-  textMuted: '#64748B',
+  textSecondary: 'rgba(255, 255, 255, 0.84)',
+  textMuted: 'rgba(255, 255, 255, 0.68)',
   white: '#FFFFFF',
 
   // Structure
-  borderSubtle: 'rgba(255,255,255,0.06)',
-  borderCard: 'rgba(255,255,255,0.05)',
-  cellBorder: 'rgba(255,255,255,0.08)',
+  borderSubtle: 'rgba(255,255,255,0.07)',
+  borderCard: 'rgba(255,255,255,0.075)',
+  cellBorder: 'rgba(255,255,255,0.10)',
 };
 
 export const FontSize = {
@@ -117,40 +131,47 @@ export const MonitoringLayout = {
 
 export const Radius = {
   sm: 8,
-  md: 14,
-  lg: 20,
-  xl: 24,
+  md: 16,
+  lg: 22,
+  xl: 26,
   pill: 100,
 };
 
 export const Shadow = {
   card: {
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
-    elevation: 12,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.34,
+    shadowRadius: 24,
+    elevation: 10,
   },
   cell: {
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.24,
+    shadowRadius: 14,
+    elevation: 6,
   },
   goldGlow: {
-    shadowColor: SOLAR,
+    shadowColor: '#FFFFFF',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.28,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  tealGlow: {
+    shadowColor: '#FFFFFF',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   gridGlow: {
-    shadowColor: GRID,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.22,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.28,
+    shadowRadius: 10,
+    elevation: 4,
   },
   alertGlow: {
     shadowColor: FAULT,
@@ -160,22 +181,22 @@ export const Shadow = {
     elevation: 5,
   },
   mintGlow: {
-    shadowColor: BATTERY,
+    shadowColor: '#FFFFFF',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.22,
-    shadowRadius: 10,
-    elevation: 5,
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 1,
   },
 };
 
 export const ChartColors = {
-  power: SOLAR,
-  solar: SOLAR,
-  load: GRID,
+  power: '#FFFFFF',
+  solar: 'rgba(255,255,255,0.85)',
+  load: 'rgba(255,255,255,0.55)',
   battery: BATTERY,
-  powerFill: `rgba(${GOLD_RGB},0.08)`,
-  solarFill: `rgba(${GOLD_RGB},0.08)`,
-  loadFill: 'rgba(59,130,246,0.08)',
+  powerFill: 'rgba(255,255,255,0.08)',
+  solarFill: 'rgba(255,255,255,0.06)',
+  loadFill: 'rgba(255,255,255,0.04)',
   batteryFill: 'rgba(16,185,129,0.08)',
   chartBg: Colors.surfaceCell,
   gridLine: 'rgba(255,255,255,0.06)',

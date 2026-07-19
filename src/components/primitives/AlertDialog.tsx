@@ -1,9 +1,8 @@
 import { type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import * as AlertDialogPrimitive from '@rn-primitives/alert-dialog';
-import { MotiView } from 'moti';
+import Animated, { FadeIn, ZoomIn } from 'react-native-reanimated';
 import { getPortalHostName } from '@/components/primitives/PortalRoot';
-import { motionSpring } from '@/lib/motion/presets';
 import { colors, fontSize, fonts, radius, spacing } from '@/theme/tokens';
 
 type Props = {
@@ -36,37 +35,35 @@ export function ConfirmDialog({
       ) : null}
       <AlertDialogPrimitive.Portal hostName={getPortalHostName()}>
         <AlertDialogPrimitive.Overlay style={styles.overlay}>
-          <MotiView
-            from={{ opacity: 0, scale: 0.94, translateY: 8 }}
-            animate={{ opacity: 1, scale: 1, translateY: 0 }}
-            transition={motionSpring.luxury}
-          >
-            <AlertDialogPrimitive.Content style={styles.content}>
-              <AlertDialogPrimitive.Title style={styles.title}>{title}</AlertDialogPrimitive.Title>
-              {description ? (
-                <AlertDialogPrimitive.Description style={styles.description}>
-                  {description}
-                </AlertDialogPrimitive.Description>
-              ) : null}
-              <View style={styles.actions}>
-                <AlertDialogPrimitive.Cancel asChild>
-                  <Pressable style={styles.cancelBtn}>
-                    <Text style={styles.cancelText}>{cancelLabel}</Text>
-                  </Pressable>
-                </AlertDialogPrimitive.Cancel>
-                <AlertDialogPrimitive.Action asChild>
-                  <Pressable
-                    style={[styles.actionBtn, destructive && styles.actionDestructive]}
-                    onPress={onAction}
-                  >
-                    <Text style={[styles.actionText, destructive && styles.actionTextDestructive]}>
-                      {actionLabel}
-                    </Text>
-                  </Pressable>
-                </AlertDialogPrimitive.Action>
-              </View>
-            </AlertDialogPrimitive.Content>
-          </MotiView>
+          <Animated.View entering={FadeIn.duration(160)}>
+            <Animated.View entering={ZoomIn.duration(200).springify().damping(18).stiffness(260)}>
+              <AlertDialogPrimitive.Content style={styles.content}>
+                <AlertDialogPrimitive.Title style={styles.title}>{title}</AlertDialogPrimitive.Title>
+                {description ? (
+                  <AlertDialogPrimitive.Description style={styles.description}>
+                    {description}
+                  </AlertDialogPrimitive.Description>
+                ) : null}
+                <View style={styles.actions}>
+                  <AlertDialogPrimitive.Cancel asChild>
+                    <Pressable style={styles.cancelBtn}>
+                      <Text style={styles.cancelText}>{cancelLabel}</Text>
+                    </Pressable>
+                  </AlertDialogPrimitive.Cancel>
+                  <AlertDialogPrimitive.Action asChild>
+                    <Pressable
+                      style={[styles.actionBtn, destructive && styles.actionDestructive]}
+                      onPress={onAction}
+                    >
+                      <Text style={[styles.actionText, destructive && styles.actionTextDestructive]}>
+                        {actionLabel}
+                      </Text>
+                    </Pressable>
+                  </AlertDialogPrimitive.Action>
+                </View>
+              </AlertDialogPrimitive.Content>
+            </Animated.View>
+          </Animated.View>
         </AlertDialogPrimitive.Overlay>
       </AlertDialogPrimitive.Portal>
     </AlertDialogPrimitive.Root>

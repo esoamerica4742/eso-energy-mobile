@@ -9,5 +9,5 @@ export const spacing = {
   xxl: ds.space.section,
   xxxl: 32,
   screen: ds.space.screen,
-  navHeight: 96,
+  navHeight: 100,
 } as const;

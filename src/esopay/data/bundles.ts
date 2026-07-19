@@ -19,8 +19,13 @@ export type UtilityAmountOptions = {
   showPresetAmounts: boolean;
 };
 
+/** Quick chips — up to ₦2,000. Manual entry uses min/max below. */
+export const AIRTIME_QUICK_MAX_KOBO = 2_000_00;
+export const AIRTIME_MANUAL_MIN_KOBO = 50_00;
+export const AIRTIME_MANUAL_MAX_KOBO = 1_000_000_00;
+
 export const AIRTIME_QUICK_AMOUNTS_KOBO = [
-  100_00, 200_00, 500_00, 1_000_00, 2_000_00, 5_000_00, 10_000_00,
+  50_00, 100_00, 200_00, 500_00, 1_000_00, 2_000_00,
 ] as const;
 
 const MTN_DATA: PaymentBundle[] = [
@@ -129,6 +134,11 @@ function airtimeBundles(): PaymentBundle[] {
   }));
 }
 
+/** Static data catalogs for offline / network-first Opay data UI. */
+export function getStaticDataBundles(provider: UtilityProvider): PaymentBundle[] {
+  return bundlesForName(provider.name, 'data') ?? MTN_DATA;
+}
+
 function presetBundles(): PaymentBundle[] {
   return UTILITY_AMOUNT_PRESETS_KOBO.map((amountKobo) => ({
     id: `preset-${amountKobo}`,
@@ -167,6 +177,22 @@ function bundlesForName(name: string, category: UtilityProvider['category']): Pa
 }
 
 export function getPaymentBundles(provider: UtilityProvider): PaymentBundle[] | null {
+  const live = !provider.id.startsWith('static-');
+  if (live && (provider.category === 'data' || provider.category === 'tv')) {
+    const fixed = getFixedPlanAmountKobo(provider);
+    if (fixed != null) {
+      const parts = provider.name.split('—');
+      return [
+        {
+          id: `live-${provider.id}`,
+          label: (parts[parts.length - 1] ?? provider.name).trim(),
+          sublabel: 'Live price',
+          amountKobo: fixed,
+        },
+      ];
+    }
+    return null;
+  }
   return bundlesForName(provider.name, provider.category);
 }
 
@@ -174,11 +200,57 @@ export function isQuickAmountBundles(provider: UtilityProvider): boolean {
   return provider.category === 'airtime';
 }
 
+/** Fixed Monnify plan price when min/max collapse to one amount (data/TV product rows). */
+export function getFixedPlanAmountKobo(provider: UtilityProvider): number | null {
+  const max = provider.maximum_amount_kobo;
+  const min = provider.minimum_amount_kobo;
+  if (max != null && max > 0 && (min == null || min === max)) return max;
+  if (min != null && max != null && min === max && min > 0) return min;
+  return null;
+}
+
+function isLiveProvider(provider: UtilityProvider): boolean {
+  return !provider.id.startsWith('static-');
+}
+
+function livePlanLabel(provider: UtilityProvider): string {
+  const parts = provider.name.split('—');
+  return (parts[parts.length - 1] ?? provider.name).trim();
+}
+
 /** OPay-style amount step options for utility flow screens. */
 export function getUtilityAmountOptions(
   slug: UtilityCategorySlug,
   provider: UtilityProvider,
 ): UtilityAmountOptions {
+  const live = isLiveProvider(provider);
+  const fixed = getFixedPlanAmountKobo(provider);
+
+  // Online data/TV: never show stale static bouquet prices — use Monnify product amount.
+  if (live && (slug === 'data' || slug === 'tv')) {
+    if (fixed != null) {
+      return {
+        mode: 'bundles',
+        sectionTitle: slug === 'tv' ? 'Selected package' : 'Selected plan',
+        bundles: [
+          {
+            id: `live-${provider.id}`,
+            label: livePlanLabel(provider),
+            sublabel: 'Live price',
+            amountKobo: fixed,
+          },
+        ],
+        showPresetAmounts: false,
+      };
+    }
+    return {
+      mode: 'presets',
+      sectionTitle: 'Amount',
+      bundles: presetBundles(),
+      showPresetAmounts: false,
+    };
+  }
+
   const fromProvider = bundlesForName(provider.name, provider.category);
 
   switch (slug) {
@@ -200,7 +272,7 @@ export function getUtilityAmountOptions(
       return {
         mode: 'bundles',
         sectionTitle: 'Top-up amount',
-        bundles: [...airtimeBundles(), ...presetBundles()],
+        bundles: airtimeBundles(),
         showPresetAmounts: false,
       };
     case 'education':
