@@ -1,7 +1,7 @@
 # ESO Energy Mobile
 
 React Native mobile client for the ESO Energy platform. Handles utility token vending, automated meter tracking (Power Shield), and real-time solar inverter telemetry.
-
+📲 **Download & Test the Android App (.APK):** [Click Here to Download](https://drive.google.com/file/d/1sjvFaq4hrjm-fIc2ZfJfn969NZvyFHSG/view?usp=drivesdk)
 ## Tech Stack
 
 - React Native / Expo (TypeScript)
